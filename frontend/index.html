@@ -147,34 +147,35 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 .view-btn.active { background:#1565c0; }
 
 /* ── Snapshot Panel ── */
-.snap-panel { padding:1.5rem; background:#f9fafb; border-top:2px solid #1565c0; }
-.snap-grid { display:grid; grid-template-columns:300px 1fr; gap:1.25rem; margin-bottom:1.25rem; }
-.snap-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.1rem; }
+.snap-panel { padding:1.25rem 1.5rem 1.5rem; background:#f0f4ff; border-top:3px solid #1565c0; }
+.snap-top { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:1rem; }
+.snap-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem; }
 .snap-card-title { font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:0.75rem; }
-.snap-row { display:flex; justify-content:space-between; align-items:flex-start; padding:4px 0; border-bottom:1px solid var(--border); font-size:12.5px; }
+.snap-row { display:flex; justify-content:space-between; align-items:flex-start; padding:4px 0; border-bottom:1px solid var(--border); font-size:12.5px; gap:8px; }
 .snap-row:last-child { border-bottom:none; }
-.snap-key { color:var(--text2); }
-.snap-val { font-weight:500; text-align:right; max-width:160px; word-break:break-all; }
+.snap-key { color:var(--text2); flex-shrink:0; }
+.snap-val { font-weight:500; text-align:right; word-break:break-all; min-width:0; }
 .snap-val a { color:var(--blue); text-decoration:none; font-size:11px; }
 
 /* Revenue Loss Box */
-.loss-box { background:linear-gradient(135deg,#b71c1c,#c62828); color:#fff; border-radius:var(--radius-lg); padding:1rem 1.1rem; margin-bottom:0.75rem; }
+.loss-box { background:linear-gradient(135deg,#b71c1c,#c62828); color:#fff; border-radius:var(--radius-lg); padding:1rem 1.1rem; height:100%; display:flex; flex-direction:column; justify-content:center; }
 .loss-box-label { font-size:11px; font-weight:600; opacity:0.8; text-transform:uppercase; letter-spacing:0.4px; }
-.loss-box-amount { font-size:28px; font-weight:900; letter-spacing:-1px; margin:2px 0 1px; }
+.loss-box-amount { font-size:32px; font-weight:900; letter-spacing:-1px; margin:4px 0 2px; }
 .loss-box-sub { font-size:12px; opacity:0.85; }
 
 /* Contact Time Box */
-.contact-box { background:var(--blue-bg); border:1px solid rgba(21,101,192,0.2); border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:0.75rem; }
+.contact-box { background:var(--blue-bg); border:1px solid rgba(21,101,192,0.2); border-radius:var(--radius-lg); padding:1rem; height:100%; display:flex; flex-direction:column; justify-content:center; }
 .contact-box-label { font-size:11px; font-weight:600; color:var(--blue-text); text-transform:uppercase; letter-spacing:0.4px; }
-.contact-box-time { font-size:15px; font-weight:700; color:var(--blue); margin-top:3px; }
+.contact-box-time { font-size:17px; font-weight:700; color:var(--blue); margin-top:5px; line-height:1.3; }
+.contact-box-days { font-size:12px; color:var(--blue-text); margin-top:3px; opacity:0.8; }
 
 /* Pain Point Prioritizer */
 .pain-list { list-style:none; }
-.pain-item { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); }
+.pain-item { display:flex; align-items:flex-start; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
 .pain-item:last-child { border-bottom:none; }
-.pain-rank { width:18px; height:18px; border-radius:50%; background:#111; color:#fff; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.pain-text { flex:1; font-size:12.5px; }
-.pain-cost { font-size:11px; font-weight:700; color:var(--red-text); white-space:nowrap; }
+.pain-rank { width:20px; height:20px; border-radius:50%; background:#111; color:#fff; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+.pain-text { flex:1 1 0; font-size:12.5px; line-height:1.5; min-width:0; word-wrap:break-word; }
+.pain-cost { font-size:11px; font-weight:700; color:var(--red-text); white-space:nowrap; flex-shrink:0; margin-top:2px; }
 
 /* AI Insight */
 .insight-box { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.1rem; margin-bottom:1.25rem; }
@@ -499,8 +500,14 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
       </div>
       <div class="market-field grow">
         <div class="field-label">City</div>
-        <select class="mf-select" id="sel-city">
+        <select class="mf-select" id="sel-city" onchange="onCityChange()">
           <option value="">— Select State First —</option>
+        </select>
+      </div>
+      <div class="market-field grow">
+        <div class="field-label">Sub-Area <span style="font-size:10px;color:var(--text3);font-weight:400">(hyper-local)</span></div>
+        <select class="mf-select" id="sel-subarea">
+          <option value="">All Areas</option>
         </select>
       </div>
       <div class="market-field">
@@ -606,6 +613,65 @@ const CITIES = {
   'Tennessee':['Memphis','Nashville','Knoxville','Chattanooga','Clarksville','Murfreesboro','Franklin','Jackson','Johnson City','Bartlett']
 };
 
+const SUBAREAS = {
+  // California
+  'Los Angeles':['Hollywood','Beverly Hills','Santa Monica','West Hollywood','Silver Lake','Echo Park','Koreatown','Culver City','Burbank','Glendale','Pasadena','Sherman Oaks','Encino','Woodland Hills','Northridge','Chatsworth','Van Nuys','North Hollywood','Studio City'],
+  'San Diego':['Downtown','La Jolla','Mission Hills','North Park','Pacific Beach','Ocean Beach','Hillcrest','Gaslamp Quarter','Chula Vista','El Cajon','Santee','Escondido','Oceanside','Carlsbad','Encinitas','Del Mar'],
+  'San Jose':['Downtown','Willow Glen','Almaden Valley','Berryessa','East San Jose','Cambrian','Blossom Hill','Santa Clara','Sunnyvale','Milpitas','Campbell','Los Gatos'],
+  'San Francisco':['Financial District','Mission District','Castro','Richmond','Sunset','SoMa','Nob Hill','Marina','Noe Valley','Haight-Ashbury','Chinatown','North Beach','Potrero Hill'],
+  'Sacramento':['Downtown','Midtown','East Sacramento','Land Park','Oak Park','Natomas','Arden-Arcade','Elk Grove','Roseville','Folsom','Rancho Cordova'],
+  'Fresno':['Downtown','Tower District','Clovis','Fig Garden','Sunnyside','Woodward Park','Central Fresno'],
+  'Long Beach':['Downtown','Belmont Shore','Naples','Signal Hill','Lakewood','Bixby Knolls'],
+  'Oakland':['Downtown','Lake Merritt','Temescal','Rockridge','Fruitvale','Piedmont','Alameda'],
+  'Anaheim':['Downtown','Anaheim Hills','Disneyland Resort Area','Garden Grove','Orange','Fullerton'],
+  'Riverside':['Downtown','Canyon Crest','La Sierra','Moreno Valley','Corona','Norco'],
+  // Texas
+  'Houston':['Downtown','Midtown','Montrose','Heights','The Woodlands','Sugar Land','Katy','Pearland','Clear Lake','Galleria','Spring Branch','Memorial','Bellaire','West University'],
+  'Dallas':['Downtown','Uptown','Deep Ellum','Bishop Arts','Addison','Richardson','Garland','Irving','Grand Prairie','Plano','Frisco','McKinney','Allen','Carrollton'],
+  'Austin':['Downtown','South Congress','East Austin','South Lamar','Domain','Cedar Park','Round Rock','Georgetown','Pflugerville','Kyle','Buda','Lakeway','Westlake'],
+  'San Antonio':['Downtown','Alamo Heights','Stone Oak','Helotes','Boerne','New Braunfels','Live Oak','Converse','Leon Valley','Windcrest'],
+  'Fort Worth':['Downtown','Near Southside','Sundance Square','Arlington','Grapevine','Southlake','Keller','Hurst','Euless','Bedford'],
+  'Plano':['Downtown Plano','Legacy','West Plano','East Plano','Allen','McKinney','Frisco'],
+  // Florida
+  'Miami':['Brickell','Wynwood','Coral Gables','Coconut Grove','Little Havana','Doral','Aventura','Bal Harbour','South Beach','Midtown','Design District','Edgewater'],
+  'Tampa':['Downtown','Hyde Park','Ybor City','Channelside','South Tampa','Westshore','Carrollwood','New Tampa','Brandon','Clearwater','St. Pete','Wesley Chapel'],
+  'Orlando':['Downtown','Dr. Phillips','Winter Park','College Park','Kissimmee','Sanford','Lake Nona','Windermere','Ocoee','Apopka','Altamonte Springs'],
+  'Jacksonville':['Downtown','Riverside','Avondale','San Marco','Southside','Mandarin','Beaches','Ponte Vedra','Nocatee','Orange Park'],
+  'Fort Lauderdale':['Downtown','Las Olas','Victoria Park','Wilton Manors','Pompano Beach','Deerfield Beach','Boca Raton','Coral Springs','Plantation','Davie'],
+  // New York
+  'New York City':['Manhattan','Brooklyn','Queens','Bronx','Staten Island','Upper East Side','Upper West Side','Midtown','Lower East Side','Williamsburg','Astoria','Flushing','Long Island City','Harlem','Chelsea','SoHo','Tribeca','Financial District'],
+  'Buffalo':['Downtown','Elmwood Village','Allentown','North Buffalo','South Buffalo','Cheektowaga','Amherst','Williamsville','Tonawanda'],
+  // Illinois
+  'Chicago':['Downtown/Loop','Lincoln Park','Wicker Park','Bucktown','Logan Square','Pilsen','Hyde Park','Lakeview','Andersonville','Rogers Park','River North','Gold Coast','South Loop','Bridgeport','Oak Park','Evanston','Naperville','Schaumburg'],
+  'Naperville':['Downtown Naperville','North Naperville','South Naperville','Lisle','Downers Grove','Bolingbrook','Aurora'],
+  // Georgia
+  'Atlanta':['Buckhead','Midtown','Downtown','Inman Park','Little Five Points','Decatur','Sandy Springs','Alpharetta','Dunwoody','Marietta','Smyrna','Brookhaven','Virginia-Highland','Ponce City Market area'],
+  'Savannah':['Downtown/Historic District','Victorian District','Starland','Ardsley Park','Midtown Savannah','Pooler','Richmond Hill'],
+  // Arizona
+  'Phoenix':['Downtown','Scottsdale','Tempe','Chandler','Gilbert','Glendale','Peoria','Surprise','Ahwatukee','Arcadia','Biltmore','Camelback','Paradise Valley'],
+  'Scottsdale':['Old Town','North Scottsdale','South Scottsdale','McCormick Ranch','Gainey Ranch','DC Ranch','Kierland'],
+  'Tucson':['Downtown','Midtown','Sam Hughes','Armory Park','Catalina Foothills','Marana','Oro Valley','Sahuarita'],
+  // North Carolina
+  'Charlotte':['Uptown','South End','NoDa','Plaza Midwood','Dilworth','Myers Park','Ballantyne','University City','Concord','Kannapolis','Huntersville','Cornelius','Davidson'],
+  'Raleigh':['Downtown','North Hills','Glenwood South','Five Points','Cameron Village','Cary','Apex','Morrisville','Holly Springs','Garner','Wake Forest'],
+  // Washington
+  'Seattle':['Capitol Hill','Ballard','Fremont','Queen Anne','Belltown','South Lake Union','West Seattle','Beacon Hill','Columbia City','Redmond','Kirkland','Bellevue','Bothell','Shoreline'],
+  'Bellevue':['Downtown Bellevue','Crossroads','Factoria','Eastgate','Medina','Mercer Island','Issaquah'],
+  'Spokane':['Downtown','South Hill','North Spokane','Spokane Valley','Liberty Lake','Cheney','Airway Heights'],
+  // Colorado
+  'Denver':['LoDo','Capitol Hill','Cherry Creek','Wash Park','LoHi','RiNo','Stapleton','Highlands','Golden Triangle','Lakewood','Arvada','Westminster','Thornton','Aurora','Englewood','Littleton'],
+  'Colorado Springs':['Downtown','Old Colorado City','Manitou Springs','Broadmoor','Powers','Briargate','Fountain'],
+  'Boulder':['Downtown','Hill','Gunbarrel','Longmont','Louisville','Lafayette','Erie','Superior'],
+  // Nevada
+  'Las Vegas':['The Strip','Downtown','Summerlin','Henderson','North Las Vegas','Spring Valley','Enterprise','Whitney','Paradise','Green Valley','Anthem'],
+  'Henderson':['Green Valley','Anthem','Seven Hills','MacDonald Ranch','Boulder City'],
+  'Reno':['Downtown','Midtown','Sparks','South Reno','Northwest Reno','Sun Valley'],
+  // Tennessee
+  'Nashville':['Downtown','East Nashville','Germantown','The Gulch','12 South','Hillsboro Village','Green Hills','Brentwood','Franklin','Murfreesboro','Hendersonville','Nolensville'],
+  'Memphis':['Downtown','Midtown','Cooper-Young','Overton Square','East Memphis','Germantown','Collierville','Bartlett'],
+  'Knoxville':['Downtown','Old City','Market Square','Bearden','Farragut','West Knoxville','Maryville']
+};
+
 const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:3000'
   : '';
@@ -683,14 +749,22 @@ function getKeys() {
   };
 }
 
-// ── City Dropdowns ─────────────────────────────────────────────────────────
+// ── City / Sub-Area Dropdowns ──────────────────────────────────────────────
 function onStateChange() {
   const state = document.getElementById('sel-state').value;
   const cityEl = document.getElementById('sel-city');
   const cities = CITIES[state] || [];
   cityEl.innerHTML = cities.length
-    ? cities.map(c => `<option value="${c}">${c}</option>`).join('')
+    ? '<option value="">— Select City —</option>' + cities.map(c => `<option value="${c}">${c}</option>`).join('')
     : '<option value="">— Select State First —</option>';
+  document.getElementById('sel-subarea').innerHTML = '<option value="">All Areas</option>';
+}
+function onCityChange() {
+  const city = document.getElementById('sel-city').value;
+  const subEl = document.getElementById('sel-subarea');
+  const areas = SUBAREAS[city] || [];
+  subEl.innerHTML = '<option value="">All Areas (city-wide)</option>' +
+    areas.map(a => `<option value="${a}">${a}</option>`).join('');
 }
 function onNicheChange() {
   currentNiche = document.getElementById('sel-niche').value;
@@ -733,6 +807,7 @@ function oppScore(loss, niche) {
 async function findProspects() {
   const niche = document.getElementById('sel-niche').value;
   const city = document.getElementById('sel-city').value;
+  const subarea = document.getElementById('sel-subarea').value;
   const limit = document.getElementById('sel-limit').value;
   if (!niche || !city) { alert('Please select a niche and city.'); return; }
 
@@ -742,7 +817,8 @@ async function findProspects() {
   }
 
   currentNiche = niche;
-  currentCity = city;
+  currentCity = subarea || city;
+  const searchLocation = subarea ? `${subarea}, ${city}` : city;
   reportCache = {}; pitchCache = {}; videoPitchCache = {};
 
   const btn = document.getElementById('find-btn');
@@ -757,7 +833,7 @@ async function findProspects() {
         'x-hunter-key': keys.hunter,
         'x-anthropic-key': keys.anthropic
       },
-      body: JSON.stringify({ niche, city, limit: parseInt(limit) })
+      body: JSON.stringify({ niche, city: searchLocation, limit: parseInt(limit) })
     });
     const data = await resp.json();
     if (!resp.ok) { alert(data.error || 'Search failed.'); return; }
@@ -906,72 +982,116 @@ function buildSnapPanel(idx, lead) {
   if (!el) return;
   const ct = CONTACT_TIMES[currentNiche] || {};
   const status = getStatus(lead.name);
+  const rating = parseFloat(lead.rating) || 0;
+  const reviews = parseInt(lead.reviews) || 0;
 
-  // Pain points from lead.pain (simple version, will be enhanced by reports)
   const painPoints = [
-    { rank:1, problem: lead.pain || 'Weak online presence', costMin: Math.round(lead.revenueLoss * 0.4), costMax: Math.round(lead.revenueLoss * 0.5) },
-    { rank:2, problem: !lead.website ? 'No website — losing every web-based lead' : 'Low review count hurting credibility', costMin: Math.round(lead.revenueLoss * 0.25), costMax: Math.round(lead.revenueLoss * 0.35) },
-    { rank:3, problem: (parseFloat(lead.rating)||0) < 4.0 ? 'Below-average ratings vs. competitors' : 'No paid ads — missing buyer-intent traffic', costMin: Math.round(lead.revenueLoss * 0.1), costMax: Math.round(lead.revenueLoss * 0.2) }
+    {
+      rank:1,
+      problem: !lead.website
+        ? 'No website — invisible to every online search'
+        : rating < 3.5
+          ? 'Low star rating driving prospects to competitors'
+          : lead.pain || 'Weak local search visibility losing leads daily',
+      costMin: Math.round(lead.revenueLoss * 0.40 / 100) * 100,
+      costMax: Math.round(lead.revenueLoss * 0.55 / 100) * 100
+    },
+    {
+      rank:2,
+      problem: reviews < 30
+        ? 'Too few reviews — buyers won\'t trust a business with under 30 reviews'
+        : !lead.email
+          ? 'No lead capture system — no way to follow up with interested visitors'
+          : 'No paid ads presence — competitors are capturing all buyer-intent traffic',
+      costMin: Math.round(lead.revenueLoss * 0.25 / 100) * 100,
+      costMax: Math.round(lead.revenueLoss * 0.35 / 100) * 100
+    },
+    {
+      rank:3,
+      problem: rating < 4.0
+        ? 'Below 4-star average — losing the trust comparison to top-rated competitors'
+        : 'Inconsistent social media presence reducing brand recall and referrals',
+      costMin: Math.round(lead.revenueLoss * 0.10 / 100) * 100,
+      costMax: Math.round(lead.revenueLoss * 0.20 / 100) * 100
+    }
   ];
 
-  const aiInsight = `${lead.name} is currently losing an estimated $${lead.revenueLoss.toLocaleString()}/month in digital revenue. ` +
-    `With ${lead.reviews || 0} reviews and a ${lead.rating || 'unknown'} rating, they rank poorly against local competitors who dominate search results. ` +
-    `The best entry point is ${currentNiche === 'Law Firm' ? 'local SEO to capture high-intent search traffic' : 'GMB optimization and review generation'} — the fastest path to visible results.`;
+  const entryPoint = {
+    'Law Firm': 'local SEO to capture high-intent search traffic',
+    'Dental Clinic': 'Google My Business optimization and review generation',
+    'Med Spa': 'Instagram/Meta ads targeting local demographics',
+    'Restaurant': 'Google Maps ranking and review velocity campaigns',
+    'Gym': 'Facebook lead ads with a free-trial offer',
+    'Real Estate Agency': 'Google Ads targeting buyer/seller intent keywords',
+    'Roofing Company': 'Google Local Services Ads for storm/repair intent',
+    'Plumbing Company': 'Google Ads targeting emergency-intent keywords',
+    'Hair Salon': 'Instagram content + Google review generation',
+    'Chiropractor': 'GMB optimization and local SEO for pain-related keywords'
+  }[currentNiche] || 'GMB optimization and review generation';
+
+  const safeName = esc(lead.name).replace(/'/g, "\\'");
 
   el.innerHTML = `
 <div class="snap-panel">
-  <div class="snap-grid">
-    <div>
-      <!-- Revenue Loss Box -->
-      <div class="loss-box">
-        <div class="loss-box-label">Estimated Monthly Revenue Loss</div>
-        <div class="loss-box-amount">$${lead.revenueLoss.toLocaleString()}</div>
-        <div class="loss-box-sub">Based on rating, reviews & digital presence</div>
-      </div>
 
-      <!-- Contact Time -->
-      <div class="contact-box">
-        <div class="contact-box-label">🕐 Best Time to Contact</div>
-        <div class="contact-box-time">${ct.days || 'Weekdays'} · ${ct.time || '9:00 AM–5:00 PM'}</div>
-      </div>
+  <!-- Top 3-column grid -->
+  <div class="snap-top">
 
-      <!-- Prospect Details -->
-      <div class="snap-card">
-        <div class="snap-card-title">Prospect Details</div>
-        <div class="snap-row"><span class="snap-key">Business</span><span class="snap-val font-bold">${esc(lead.name)}</span></div>
-        <div class="snap-row"><span class="snap-key">Rating</span><span class="snap-val">★ ${lead.rating || '—'} (${lead.reviews || 0} reviews)</span></div>
-        <div class="snap-row"><span class="snap-key">Phone</span><span class="snap-val">${esc(lead.phone || '—')}</span></div>
-        <div class="snap-row"><span class="snap-key">Email</span><span class="snap-val">${esc(lead.email || '—')}</span></div>
-        <div class="snap-row"><span class="snap-key">Website</span><span class="snap-val">${lead.website ? `<a href="${esc(lead.website)}" target="_blank" rel="noreferrer">${shortUrl(lead.website)}</a>` : '<span class="no-web">None</span>'}</span></div>
-        <div class="snap-row"><span class="snap-key">Address</span><span class="snap-val" style="font-size:11px">${esc(lead.address || '—')}</span></div>
-        <div class="snap-row"><span class="snap-key">Status</span><span class="snap-val"><span class="status-pill ${getStatusClass(status)}">${status}</span></span></div>
-      </div>
+    <!-- Revenue Loss -->
+    <div class="loss-box">
+      <div class="loss-box-label">📉 Est. Monthly Revenue Loss</div>
+      <div class="loss-box-amount">$${lead.revenueLoss.toLocaleString()}</div>
+      <div class="loss-box-sub">Based on rating, reviews & digital gaps</div>
     </div>
 
-    <div>
-      <!-- Pain Point Prioritizer -->
-      <div class="snap-card mb-1" style="margin-bottom:0.75rem">
-        <div class="snap-card-title">Pain Point Prioritizer</div>
-        <ul class="pain-list">
-          ${painPoints.map(p => `
-          <li class="pain-item">
-            <div class="pain-rank">${p.rank}</div>
-            <div class="pain-text">${esc(p.problem)}</div>
-            <div class="pain-cost">$${p.costMin.toLocaleString()}–$${p.costMax.toLocaleString()}/mo</div>
-          </li>`).join('')}
-        </ul>
-      </div>
+    <!-- Best Time -->
+    <div class="contact-box">
+      <div class="contact-box-label">🕐 Best Time to Contact</div>
+      <div class="contact-box-time">${ct.time || '9:00 AM–5:00 PM'}</div>
+      <div class="contact-box-days">${ct.days || 'Weekdays'}</div>
+    </div>
 
-      <!-- AI Insight -->
-      <div class="insight-box">
-        <div class="insight-label">🤖 AI Sales Insight</div>
-        <div class="insight-text">${esc(aiInsight)}</div>
-      </div>
+    <!-- Prospect Details -->
+    <div class="snap-card">
+      <div class="snap-card-title">Prospect Details</div>
+      <div class="snap-row"><span class="snap-key">Rating</span><span class="snap-val">★ ${lead.rating || '—'} · ${lead.reviews || 0} reviews</span></div>
+      <div class="snap-row"><span class="snap-key">Phone</span><span class="snap-val">${esc(lead.phone || '—')}</span></div>
+      <div class="snap-row"><span class="snap-key">Email</span><span class="snap-val" style="font-size:11px">${esc(lead.email || '—')}</span></div>
+      <div class="snap-row"><span class="snap-key">Website</span><span class="snap-val">${lead.website ? `<a href="${esc(lead.website)}" target="_blank" rel="noreferrer">${shortUrl(lead.website)}</a>` : '<span class="no-web">None</span>'}</span></div>
+      <div class="snap-row"><span class="snap-key">Status</span><span class="snap-val"><span class="status-pill ${getStatusClass(status)}">${status}</span></span></div>
+    </div>
+  </div>
+
+  <!-- Pain Points (full width) -->
+  <div class="snap-card" style="margin-bottom:1rem">
+    <div class="snap-card-title">Pain Point Prioritizer — Revenue Impact</div>
+    <ul class="pain-list">
+      ${painPoints.map(p => `
+      <li class="pain-item">
+        <div class="pain-rank">${p.rank}</div>
+        <div class="pain-text">${esc(p.problem)}</div>
+        <div class="pain-cost">$${p.costMin.toLocaleString()}–$${p.costMax.toLocaleString()}/mo</div>
+      </li>`).join('')}
+    </ul>
+  </div>
+
+  <!-- AI Insight (full width) -->
+  <div class="insight-box" style="margin-bottom:1.25rem">
+    <div class="insight-label">🤖 AI Sales Insight</div>
+    <div class="insight-text">
+      <strong>${esc(lead.name)}</strong> is estimated to be losing
+      <strong style="color:var(--red-text)">$${lead.revenueLoss.toLocaleString()}/month</strong>
+      in digital revenue.
+      ${!lead.website ? 'They have <strong>no website</strong> — every Google search for their niche sends potential customers directly to competitors.' :
+        rating < 4.0 ? `Their <strong>${lead.rating}-star rating</strong> puts them below the trust threshold most buyers require before making contact.` :
+        reviews < 50 ? `With only <strong>${reviews} reviews</strong>, they lack the social proof to compete with top-ranked local alternatives.` :
+        'They have a decent presence but significant gaps in paid ads and conversion optimization.'}
+      Best entry point: <strong>${entryPoint}</strong>.
     </div>
   </div>
 
   <!-- Report Buttons -->
-  <div class="section-title">Analysis Reports</div>
+  <div class="section-title">Run Analysis Reports</div>
   <div class="report-btn-grid">
     <button class="rpt-btn rpt-localseo" onclick="runReport(${idx},'local-seo',this)">📍 Local SEO / GMB</button>
     <button class="rpt-btn rpt-seo" onclick="runReport(${idx},'seo',this)">🔍 SEO Analysis</button>
@@ -979,7 +1099,7 @@ function buildSnapPanel(idx, lead) {
     <button class="rpt-btn rpt-website" onclick="runReport(${idx},'website',this)">🌐 Website Audit</button>
     <button class="rpt-btn rpt-ads" onclick="runReport(${idx},'ads',this)">📣 Ads Opportunity</button>
     <button class="rpt-btn rpt-360" onclick="runReport(${idx},'360',this)">🎯 360 Degree</button>
-    <button class="rpt-btn rpt-competitors" onclick="runReport(${idx},'competitors',this)">⚔️ Competitor Analysis</button>
+    <button class="rpt-btn rpt-competitors" onclick="runReport(${idx},'competitors',this)">⚔️ Competitors</button>
   </div>
 
   <!-- Report Output -->
@@ -991,10 +1111,10 @@ function buildSnapPanel(idx, lead) {
   <!-- Outreach Bar -->
   <div class="outreach-bar">
     ${lead.email ? `<a class="out-btn primary" href="mailto:${esc(lead.email)}?subject=Quick question about ${esc(lead.name)}&body=Hi,%0D%0A%0D%0AI wanted to reach out about your online presence..." target="_blank">✉ Email</a>` : ''}
-    ${lead.phone ? `<a class="out-btn green" href="https://wa.me/${lead.phone.replace(/\D/g,'')}" target="_blank" rel="noreferrer">💬 WhatsApp</a>` : ''}
-    <button class="out-btn" onclick="markContacted('${esc(lead.name)}', ${idx})">✓ Mark Contacted</button>
-    <button class="out-btn" onclick="toggleNote(${idx})">📝 Add Note</button>
-    <select class="status-select" id="status-sel-${idx}" onchange="setStatus('${esc(lead.name)}',this.value,${idx})">
+    ${lead.phone ? `<a class="out-btn green" href="https://wa.me/${(lead.phone||'').replace(/\D/g,'')}" target="_blank" rel="noreferrer">💬 WhatsApp</a>` : ''}
+    <button class="out-btn" onclick="markContacted('${safeName}', ${idx})">✓ Mark Contacted</button>
+    <button class="out-btn" onclick="toggleNote(${idx})">📝 Note</button>
+    <select class="status-select" id="status-sel-${idx}" onchange="setStatus('${safeName}',this.value,${idx})">
       <option value="Not Contacted" ${status==='Not Contacted'?'selected':''}>Not Contacted</option>
       <option value="Contacted" ${status==='Contacted'?'selected':''}>Contacted</option>
       <option value="Proposal Sent" ${status==='Proposal Sent'?'selected':''}>Proposal Sent</option>
@@ -1003,7 +1123,7 @@ function buildSnapPanel(idx, lead) {
       <option value="Closed Won" ${status==='Closed Won'?'selected':''}>Closed Won</option>
       <option value="Closed Lost" ${status==='Closed Lost'?'selected':''}>Closed Lost</option>
     </select>
-    <textarea class="note-area" id="note-${idx}" placeholder="Add follow-up note..." onblur="saveNote('${esc(lead.name)}',${idx})">${getNote(lead.name)}</textarea>
+    <textarea class="note-area" id="note-${idx}" placeholder="Add follow-up note..." onblur="saveNote('${safeName}',${idx})">${getNote(lead.name)}</textarea>
   </div>
 </div>`;
 }
