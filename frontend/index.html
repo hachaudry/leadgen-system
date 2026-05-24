@@ -3,1254 +3,1614 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LeadGen AI — Business Prospecting</title>
+<title>LeadGen AI — AI Prospecting Workspace</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg:#ffffff; --bg2:#f8f8f6; --bg3:#f0efea;
-    --text:#111111; --text2:#6b6b6b; --text3:#aaaaaa;
-    --border:rgba(0,0,0,0.09); --border2:rgba(0,0,0,0.16);
-    --radius:10px; --radius-lg:14px;
-    --green-bg:#eaf3de; --green-text:#27500a;
-    --amber-bg:#faeeda; --amber-text:#633806;
-    --red-bg:#fcebeb;   --red-text:#791f1f;
-    --blue-bg:#e6f1fb;  --blue-text:#0c447c;
-    --accent:#111111;
-    --c-green:#4a9b2a; --c-amber:#d98c3a; --c-red:#e05555;
-  }
-  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg2); color:var(--text); min-height:100vh; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#ffffff; --bg2:#f4f4f2; --bg3:#ebebeb;
+  --text:#111111; --text2:#555555; --text3:#999999;
+  --border:rgba(0,0,0,0.09); --border2:rgba(0,0,0,0.15);
+  --radius:8px; --radius-lg:12px;
+  --green:#2e7d32; --green-bg:#e8f5e9; --green-text:#1b5e20;
+  --amber:#b45309; --amber-bg:#fef3c7; --amber-text:#78350f;
+  --red:#c62828; --red-bg:#ffebee; --red-text:#b71c1c;
+  --blue:#1565c0; --blue-bg:#e3f2fd; --blue-text:#0d47a1;
+  --purple:#6a1b9a; --purple-bg:#f3e5f5; --purple-text:#4a148c;
+  --indigo:#283593; --indigo-bg:#e8eaf6; --indigo-text:#1a237e;
+  --orange:#e65100; --orange-bg:#fff3e0; --orange-text:#bf360c;
+  --teal:#00695c; --teal-bg:#e0f2f1; --teal-text:#004d40;
+  --dark:#1a1a1a;
+  --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.05);
+  --shadow-lg:0 4px 16px rgba(0,0,0,0.10);
+}
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; background:var(--bg2); color:var(--text); min-height:100vh; font-size:14px; }
 
-  /* ── Header ── */
-  header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 2rem; height:56px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
-  .logo { font-size:15px; font-weight:700; letter-spacing:-0.4px; }
-  .logo span { font-weight:400; color:var(--text2); margin-left:4px; }
-  .header-right { display:flex; align-items:center; gap:10px; }
-  .badge { font-size:11px; font-weight:500; padding:3px 10px; border-radius:20px; background:var(--red-bg); color:var(--red-text); white-space:nowrap; }
-  .badge.ready { background:var(--green-bg); color:var(--green-text); }
+/* ── Dashboard Bar ── */
+#dash-bar { background:#0f1117; color:#e2e8f0; padding:0 1.5rem; height:40px; display:flex; align-items:center; gap:1.5rem; position:sticky; top:0; z-index:200; border-bottom:1px solid rgba(255,255,255,0.06); }
+.dash-stat { display:flex; align-items:center; gap:6px; font-size:12px; }
+.dash-label { color:#64748b; }
+.dash-val { font-weight:700; font-size:13px; color:#f1f5f9; }
+.dash-val.green { color:#4ade80; }
+.dash-val.blue { color:#60a5fa; }
+.dash-val.purple { color:#c084fc; }
+.dash-val.gold { color:#fbbf24; }
+.dash-sep { width:1px; height:20px; background:rgba(255,255,255,0.1); }
+.dash-meet-btn { background:none; border:1px solid rgba(255,255,255,0.15); border-radius:4px; color:#94a3b8; cursor:pointer; font-size:11px; padding:2px 6px; margin-left:-4px; }
+.dash-meet-btn:hover { background:rgba(255,255,255,0.08); color:#e2e8f0; }
+.dash-reset { margin-left:auto; background:none; border:none; color:#475569; cursor:pointer; font-size:11px; }
+.dash-reset:hover { color:#94a3b8; }
 
-  /* ── Tab nav ── */
-  .tab-nav { background:var(--bg); border-bottom:1px solid var(--border); padding:0 2rem; display:flex; position:sticky; top:56px; z-index:99; overflow-x:auto; }
-  .tab-btn { padding:0 1.1rem; height:44px; font-size:13px; font-family:inherit; font-weight:500; border:none; border-bottom:2px solid transparent; background:none; color:var(--text2); cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:color .15s,border-color .15s; white-space:nowrap; flex-shrink:0; }
-  .tab-btn:hover { color:var(--text); }
-  .tab-btn.active { color:var(--text); border-bottom-color:var(--accent); }
+/* ── Header ── */
+header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 1.5rem; height:54px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:40px; z-index:100; }
+.logo-block { display:flex; align-items:baseline; gap:8px; }
+.logo { font-size:16px; font-weight:800; letter-spacing:-0.5px; color:var(--text); }
+.logo-sub { font-size:11px; font-weight:500; color:var(--text3); letter-spacing:0.3px; text-transform:uppercase; }
+.header-right { display:flex; align-items:center; gap:8px; }
+#api-badge { font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; background:var(--red-bg); color:var(--red-text); }
+#api-badge.ready { background:var(--green-bg); color:var(--green-text); }
+.icon-btn { background:none; border:1px solid var(--border2); border-radius:var(--radius); padding:6px 10px; cursor:pointer; font-size:13px; color:var(--text2); display:flex; align-items:center; gap:5px; }
+.icon-btn:hover { background:var(--bg3); }
 
-  /* ── Panels ── */
-  .tab-panel { display:none; }
-  .tab-panel.active { display:block; }
-  .main { max-width:960px; margin:0 auto; padding:2rem 1.5rem 4rem; }
+/* ── Config Panel ── */
+#config-panel { background:var(--bg); border-bottom:1px solid var(--border); padding:1.25rem 1.5rem; display:none; }
+.config-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; max-width:800px; }
+.field-label { font-size:11px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:5px; }
+.field-input { width:100%; border:1px solid var(--border2); border-radius:var(--radius); padding:7px 10px; font-size:13px; font-family:inherit; background:var(--bg); color:var(--text); }
+.field-input:focus { outline:none; border-color:#1565c0; box-shadow:0 0 0 3px rgba(21,101,192,0.12); }
+.save-btn { margin-top:0.75rem; background:#111; color:#fff; border:none; border-radius:var(--radius); padding:8px 20px; font-size:13px; font-weight:600; cursor:pointer; }
+.save-btn:hover { background:#333; }
 
-  /* ── Cards ── */
-  .card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; margin-bottom:1rem; }
+/* ── Main Layout ── */
+.main { max-width:1200px; margin:0 auto; padding:1.5rem 1.5rem 4rem; }
 
-  /* ── Banners ── */
-  .setup-banner { background:var(--blue-bg); border:1px solid rgba(24,95,165,0.18); border-radius:var(--radius-lg); padding:1rem 1.25rem; margin-bottom:1rem; font-size:13px; color:var(--blue-text); line-height:1.6; }
-  .setup-banner strong { font-weight:600; }
+/* ── Section Titles ── */
+.section-title { font-size:13px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.75rem; }
 
-  /* ── Config ── */
-  .config-panel { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; margin-bottom:1rem; display:none; }
-  .config-panel.open { display:block; }
-  .config-header { display:flex; align-items:center; gap:10px; margin-bottom:1.25rem; }
-  .config-icon { width:28px; height:28px; border-radius:8px; background:var(--bg3); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
-  .config-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+/* ── Market Section ── */
+.market-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem; margin-bottom:1.25rem; box-shadow:var(--shadow); }
+.market-row { display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; }
+.market-field { display:flex; flex-direction:column; }
+.market-field.grow { flex:1; min-width:140px; }
+.mf-select { border:1px solid var(--border2); border-radius:var(--radius); padding:8px 10px; font-size:13px; font-family:inherit; background:var(--bg); color:var(--text); cursor:pointer; }
+.mf-select:focus { outline:none; border-color:#1565c0; }
+.source-toggle { display:flex; align-items:center; gap:6px; border:1px solid var(--border2); border-radius:var(--radius); padding:7px 12px; font-size:13px; background:var(--bg); }
+.source-dot { width:8px; height:8px; border-radius:50%; background:#4ade80; }
+.find-btn { background:#111; color:#fff; border:none; border-radius:var(--radius); padding:8px 22px; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; height:37px; }
+.find-btn:hover { background:#333; }
+.find-btn:disabled { background:#999; cursor:not-allowed; }
 
-  /* ── Fields ── */
-  .field { display:flex; flex-direction:column; gap:5px; }
-  .field label { font-size:11px; color:var(--text2); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
-  .field-note { font-size:11px; color:var(--text3); margin-top:3px; }
-  input, select { font-size:14px; font-family:inherit; padding:9px 12px; border:1px solid var(--border2); border-radius:var(--radius); background:var(--bg); color:var(--text); width:100%; outline:none; transition:border-color .15s,box-shadow .15s; }
-  input:focus, select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,0,0,0.07); }
-  input[type="password"] { letter-spacing:0.1em; }
-  select:disabled { opacity:0.45; cursor:not-allowed; }
+/* ── Summary Bar ── */
+#summary-bar { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:8px 14px; margin-bottom:10px; display:none; align-items:center; gap:14px; font-size:12px; flex-wrap:wrap; }
+.sum-item { display:flex; align-items:center; gap:5px; }
+.sum-dot { width:7px; height:7px; border-radius:50%; }
 
-  /* ── Buttons ── */
-  .btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; padding:9px 18px; font-size:13px; font-family:inherit; font-weight:500; border:1px solid var(--border2); border-radius:var(--radius); background:var(--bg); color:var(--text); cursor:pointer; white-space:nowrap; transition:background .15s,border-color .15s; text-decoration:none; }
-  .btn:hover { background:var(--bg3); }
-  .btn:active { transform:scale(0.98); }
-  .btn-primary { background:var(--accent); color:#fff; border-color:var(--accent); }
-  .btn-primary:hover { background:#333; border-color:#333; }
-  .btn-primary:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
-  .btn-sm { padding:6px 14px; font-size:12px; }
-  .btn-ghost { border-color:transparent; color:var(--text2); }
-  .btn-ghost:hover { background:var(--bg3); border-color:var(--border); color:var(--text); }
+/* ── Filter Chips ── */
+#filter-bar { display:none; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+.chip { border:1px solid var(--border2); border-radius:20px; padding:4px 12px; font-size:12px; font-weight:500; cursor:pointer; background:var(--bg); color:var(--text2); transition:all .15s; }
+.chip:hover { background:var(--bg3); }
+.chip.active { background:#111; color:#fff; border-color:#111; }
+.sort-select { border:1px solid var(--border2); border-radius:20px; padding:4px 10px; font-size:12px; font-family:inherit; background:var(--bg); cursor:pointer; margin-left:auto; }
 
-  /* ── Section headers ── */
-  .section-header { display:flex; align-items:flex-start; gap:12px; margin-bottom:1.25rem; }
-  .step-num { width:26px; height:26px; border-radius:50%; background:var(--accent); color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
-  .section-title { font-size:15px; font-weight:600; }
-  .section-sub { font-size:12px; color:var(--text2); margin-top:2px; }
+/* ── Prospects Table ── */
+#prospects-section { display:none; }
+.table-wrap { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow); }
+.prospects-table { width:100%; border-collapse:collapse; font-size:12.5px; }
+.prospects-table th { background:#f8f8f6; border-bottom:1px solid var(--border); padding:9px 10px; text-align:left; font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; white-space:nowrap; }
+.prospects-table td { padding:9px 10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.prospects-table tr:last-child td { border-bottom:none; }
+.prospects-table tr.expanded > td { background:#f0f4ff; }
+.prospects-table tr:hover td { background:var(--bg2); cursor:pointer; }
+.prospects-table tr.expanded:hover > td { background:#e8eeff; }
+.prospects-table tr.snap-row { background:transparent !important; cursor:default; }
+.prospects-table tr.snap-row:hover td { background:transparent !important; cursor:default; }
+.prospects-table tr.snap-row td { padding:0; border-bottom:1px solid var(--border); }
 
-  /* ── Grid rows ── */
-  .search-row, .sc-input-row { display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:12px; align-items:end; }
-  .seo-input-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; align-items:end; }
+/* Table cell types */
+.biz-name { font-weight:600; color:var(--text); max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.biz-link { color:var(--blue); text-decoration:none; font-size:12px; }
+.biz-link:hover { text-decoration:underline; }
+.no-web { color:var(--red-text); font-size:11px; font-weight:500; }
+.rating-stars { color:#f59e0b; font-size:11px; }
+.reviews-cnt { color:var(--text2); font-size:11px; }
 
-  /* ── Metrics ── */
-  .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:1rem; }
-  .metric { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.25rem; }
-  .metric-label { font-size:11px; color:var(--text2); font-weight:500; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.4px; }
-  .metric-val { font-size:26px; font-weight:700; letter-spacing:-0.5px; line-height:1; }
+/* GMB Status badge */
+.gmb-badge { font-size:10px; font-weight:600; padding:2px 8px; border-radius:10px; }
+.gmb-verified { background:var(--green-bg); color:var(--green-text); }
+.gmb-unclaimed { background:var(--amber-bg); color:var(--amber-text); }
+.gmb-missing { background:var(--red-bg); color:var(--red-text); }
 
-  /* ── Lead cards ── */
-  .results-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; }
-  .results-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; flex-wrap:wrap; gap:10px; }
-  .leads-list { display:flex; flex-direction:column; gap:10px; }
-  .lead-card { border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.25rem; transition:border-color .15s,box-shadow .15s; background:var(--bg); }
-  .lead-card:hover { border-color:var(--border2); box-shadow:0 1px 6px rgba(0,0,0,0.05); }
-  .lead-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:6px; }
-  .lead-name { font-size:14px; font-weight:600; margin-bottom:3px; }
-  .lead-meta { font-size:12px; color:var(--text2); display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
-  .lead-meta a { color:var(--text2); text-decoration:none; }
-  .lead-meta a:hover { color:var(--text); text-decoration:underline; }
-  .score-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600; flex-shrink:0; }
-  .hot  { background:var(--green-bg); color:var(--green-text); }
-  .warm { background:var(--amber-bg); color:var(--amber-text); }
-  .cold { background:var(--red-bg);   color:var(--red-text); }
-  .pain-tag { font-size:12px; color:var(--text2); background:var(--bg2); padding:6px 10px; border-radius:7px; margin:8px 0; line-height:1.5; }
-  .lead-footer { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-top:8px; }
-  .lead-tags { display:flex; gap:6px; flex-wrap:wrap; }
-  .tag { font-size:11px; font-weight:500; background:var(--bg2); color:var(--text2); padding:3px 9px; border-radius:6px; }
-  .tag-green { background:var(--green-bg); color:var(--green-text); }
-  .tag-amber { background:var(--amber-bg); color:var(--amber-text); }
-  .tag-red   { background:var(--red-bg);   color:var(--red-text); }
+/* Revenue loss badge */
+.loss-badge { color:var(--red-text); font-weight:700; font-size:12px; }
 
-  /* ── Email panel ── */
-  .email-panel { background:var(--bg2); border-radius:var(--radius); padding:1.1rem; margin-top:10px; display:none; border:1px solid var(--border); }
-  .email-panel.open { display:block; }
-  .email-toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-  .email-label { font-size:11px; color:var(--text2); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
-  .email-body { font-size:13px; line-height:1.8; color:var(--text); white-space:pre-wrap; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:1rem; min-height:60px; }
+/* Opportunity score */
+.opp-score { display:inline-flex; align-items:center; justify-content:center; width:30px; height:20px; border-radius:4px; font-size:11px; font-weight:700; }
+.opp-high { background:var(--red-bg); color:var(--red-text); }
+.opp-med { background:var(--amber-bg); color:var(--amber-text); }
+.opp-low { background:var(--green-bg); color:var(--green-text); }
 
-  /* ── Spinner ── */
-  .spinner { display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin .65s linear infinite; vertical-align:middle; flex-shrink:0; }
-  .spinner-dark { border-color:rgba(0,0,0,0.12); border-top-color:var(--text); }
-  @keyframes spin { to { transform:rotate(360deg); } }
+/* Time badge */
+.time-badge { font-size:11px; color:var(--text2); white-space:nowrap; }
+.time-icon { font-style:normal; }
 
-  /* ── Loading / empty ── */
-  .loading-state, .empty-state { text-align:center; padding:3rem 1rem; color:var(--text2); font-size:13px; }
-  .loading-state .spinner-dark { width:20px; height:20px; margin-bottom:12px; border-width:2.5px; display:block; margin-left:auto; margin-right:auto; }
-  .keys-saved-msg { font-size:12px; color:var(--green-text); margin-top:8px; display:none; }
+/* Sales status */
+.status-pill { font-size:10px; font-weight:600; padding:2px 8px; border-radius:10px; background:var(--bg3); color:var(--text2); white-space:nowrap; }
+.status-contacted { background:#e0f2f1; color:#004d40; }
+.status-proposal { background:#e3f2fd; color:#0d47a1; }
+.status-followup { background:#fff8e1; color:#ff6f00; }
+.status-negotiating { background:#ede7f6; color:#4527a0; }
+.status-won { background:#e8f5e9; color:#1b5e20; }
+.status-lost { background:#fce4ec; color:#880e4f; }
 
-  /* ════════════════════════
-     SHARED SCORECARD STYLES
-  ════════════════════════ */
-  .score-banner { display:flex; align-items:center; gap:1.5rem; padding:1.5rem; border-radius:var(--radius-lg); border:1px solid var(--border); margin-bottom:1rem; background:var(--bg); }
-  .score-circle { width:80px; height:80px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0; }
-  .score-circle .sc-num { font-size:28px; font-weight:800; line-height:1; letter-spacing:-1px; }
-  .score-circle .sc-denom { font-size:12px; font-weight:500; opacity:0.75; }
-  .score-circle.sc-red   { background:var(--red-bg);   color:var(--red-text); }
-  .score-circle.sc-amber { background:var(--amber-bg); color:var(--amber-text); }
-  .score-circle.sc-green { background:var(--green-bg); color:var(--green-text); }
-  .score-info { flex:1; min-width:0; }
-  .score-label { font-size:13px; font-weight:600; margin-bottom:4px; }
-  .score-bar-wrap { height:6px; background:var(--bg3); border-radius:99px; overflow:hidden; margin-bottom:8px; }
-  .score-bar { height:100%; border-radius:99px; transition:width .6s ease; }
-  .sc-red-bar   { background:var(--c-red); }
-  .sc-amber-bar { background:var(--c-amber); }
-  .sc-green-bar { background:var(--c-green); }
-  .score-summary { font-size:13px; color:var(--text2); line-height:1.6; }
+/* View btn */
+.view-btn { background:#111; color:#fff; border:none; border-radius:6px; padding:4px 12px; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap; }
+.view-btn:hover { background:#333; }
+.view-btn.active { background:#1565c0; }
 
-  /* ── Status badges (shared) ── */
-  .status-badge { font-size:11px; font-weight:600; padding:2px 9px; border-radius:20px; white-space:nowrap; }
-  .status-active, .status-strong { background:var(--green-bg); color:var(--green-text); }
-  .status-weak, .status-work     { background:var(--amber-bg); color:var(--amber-text); }
-  .status-missing, .status-critical { background:var(--red-bg); color:var(--red-text); }
+/* ── Snapshot Panel ── */
+.snap-panel { padding:1.5rem; background:#f9fafb; border-top:2px solid #1565c0; }
+.snap-grid { display:grid; grid-template-columns:300px 1fr; gap:1.25rem; margin-bottom:1.25rem; }
+.snap-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.1rem; }
+.snap-card-title { font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:0.75rem; }
+.snap-row { display:flex; justify-content:space-between; align-items:flex-start; padding:4px 0; border-bottom:1px solid var(--border); font-size:12.5px; }
+.snap-row:last-child { border-bottom:none; }
+.snap-key { color:var(--text2); }
+.snap-val { font-weight:500; text-align:right; max-width:160px; word-break:break-all; }
+.snap-val a { color:var(--blue); text-decoration:none; font-size:11px; }
 
-  /* ── Output panels (shared) ── */
-  .output-panel { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem; margin-top:12px; display:none; }
-  .output-panel.open { display:block; }
-  .output-label { font-size:11px; color:var(--text2); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; }
-  .output-body { font-size:13px; line-height:1.8; white-space:pre-wrap; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:1rem; color:var(--text); }
-  .output-actions { display:flex; gap:8px; margin-top:8px; }
-  .ai-note { font-size:11px; color:var(--text3); margin-top:6px; }
+/* Revenue Loss Box */
+.loss-box { background:linear-gradient(135deg,#b71c1c,#c62828); color:#fff; border-radius:var(--radius-lg); padding:1rem 1.1rem; margin-bottom:0.75rem; }
+.loss-box-label { font-size:11px; font-weight:600; opacity:0.8; text-transform:uppercase; letter-spacing:0.4px; }
+.loss-box-amount { font-size:28px; font-weight:900; letter-spacing:-1px; margin:2px 0 1px; }
+.loss-box-sub { font-size:12px; opacity:0.85; }
 
-  /* ════════════════════════
-     SOCIAL SCORECARD
-  ════════════════════════ */
-  .priority-box { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem 1.5rem; margin-bottom:1rem; display:flex; align-items:flex-start; gap:1rem; flex-wrap:wrap; }
-  .priority-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--text2); white-space:nowrap; padding-top:2px; }
-  .priority-tags { display:flex; gap:8px; flex-wrap:wrap; }
-  .priority-tag { display:inline-flex; align-items:center; gap:6px; background:var(--amber-bg); color:var(--amber-text); font-size:12px; font-weight:600; padding:5px 12px; border-radius:20px; }
-  .priority-num { width:16px; height:16px; border-radius:50%; background:var(--amber-text); color:var(--amber-bg); font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .channel-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1rem; }
-  .channel-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.1rem; transition:border-color .15s; }
-  .channel-card:hover { border-color:var(--border2); }
-  .channel-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
-  .channel-name { display:flex; align-items:center; gap:7px; font-size:13px; font-weight:600; }
-  .channel-icon { font-size:16px; line-height:1; }
-  .channel-row { display:flex; gap:6px; margin-top:6px; font-size:12px; line-height:1.5; }
-  .channel-row-icon { flex-shrink:0; margin-top:1px; color:var(--text3); }
-  .channel-action { color:var(--text); font-weight:500; }
-  .pitch-section { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; }
-  .pitch-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:10px; }
+/* Contact Time Box */
+.contact-box { background:var(--blue-bg); border:1px solid rgba(21,101,192,0.2); border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:0.75rem; }
+.contact-box-label { font-size:11px; font-weight:600; color:var(--blue-text); text-transform:uppercase; letter-spacing:0.4px; }
+.contact-box-time { font-size:15px; font-weight:700; color:var(--blue); margin-top:3px; }
 
-  /* ════════════════════════
-     SEO SCORECARD
-  ════════════════════════ */
-  .seo-competitor-gap { display:inline-flex; align-items:center; gap:7px; background:var(--amber-bg); color:var(--amber-text); font-size:12px; font-weight:500; padding:5px 12px; border-radius:20px; margin-top:10px; }
+/* Pain Point Prioritizer */
+.pain-list { list-style:none; }
+.pain-item { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); }
+.pain-item:last-child { border-bottom:none; }
+.pain-rank { width:18px; height:18px; border-radius:50%; background:#111; color:#fff; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.pain-text { flex:1; font-size:12.5px; }
+.pain-cost { font-size:11px; font-weight:700; color:var(--red-text); white-space:nowrap; }
 
-  /* Priority action plan */
-  .seo-priority-box { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem 1.5rem; margin-bottom:1rem; }
-  .seo-priority-header { font-size:13px; font-weight:600; margin-bottom:1rem; display:flex; align-items:center; gap:8px; }
-  .seo-priority-list { display:flex; flex-direction:column; gap:10px; }
-  .seo-priority-item { display:flex; align-items:flex-start; gap:12px; }
-  .seo-rank { width:24px; height:24px; border-radius:50%; background:var(--accent); color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
-  .seo-priority-action { font-size:13px; font-weight:500; margin-bottom:4px; line-height:1.4; }
-  .seo-priority-meta { display:flex; gap:6px; flex-wrap:wrap; }
+/* AI Insight */
+.insight-box { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.1rem; margin-bottom:1.25rem; }
+.insight-label { font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:0.5rem; display:flex; align-items:center; gap:5px; }
+.insight-text { font-size:13px; line-height:1.6; color:var(--text); }
 
-  /* Category cards */
-  .seo-cat-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem; }
-  .seo-cat-card { background:var(--bg); border:1px solid var(--border); border-left:4px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.25rem; transition:box-shadow .15s; }
-  .seo-cat-card:hover { box-shadow:0 2px 8px rgba(0,0,0,0.06); }
-  .seo-cat-card.cat-strong   { border-left-color:var(--c-green); }
-  .seo-cat-card.cat-work     { border-left-color:var(--c-amber); }
-  .seo-cat-card.cat-critical { border-left-color:var(--c-red); }
-  .seo-cat-top { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; margin-bottom:10px; }
-  .seo-cat-name { font-size:13px; font-weight:700; margin-bottom:4px; line-height:1.3; }
-  .seo-cat-score { font-size:22px; font-weight:800; letter-spacing:-0.5px; line-height:1; flex-shrink:0; }
-  .seo-cat-score span { font-size:11px; font-weight:400; color:var(--text3); }
-  .seo-cat-bar { height:4px; background:var(--bg3); border-radius:99px; margin-bottom:10px; overflow:hidden; }
-  .seo-cat-fill { height:100%; border-radius:99px; }
-  .seo-cat-section-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text3); margin-bottom:4px; margin-top:8px; }
-  .seo-cat-row { display:flex; gap:6px; font-size:12px; line-height:1.45; margin-bottom:3px; color:var(--text2); }
-  .seo-cat-row.win { color:var(--text); font-weight:500; }
-  .seo-cat-row-icon { flex-shrink:0; margin-top:1px; }
-  .seo-impact-tag { font-size:11px; background:var(--bg2); color:var(--text2); padding:3px 9px; border-radius:6px; display:inline-block; margin-top:10px; font-weight:500; }
+/* ── Report Buttons ── */
+.report-btn-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:1.25rem; }
+.rpt-btn { border:none; border-radius:var(--radius); padding:10px 8px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; text-align:center; transition:opacity .15s,transform .1s; }
+.rpt-btn:hover { opacity:0.88; transform:translateY(-1px); }
+.rpt-btn:active { transform:translateY(0); }
+.rpt-btn.loading { opacity:0.6; cursor:wait; }
+.rpt-localseo { background:var(--blue-bg); color:var(--blue-text); border:1px solid rgba(21,101,192,0.25); }
+.rpt-seo { background:var(--indigo-bg); color:var(--indigo-text); border:1px solid rgba(40,53,147,0.25); }
+.rpt-social { background:var(--purple-bg); color:var(--purple-text); border:1px solid rgba(106,27,154,0.25); }
+.rpt-website { background:var(--orange-bg); color:var(--orange-text); border:1px solid rgba(230,81,0,0.25); }
+.rpt-ads { background:var(--green-bg); color:var(--green-text); border:1px solid rgba(46,125,50,0.25); }
+.rpt-360 { background:#111; color:#fff; border:1px solid #111; }
+.rpt-360:hover { opacity:0.85; }
+.rpt-competitors { background:var(--red-bg); color:var(--red-text); border:1px solid rgba(198,40,40,0.25); }
 
-  /* SEO action buttons */
-  .seo-actions-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; }
-  .seo-actions-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:4px; }
-  .seo-btn-row { display:flex; gap:10px; flex-wrap:wrap; }
-  .seo-inline-loading { font-size:13px; color:var(--text2); padding:0.75rem 0; display:none; align-items:center; gap:8px; }
-  .seo-inline-loading.show { display:flex; }
+/* ── Report Output ── */
+#report-output-container { margin-bottom:1.25rem; }
+.report-output { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem; }
+.report-loading { text-align:center; padding:2rem; color:var(--text2); font-size:13px; }
+.spinner { display:inline-block; width:20px; height:20px; border:2px solid var(--border2); border-top-color:#1565c0; border-radius:50%; animation:spin 0.8s linear infinite; margin-right:8px; vertical-align:middle; }
+@keyframes spin { to { transform:rotate(360deg); } }
 
-  /* ════════════════════════
-     SEO EVIDENCE SECTION
-  ════════════════════════ */
-  .ev-section-header { font-size:14px; font-weight:600; margin-bottom:1rem; display:flex; align-items:center; gap:8px; }
-  .evidence-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem; }
-  .ev-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem; }
-  .ev-platform-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.85rem; }
-  .ev-platform-name { font-size:13px; font-weight:600; display:flex; align-items:center; gap:7px; }
-  .ev-platform-icon { width:20px; height:20px; border-radius:4px; display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#fff; flex-shrink:0; }
-  .ev-status { font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; white-space:nowrap; }
-  .ev-status.appearing    { background:var(--green-bg); color:var(--green-text); }
-  .ev-status.partial      { background:var(--amber-bg); color:var(--amber-text); }
-  .ev-status.not-appearing{ background:var(--red-bg);   color:var(--red-text); }
-  .ev-mockup { border-radius:8px; overflow:hidden; margin-bottom:0.85rem; border:1px solid var(--border); }
-  .ev-summary { font-size:12px; color:var(--text2); line-height:1.6; margin-bottom:0.6rem; }
-  .ev-link { font-size:12px; font-weight:500; color:#1a73e8; text-decoration:none; display:inline-flex; align-items:center; gap:3px; }
-  .ev-link:hover { text-decoration:underline; }
+/* Score Card */
+.score-card { display:flex; align-items:center; gap:1.25rem; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.25rem; margin-bottom:1rem; }
+.score-ring { position:relative; width:72px; height:72px; flex-shrink:0; }
+.score-ring svg { transform:rotate(-90deg); }
+.score-ring circle.bg { fill:none; stroke:var(--bg3); stroke-width:6; }
+.score-ring circle.fg { fill:none; stroke-width:6; stroke-linecap:round; transition:stroke-dashoffset 1s ease; }
+.score-ring .val { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; }
+.score-meta { flex:1; }
+.score-meta h3 { font-size:15px; font-weight:700; margin-bottom:3px; }
+.score-meta .sub { font-size:12px; color:var(--text2); }
+.opp-pill { display:inline-block; font-size:11px; font-weight:700; padding:3px 10px; border-radius:10px; margin-left:8px; }
 
-  /* Google SERP */
-  .gserp { background:#fff; font-family:Arial,sans-serif; }
-  .gserp-bar { background:#fff; padding:8px 10px; border-bottom:1px solid #eee; display:flex; align-items:center; gap:8px; }
-  .gserp-logo { font-size:15px; font-weight:700; letter-spacing:-0.5px; line-height:1; }
-  .gserp-logo span:nth-child(1){color:#4285F4}.gserp-logo span:nth-child(2){color:#EA4335}.gserp-logo span:nth-child(3){color:#FBBC05}.gserp-logo span:nth-child(4){color:#4285F4}.gserp-logo span:nth-child(5){color:#34A853}.gserp-logo span:nth-child(6){color:#EA4335}
-  .gserp-input { flex:1; background:#f1f3f4; border-radius:20px; padding:4px 12px; font-size:11px; color:#202124; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .gserp-body { padding:8px 10px; }
-  .gserp-count { font-size:10px; color:#70757a; margin-bottom:7px; }
-  .gpack { border:1px solid #dfe1e5; border-radius:6px; margin-bottom:7px; overflow:hidden; }
-  .gpack-header { background:#f8f9fa; padding:4px 8px; font-size:10px; font-weight:600; color:#202124; border-bottom:1px solid #eee; display:flex; align-items:center; gap:4px; }
-  .gpack-item { padding:5px 8px; border-bottom:1px solid #f5f5f5; display:flex; align-items:center; gap:6px; }
-  .gpack-item:last-child { border-bottom:none; }
-  .gpack-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-  .gpack-name { font-size:11px; font-weight:600; color:#202124; }
-  .gpack-stars { font-size:10px; color:#fbbc04; }
-  .gpack-badge { font-size:10px; padding:1px 5px; border-radius:3px; font-weight:600; margin-left:auto; flex-shrink:0; }
-  .gserp-result { padding:5px 0; border-bottom:1px solid #f5f5f5; }
-  .gserp-result:last-child { border-bottom:none; }
-  .gserp-url { font-size:10px; color:#202124; margin-bottom:1px; }
-  .gserp-title { font-size:12px; color:#1a0dab; font-weight:500; margin-bottom:1px; }
-  .gserp-snip { font-size:10px; color:#4d5156; line-height:1.4; }
-  .gserp-result.ev-highlight { background:rgba(74,155,42,0.07); border-radius:4px; padding:5px 5px; margin:0 -5px; border:1px solid rgba(74,155,42,0.25); }
-  .gserp-result.ev-amber     { background:rgba(217,140,58,0.07); border-radius:4px; padding:5px 5px; margin:0 -5px; border:1px solid rgba(217,140,58,0.2); }
-  .ev-notfound { background:var(--red-bg); color:var(--red-text); font-size:11px; font-weight:600; padding:7px 10px; border-radius:5px; margin-top:4px; text-align:center; }
+/* Subscores */
+.subscores { margin-bottom:1rem; }
+.subscore-row { display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid var(--border); }
+.subscore-row:last-child { border-bottom:none; }
+.subscore-name { width:160px; font-size:12.5px; flex-shrink:0; }
+.subscore-bar-wrap { flex:1; height:6px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+.subscore-bar { height:100%; border-radius:3px; transition:width 0.8s ease; }
+.subscore-score { width:30px; text-align:right; font-size:12px; font-weight:700; }
+.subscore-status { width:110px; text-align:right; font-size:10px; font-weight:600; padding:1px 7px; border-radius:8px; }
+.status-critical { background:var(--red-bg); color:var(--red-text); }
+.status-needs { background:var(--amber-bg); color:var(--amber-text); }
+.status-average { background:var(--blue-bg); color:var(--blue-text); }
+.status-strong { background:var(--green-bg); color:var(--green-text); }
 
-  /* Google AIO */
-  .gaio-wrap { background:#fff; padding:10px; }
-  .gaio-box { background:#EEF3FF; border:1px solid #C5D5F6; border-radius:6px; padding:8px 10px; }
-  .gaio-label { font-size:10px; font-weight:700; color:#1a73e8; display:flex; align-items:center; gap:4px; margin-bottom:5px; }
-  .gaio-query { font-size:10px; color:#5f6368; background:#f8f9fa; border:1px solid #eee; border-radius:3px; padding:3px 7px; margin-bottom:6px; }
-  .gaio-text { font-size:11px; color:#202124; line-height:1.65; }
-  .gaio-sources { display:flex; gap:5px; margin-top:6px; flex-wrap:wrap; }
-  .gaio-source { font-size:9px; background:#fff; border:1px solid #ddd; border-radius:3px; padding:2px 5px; color:#1a73e8; }
+/* Industry Comparison Bars */
+.comparison-section { margin-bottom:1rem; }
+.comparison-row { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
+.comparison-row:last-child { border-bottom:none; }
+.comparison-label { width:130px; font-size:12px; flex-shrink:0; }
+.comparison-bars { flex:1; }
+.cbar-row { display:flex; align-items:center; gap:6px; margin-bottom:3px; }
+.cbar-label { width:55px; font-size:10px; color:var(--text2); }
+.cbar-track { flex:1; height:5px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+.cbar-fill { height:100%; border-radius:3px; }
+.cbar-fill.yours { background:#1565c0; }
+.cbar-fill.avg { background:#bdbdbd; }
+.cbar-score { width:25px; font-size:11px; font-weight:600; text-align:right; }
 
-  /* ChatGPT */
-  .cgpt { background:#212121; border-radius:8px; overflow:hidden; }
-  .cgpt-bar { background:#171717; padding:7px 10px; display:flex; align-items:center; gap:6px; border-bottom:1px solid rgba(255,255,255,0.08); }
-  .cgpt-dots { display:flex; gap:4px; }
-  .cgpt-dot2 { width:7px; height:7px; border-radius:50%; }
-  .cgpt-bar-title { font-size:10px; color:rgba(255,255,255,0.4); flex:1; text-align:center; }
-  .cgpt-body { padding:10px 12px; display:flex; flex-direction:column; gap:8px; }
-  .cgpt-user { align-self:flex-end; background:#2f2f2f; color:#ececf1; font-size:11px; padding:6px 10px; border-radius:12px 12px 2px 12px; max-width:85%; line-height:1.5; }
-  .cgpt-ai { display:flex; gap:7px; align-items:flex-start; }
-  .cgpt-avatar { width:20px; height:20px; background:#10a37f; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:9px; color:#fff; font-weight:700; }
-  .cgpt-text { color:#ececf1; font-size:11px; line-height:1.65; flex:1; }
-  .ev-dots { display:flex; gap:3px; align-items:center; padding:2px 0; }
-  .ev-dot-a { width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,0.35); animation:evDot 1.2s infinite; }
-  .ev-dot-a:nth-child(2){animation-delay:0.2s}.ev-dot-a:nth-child(3){animation-delay:0.4s}
-  .ev-dot-b { width:5px; height:5px; border-radius:50%; background:rgba(0,0,0,0.25); animation:evDot 1.2s infinite; }
-  .ev-dot-b:nth-child(2){animation-delay:0.2s}.ev-dot-b:nth-child(3){animation-delay:0.4s}
-  @keyframes evDot{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-4px)}}
+/* Next Best Step */
+.nbs-box { background:var(--bg); border:1px solid var(--border); border-left:4px solid #1565c0; border-radius:var(--radius); padding:1rem 1.1rem; margin-bottom:1rem; }
+.nbs-label { font-size:11px; font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:5px; }
+.nbs-text { font-size:13.5px; line-height:1.6; color:var(--text); font-weight:500; }
 
-  /* Claude */
-  .cld { background:#fdf8f4; border-radius:8px; overflow:hidden; border:1px solid #e8ddd4; }
-  .cld-bar { background:#f5ede4; padding:7px 10px; display:flex; align-items:center; gap:7px; border-bottom:1px solid #e8ddd4; }
-  .cld-icon { width:14px; height:14px; background:#cc785c; border-radius:3px; flex-shrink:0; }
-  .cld-bar-title { font-size:10px; color:#9a7060; flex:1; font-weight:500; }
-  .cld-body { padding:10px 12px; display:flex; flex-direction:column; gap:8px; }
-  .cld-user { align-self:flex-end; background:#ede5db; color:#3d2b1f; font-size:11px; padding:6px 10px; border-radius:12px 12px 2px 12px; max-width:85%; line-height:1.5; }
-  .cld-ai { display:flex; gap:7px; align-items:flex-start; }
-  .cld-avatar { width:20px; height:20px; background:#cc785c; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:9px; color:#fff; font-weight:700; }
-  .cld-text { color:#2d1f17; font-size:11px; line-height:1.65; background:#fff; border:1px solid #e8ddd4; border-radius:2px 10px 10px 10px; padding:6px 9px; flex:1; }
+/* Key Findings */
+.findings-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:1rem; }
+.finding-box { background:var(--amber-bg); border:1px solid rgba(180,83,9,0.2); border-radius:var(--radius); padding:8px 10px; font-size:12.5px; color:var(--amber-text); }
 
-  /* Bing */
-  .bing-wrap { background:#fff; }
-  .bing-bar { background:#fff; padding:7px 10px; border-bottom:1px solid #e5e5e5; display:flex; align-items:center; gap:8px; }
-  .bing-logo { font-size:16px; font-weight:700; color:#00809d; font-style:italic; }
-  .bing-input { flex:1; background:#f3f3f3; border:1px solid #ddd; border-radius:3px; padding:3px 10px; font-size:11px; color:#333; }
-  .bing-body { padding:8px 10px; }
-  .bing-copilot { background:#f0f7ff; border-left:3px solid #0078d4; padding:7px 9px; border-radius:0 5px 5px 0; margin-bottom:7px; }
-  .bing-cop-label { font-size:10px; font-weight:700; color:#0078d4; margin-bottom:3px; display:flex; align-items:center; gap:4px; }
-  .bing-cop-text { font-size:11px; color:#333; line-height:1.55; }
-  .bing-result { padding:4px 0; border-bottom:1px solid #f0f0f0; }
-  .bing-result:last-child { border-bottom:none; }
-  .bing-r-url { font-size:10px; color:#006621; }
-  .bing-r-title { font-size:12px; color:#001577; font-weight:500; }
-  .bing-r-snip { font-size:10px; color:#545454; line-height:1.4; }
+/* Pricing Tiers */
+.pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1rem; }
+.price-tier { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem; }
+.price-tier.featured { border-color:#1565c0; border-width:2px; }
+.price-name { font-size:12px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; }
+.price-amount { font-size:22px; font-weight:900; color:var(--text); margin:5px 0 2px; letter-spacing:-0.5px; }
+.price-tagline { font-size:12px; color:var(--text2); margin-bottom:8px; }
+.price-includes { list-style:none; }
+.price-includes li { font-size:12px; padding:3px 0; display:flex; align-items:center; gap:5px; }
+.price-includes li::before { content:"✓"; color:var(--green); font-weight:700; }
 
-  /* Voice */
-  .voice-wrap { background:linear-gradient(135deg,#1a1a2e 0%,#0f3460 100%); padding:14px; display:flex; gap:12px; align-items:flex-start; }
-  .voice-phone { width:56px; height:90px; border:2px solid rgba(255,255,255,0.25); border-radius:9px; background:rgba(255,255,255,0.05); display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0; gap:5px; }
-  .voice-screen-inner { width:38px; height:56px; background:#0a2540; border-radius:5px; display:flex; align-items:center; justify-content:center; }
-  .voice-mic-btn { width:16px; height:16px; border-radius:50%; background:#e94560; display:flex; align-items:center; justify-content:center; font-size:8px; animation:vPulse 2s infinite; }
-  @keyframes vPulse{0%,100%{box-shadow:0 0 0 0 rgba(233,69,96,0.5)}50%{box-shadow:0 0 0 7px rgba(233,69,96,0)}}
-  .voice-wave { display:flex; gap:2px; align-items:center; }
-  .voice-wbar { width:3px; border-radius:2px; background:rgba(255,255,255,0.55); animation:vWave 1s infinite; }
-  .voice-wbar:nth-child(1){height:6px}.voice-wbar:nth-child(2){height:11px;animation-delay:0.1s}.voice-wbar:nth-child(3){height:8px;animation-delay:0.2s}.voice-wbar:nth-child(4){height:13px;animation-delay:0.3s}.voice-wbar:nth-child(5){height:7px;animation-delay:0.4s}
-  @keyframes vWave{0%,100%{transform:scaleY(0.5)}50%{transform:scaleY(1)}}
-  .voice-content { flex:1; display:flex; flex-direction:column; gap:8px; }
-  .voice-query-bubble { background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.18); border-radius:7px; padding:6px 9px; font-size:10px; color:rgba(255,255,255,0.7); line-height:1.5; }
-  .voice-answer-bubble { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:7px; padding:6px 9px; font-size:11px; color:#fff; line-height:1.55; }
-  .voice-google-badge { display:inline-flex; align-items:center; gap:3px; font-size:10px; margin-bottom:3px; }
-  .voice-g-dot { width:6px; height:6px; border-radius:50%; }
+/* ROI Section */
+.roi-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem; }
+.roi-box { border-radius:var(--radius); padding:0.9rem; }
+.roi-before { background:var(--red-bg); border:1px solid rgba(198,40,40,0.2); }
+.roi-after { background:var(--green-bg); border:1px solid rgba(46,125,50,0.2); }
+.roi-box-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:5px; }
+.roi-before .roi-box-label { color:var(--red-text); }
+.roi-after .roi-box-label { color:var(--green-text); }
+.roi-box-text { font-size:12.5px; line-height:1.5; }
+.roi-before .roi-box-text { color:var(--red-text); }
+.roi-after .roi-box-text { color:var(--green-text); }
 
-  /* ── Responsive ── */
-  @media (max-width:720px) {
-    .evidence-grid { grid-template-columns:1fr; }
-  }
-    header, .tab-nav { padding:0 1rem; }
-    .main { padding:1rem 1rem 3rem; }
-    .search-row, .sc-input-row { grid-template-columns:1fr 1fr; }
-    .search-row > :last-child, .sc-input-row > :last-child { grid-column:1/-1; }
-    .seo-input-grid { grid-template-columns:1fr 1fr; }
-    .metrics { grid-template-columns:repeat(2,1fr); }
-    .config-grid { grid-template-columns:1fr 1fr; }
-    .channel-grid { grid-template-columns:repeat(2,1fr); }
-    .seo-cat-grid { grid-template-columns:1fr; }
-    .card, .results-card, .pitch-section, .seo-actions-card { padding:1.1rem; }
-  }
-  @media (max-width:480px) {
-    .search-row, .sc-input-row, .seo-input-grid { grid-template-columns:1fr; }
-    .search-row > :last-child, .sc-input-row > :last-child { grid-column:1; }
-    .config-grid { grid-template-columns:1fr; }
-    .channel-grid, .seo-cat-grid { grid-template-columns:1fr; }
-    .score-banner { flex-direction:column; gap:1rem; }
-    .lead-top { flex-direction:column; }
-    .score-pill { align-self:flex-start; }
-    .metrics { grid-template-columns:repeat(2,1fr); }
-  }
+/* Timeline */
+.timeline { display:flex; gap:8px; margin-bottom:1rem; }
+.timeline-month { flex:1; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:0.75rem; }
+.timeline-num { font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; }
+.timeline-milestone { font-size:12px; margin-top:4px; line-height:1.4; }
+
+/* Competitor Cards */
+.comp-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+.comp-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.9rem; }
+.comp-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+.comp-name { font-weight:700; font-size:13px; max-width:140px; }
+.comp-rank { font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; }
+.rank-leader { background:var(--red-bg); color:var(--red-text); }
+.rank-rising { background:var(--amber-bg); color:var(--amber-text); }
+.rank-similar { background:var(--blue-bg); color:var(--blue-text); }
+.rank-weaker { background:var(--green-bg); color:var(--green-text); }
+.comp-stats { display:flex; gap:8px; font-size:11px; color:var(--text2); margin-bottom:6px; }
+.comp-bars { display:flex; flex-direction:column; gap:3px; margin-bottom:6px; }
+.comp-bar-row { display:flex; align-items:center; gap:6px; }
+.comp-bar-label { width:50px; font-size:10px; color:var(--text2); }
+.comp-bar-track { flex:1; height:4px; background:var(--bg3); border-radius:2px; overflow:hidden; }
+.comp-bar-fill { height:100%; border-radius:2px; background:#1565c0; }
+.comp-gap { font-size:11px; color:var(--text2); line-height:1.4; border-top:1px solid var(--border); padding-top:6px; }
+
+/* Platform Status */
+.platform-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:1rem; }
+.platform-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:0.75rem; text-align:center; }
+.platform-name { font-size:12px; font-weight:700; margin-bottom:4px; }
+.platform-status { font-size:11px; font-weight:600; padding:2px 8px; border-radius:10px; margin-bottom:4px; display:inline-block; }
+.platform-running { background:var(--red-bg); color:var(--red-text); }
+.platform-not { background:var(--green-bg); color:var(--green-text); }
+.platform-meta { font-size:11px; color:var(--text2); }
+
+/* 360 Categories */
+.cat-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:1rem; }
+.cat-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:0.75rem; }
+.cat-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.cat-name { font-size:12px; font-weight:600; }
+.cat-score { font-size:15px; font-weight:800; }
+.cat-bar-wrap { height:5px; background:var(--bg3); border-radius:3px; overflow:hidden; margin-bottom:4px; }
+.cat-bar { height:100%; border-radius:3px; }
+.cat-action { font-size:11px; color:var(--text2); }
+
+/* Roadmap */
+.roadmap-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:1rem; }
+.roadmap-month { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:0.75rem; }
+.roadmap-title { font-size:12px; font-weight:700; margin-bottom:5px; }
+.roadmap-tasks { list-style:none; }
+.roadmap-tasks li { font-size:11.5px; padding:2px 0; display:flex; align-items:flex-start; gap:4px; }
+.roadmap-tasks li::before { content:"→"; color:var(--blue); flex-shrink:0; font-size:11px; margin-top:1px; }
+.roadmap-expected { font-size:11px; color:var(--green-text); background:var(--green-bg); border-radius:4px; padding:3px 6px; margin-top:5px; }
+
+/* ── Pitch Section ── */
+.pitch-section { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem; margin-bottom:1rem; }
+.pitch-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+.pitch-title { font-size:15px; font-weight:700; }
+.gen-pitch-btn { background:#111; color:#fff; border:none; border-radius:var(--radius); padding:7px 18px; font-size:12px; font-weight:600; cursor:pointer; }
+.gen-pitch-btn:hover { background:#333; }
+.gen-pitch-btn:disabled { background:#999; cursor:wait; }
+
+/* Text Pitch */
+.pitch-content { }
+.pitch-headline { font-size:22px; font-weight:900; color:var(--red-text); letter-spacing:-0.5px; margin-bottom:5px; }
+.pitch-subheadline { font-size:14px; color:var(--text2); margin-bottom:1.25rem; font-style:italic; }
+.pitch-section-label { font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:8px; margin-top:1.25rem; }
+.pitch-pain-item { display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid var(--border); }
+.pitch-pain-item:last-child { border-bottom:none; }
+.pitch-pain-rank { width:20px; height:20px; border-radius:50%; background:var(--red-bg); color:var(--red-text); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.pitch-pain-info { flex:1; }
+.pitch-pain-problem { font-size:13px; font-weight:600; }
+.pitch-pain-detail { font-size:12px; color:var(--text2); }
+.pitch-pain-cost { font-weight:700; color:var(--red-text); font-size:13px; }
+.pitch-closing { background:#111; color:#fff; border-radius:var(--radius); padding:1rem 1.1rem; margin-top:1rem; font-size:13px; font-weight:500; line-height:1.6; }
+
+/* Video Pitch */
+.video-pitch-section { background:var(--bg); border:2px solid var(--purple); border-radius:var(--radius-lg); padding:1.25rem; margin-bottom:1rem; }
+.video-pitch-title { font-size:14px; font-weight:700; color:var(--purple-text); margin-bottom:1rem; display:flex; align-items:center; gap:6px; }
+.script-tabs { display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:1rem; overflow-x:auto; }
+.script-tab { border:none; background:none; padding:6px 12px; font-size:12px; font-weight:500; cursor:pointer; font-family:inherit; color:var(--text2); border-bottom:2px solid transparent; white-space:nowrap; }
+.script-tab.active { color:var(--purple-text); border-bottom-color:var(--purple); }
+.script-content { font-size:13px; line-height:1.7; white-space:pre-wrap; background:#fafafa; border-radius:var(--radius); padding:1rem; border:1px solid var(--border); }
+.cta-list { list-style:none; }
+.cta-list li { background:#fafafa; border:1px solid var(--border); border-radius:var(--radius); padding:0.75rem 1rem; font-size:13px; line-height:1.6; margin-bottom:6px; }
+
+/* ── Outreach Bar ── */
+.outreach-bar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border); }
+.out-btn { border:1px solid var(--border2); border-radius:var(--radius); padding:7px 14px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; background:var(--bg); color:var(--text); display:flex; align-items:center; gap:5px; }
+.out-btn:hover { background:var(--bg3); }
+.out-btn.primary { background:#111; color:#fff; border-color:#111; }
+.out-btn.primary:hover { background:#333; }
+.out-btn.green { background:var(--green-bg); color:var(--green-text); border-color:rgba(46,125,50,0.25); }
+.status-select { border:1px solid var(--border2); border-radius:var(--radius); padding:6px 10px; font-size:12px; font-family:inherit; cursor:pointer; background:var(--bg); }
+.note-area { width:100%; border:1px solid var(--border2); border-radius:var(--radius); padding:7px 10px; font-size:12px; font-family:inherit; resize:vertical; min-height:60px; margin-top:6px; display:none; }
+.note-area.visible { display:block; }
+
+/* ── SEO LLM Mockups ── */
+.llm-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1rem; }
+.llm-card { border-radius:var(--radius-lg); overflow:hidden; border:1px solid var(--border); }
+.llm-header { padding:8px 12px; font-size:11px; font-weight:700; display:flex; align-items:center; gap:6px; }
+.llm-chatgpt .llm-header { background:#0d0d0d; color:#fff; }
+.llm-claude .llm-header { background:#f4f0e8; color:#333; border-bottom:1px solid var(--border); }
+.llm-gemini .llm-header { background:#fff; color:#333; border-bottom:1px solid var(--border); }
+.llm-body { padding:10px 12px; font-size:12px; line-height:1.5; }
+.llm-chatgpt .llm-body { background:#1a1a1a; color:#d1d5db; }
+.llm-claude .llm-body { background:#faf8f3; color:#333; }
+.llm-gemini .llm-body { background:#fff; color:#333; }
+.llm-dot { width:8px; height:8px; border-radius:50%; }
+.llm-chatgpt .llm-dot { background:#10a37f; }
+.llm-claude .llm-dot { background:#c17b3a; }
+.llm-gemini .llm-dot { background:#4285f4; }
+
+/* ── Utility ── */
+.divider { border:none; border-top:1px solid var(--border); margin:1rem 0; }
+.text-red { color:var(--red-text); }
+.text-green { color:var(--green-text); }
+.text-blue { color:var(--blue-text); }
+.font-bold { font-weight:700; }
+.mb-1 { margin-bottom:0.5rem; }
+.empty-state { text-align:center; padding:3rem 2rem; color:var(--text2); }
+.empty-state h3 { font-size:16px; font-weight:700; margin-bottom:8px; color:var(--text); }
+.empty-state p { font-size:13px; }
 </style>
 </head>
 <body>
 
+<!-- Dashboard Bar -->
+<div id="dash-bar">
+  <div class="dash-stat">
+    <span class="dash-label">Today's Prospects</span>
+    <span class="dash-val blue" id="stat-prospects">0</span>
+  </div>
+  <div class="dash-sep"></div>
+  <div class="dash-stat">
+    <span class="dash-label">Pitches Sent</span>
+    <span class="dash-val" id="stat-pitches">0</span>
+  </div>
+  <div class="dash-sep"></div>
+  <div class="dash-stat">
+    <span class="dash-label">Meetings Booked</span>
+    <span class="dash-val green" id="stat-meetings">0</span>
+    <button class="dash-meet-btn" onclick="addMeeting()" title="Add meeting">+</button>
+  </div>
+  <div class="dash-sep"></div>
+  <div class="dash-stat">
+    <span class="dash-label">Est. Pipeline</span>
+    <span class="dash-val gold" id="stat-pipeline">$0</span>
+  </div>
+  <button class="dash-reset" onclick="resetStats()">Reset Day</button>
+</div>
+
+<!-- Header -->
 <header>
-  <div class="logo">LeadGen AI <span>— Business Prospecting</span></div>
+  <div class="logo-block">
+    <span class="logo">LeadGen AI</span>
+    <span class="logo-sub">AI Prospecting Workspace</span>
+  </div>
   <div class="header-right">
-    <span class="badge" id="api-status">● Setup needed</span>
-    <button class="btn btn-sm btn-ghost" onclick="toggleConfig()">⚙ Settings</button>
+    <span id="api-badge">⚠ APIs Not Set</span>
+    <button class="icon-btn" onclick="toggleConfig()">⚙ Settings</button>
   </div>
 </header>
 
-<div class="tab-nav">
-  <button class="tab-btn active" data-tab="leads"     onclick="switchTab(this)">✦ Find Leads</button>
-  <button class="tab-btn"        data-tab="scorecard" onclick="switchTab(this)">📊 Social Scorecard</button>
-  <button class="tab-btn"        data-tab="seo"       onclick="switchTab(this)">🔍 SEO Scorecard</button>
-</div>
-
-<!-- Shared config panel -->
-<div style="max-width:960px;margin:0 auto;padding:0 1.5rem">
-  <div class="config-panel" id="config-panel">
-    <div class="config-header">
-      <div class="config-icon">⚙</div>
-      <div><div style="font-size:14px;font-weight:600">API Keys</div><div style="font-size:12px;color:var(--text2);margin-top:1px">Stored locally in your browser. Never sent to our servers.</div></div>
+<!-- Config Panel -->
+<div id="config-panel">
+  <div class="config-grid">
+    <div>
+      <div class="field-label">Google Places API Key</div>
+      <input class="field-input" type="password" id="cfg-google" placeholder="AIza...">
     </div>
-    <div class="config-grid">
-      <div class="field"><label>Google Places API Key</label><input type="password" id="cfg-google" placeholder="AIza..."><div class="field-note">console.cloud.google.com → Enable Places API</div></div>
-      <div class="field"><label>Hunter.io API Key</label><input type="password" id="cfg-hunter" placeholder="your-hunter-key"><div class="field-note">hunter.io → Dashboard → API</div></div>
-      <div class="field"><label>Anthropic API Key</label><input type="password" id="cfg-anthropic" placeholder="sk-ant-..."><div class="field-note">console.anthropic.com → API Keys</div></div>
+    <div>
+      <div class="field-label">Hunter.io API Key</div>
+      <input class="field-input" type="password" id="cfg-hunter" placeholder="hunter key...">
     </div>
-    <div style="margin-top:14px;display:flex;align-items:center;gap:12px">
-      <button class="btn btn-primary" onclick="saveKeys()">Save keys</button>
-      <button class="btn btn-ghost" onclick="toggleConfig()">Close</button>
+    <div>
+      <div class="field-label">Anthropic API Key</div>
+      <input class="field-input" type="password" id="cfg-anthropic" placeholder="sk-ant-...">
     </div>
-    <div class="keys-saved-msg" id="keys-saved">✓ Keys saved successfully.</div>
   </div>
+  <button class="save-btn" onclick="saveConfig()">Save Keys</button>
 </div>
 
+<!-- Main -->
 <div class="main">
 
-<!-- ════════════════════════════════════
-     TAB 1 — FIND LEADS
-════════════════════════════════════ -->
-<div id="tab-leads" class="tab-panel active">
-
-  <div class="setup-banner" id="setup-banner">
-    <strong>First-time setup:</strong> Click <strong>Settings</strong> above and paste your three API keys — Google Places, Hunter.io, and Anthropic. Keys are stored only in your browser.
-  </div>
-
-  <div class="card">
-    <div class="section-header">
-      <div class="step-num">1</div>
-      <div><div class="section-title">Find leads</div><div class="section-sub">Pulls real businesses from Google Maps, finds emails via Hunter.io, scores with AI</div></div>
-    </div>
-    <div class="search-row">
-      <div class="field"><label>Niche</label>
-        <select id="niche">
-          <option value="med spa">Med Spa</option>
-          <option value="dental clinic">Dental Clinic</option>
-          <option value="restaurant">Restaurant</option>
-          <option value="chiropractic clinic">Chiropractic Clinic</option>
-          <option value="real estate agency">Real Estate Agency</option>
-          <option value="law firm">Law Firm</option>
-          <option value="gym fitness studio">Gym / Fitness Studio</option>
-          <option value="auto dealership">Auto Dealership</option>
-          <option value="roofing company">Roofing Company</option>
-          <option value="plumbing company">Plumbing Company</option>
+  <!-- Section 1: Select Market -->
+  <div class="market-card">
+    <div class="section-title">Select Market</div>
+    <div class="market-row">
+      <div class="market-field grow">
+        <div class="field-label">Niche</div>
+        <select class="mf-select" id="sel-niche" onchange="onNicheChange()">
+          <option value="">— Select Niche —</option>
+          <option>Restaurant</option>
+          <option>Med Spa</option>
+          <option>Dental Clinic</option>
+          <option>Gym</option>
+          <option>Law Firm</option>
+          <option>Real Estate Agency</option>
+          <option>Roofing Company</option>
+          <option>Plumbing Company</option>
+          <option>Hair Salon</option>
+          <option>Chiropractor</option>
         </select>
       </div>
-      <div class="field"><label>State</label>
-        <select id="state" onchange="updateCities()">
-          <option value="">Select a state…</option>
-          <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option>
+      <div class="market-field grow">
+        <div class="field-label">State</div>
+        <select class="mf-select" id="sel-state" onchange="onStateChange()">
+          <option value="">— Select State —</option>
+          <option>California</option>
+          <option>Texas</option>
+          <option>Florida</option>
+          <option>New York</option>
+          <option>Illinois</option>
+          <option>Georgia</option>
+          <option>Arizona</option>
+          <option>North Carolina</option>
+          <option>Washington</option>
+          <option>Colorado</option>
+          <option>Nevada</option>
+          <option>Tennessee</option>
         </select>
       </div>
-      <div class="field"><label>City</label><select id="city" disabled><option value="">Select a state first</option></select></div>
-      <div class="field"><label style="opacity:0;user-select:none">Go</label><button class="btn btn-primary" id="gen-btn" onclick="generateLeads()" style="width:100%">✦ Generate leads</button></div>
-    </div>
-  </div>
-
-  <div id="loading-section" style="display:none">
-    <div class="card loading-state">
-      <span class="spinner spinner-dark"></span>
-      <div id="loading-msg" style="margin-top:12px;font-size:14px;color:var(--text)">Searching Google Maps...</div>
-      <div style="font-size:12px;color:var(--text3);margin-top:4px">This takes 10–20 seconds</div>
-    </div>
-  </div>
-
-  <div id="results-section" style="display:none">
-    <div class="metrics">
-      <div class="metric"><div class="metric-label">Total leads</div><div class="metric-val" id="m-total">0</div></div>
-      <div class="metric"><div class="metric-label">With email</div><div class="metric-val" style="color:var(--green-text)" id="m-email">0</div></div>
-      <div class="metric"><div class="metric-label">Hot leads (8+)</div><div class="metric-val" style="color:var(--green-text)" id="m-hot">0</div></div>
-      <div class="metric"><div class="metric-label">Avg score</div><div class="metric-val" id="m-avg">0</div></div>
-    </div>
-    <div class="results-card">
-      <div class="results-header">
-        <div style="display:flex;align-items:flex-start;gap:12px">
-          <div class="step-num">2</div>
-          <div><div class="section-title">Qualified prospects</div><div class="section-sub">Sorted by lead score — click "Write email" on any lead</div></div>
-        </div>
-        <button class="btn btn-sm" onclick="exportCSV()">↓ Export CSV</button>
-      </div>
-      <div class="leads-list" id="leads-container"></div>
-    </div>
-  </div>
-
-</div><!-- /tab-leads -->
-
-<!-- ════════════════════════════════════
-     TAB 2 — SOCIAL SCORECARD
-════════════════════════════════════ -->
-<div id="tab-scorecard" class="tab-panel">
-
-  <div class="card">
-    <div class="section-header">
-      <div class="step-num">1</div>
-      <div><div class="section-title">Audit a business</div><div class="section-sub">AI evaluates presence across 9 social channels and scores their digital footprint</div></div>
-    </div>
-    <div class="sc-input-row">
-      <div class="field"><label>Business Name</label><input type="text" id="sc-name" placeholder="e.g. Sunrise Med Spa"></div>
-      <div class="field"><label>Website (optional)</label><input type="text" id="sc-website" placeholder="https://..."></div>
-      <div class="field"><label>Business Type</label>
-        <select id="sc-type">
-          <option value="Restaurant">Restaurant</option><option value="Med Spa">Med Spa</option><option value="Dental Clinic">Dental Clinic</option><option value="Gym">Gym / Fitness Studio</option><option value="Law Firm">Law Firm</option><option value="Real Estate">Real Estate Agency</option><option value="Roofing">Roofing Company</option><option value="Plumbing">Plumbing Company</option>
+      <div class="market-field grow">
+        <div class="field-label">City</div>
+        <select class="mf-select" id="sel-city">
+          <option value="">— Select State First —</option>
         </select>
       </div>
-      <div class="field"><label style="opacity:0;user-select:none">Go</label><button class="btn btn-primary" id="sc-btn" onclick="analyzeScorecard()" style="width:100%">✦ Analyze</button></div>
-    </div>
-  </div>
-
-  <div id="sc-loading" style="display:none">
-    <div class="card loading-state"><span class="spinner spinner-dark"></span><div style="margin-top:12px;font-size:14px;color:var(--text)">Auditing social media presence...</div><div style="font-size:12px;color:var(--text3);margin-top:4px">Takes 5–10 seconds</div></div>
-  </div>
-
-  <div id="sc-results" style="display:none">
-    <div class="score-banner">
-      <div class="score-circle" id="sc-circle"><span class="sc-num" id="sc-score-num">0</span><span class="sc-denom">/ 100</span></div>
-      <div class="score-info">
-        <div class="score-label" id="sc-score-label">Social Media Score</div>
-        <div class="score-bar-wrap"><div class="score-bar" id="sc-bar" style="width:0%"></div></div>
-        <div class="score-summary" id="sc-summary"></div>
-      </div>
-    </div>
-    <div class="priority-box"><div class="priority-label">Top 3 to fix</div><div class="priority-tags" id="sc-priority-tags"></div></div>
-    <div class="channel-grid" id="sc-channel-grid"></div>
-    <div class="pitch-section">
-      <div class="pitch-header">
-        <div><div class="section-title">Generate sales pitch</div><div class="section-sub">Personalized pitch based on their weakest channels</div></div>
-        <button class="btn btn-primary" id="pitch-btn" onclick="generatePitch()">✉ Generate pitch</button>
-      </div>
-      <div id="pitch-loading" style="display:none;padding:0.75rem 0;font-size:13px;color:var(--text2);display:none;align-items:center;gap:8px"><span class="spinner spinner-dark"></span> Writing pitch...</div>
-      <div id="pitch-output" style="display:none">
-        <div class="output-panel open"><div class="output-label">Personalized cold pitch</div><div class="output-body" id="pitch-body"></div></div>
-        <div class="output-actions" style="margin-top:8px">
-          <button class="btn btn-sm" onclick="copyPitch()">Copy pitch</button>
-          <button class="btn btn-sm btn-ghost" onclick="document.getElementById('pitch-output').style.display='none'">✕ Clear</button>
-        </div>
-        <div class="ai-note">AI-generated — review before sending.</div>
-      </div>
-    </div>
-  </div>
-
-</div><!-- /tab-scorecard -->
-
-<!-- ════════════════════════════════════
-     TAB 3 — SEO SCORECARD
-════════════════════════════════════ -->
-<div id="tab-seo" class="tab-panel">
-
-  <div class="card">
-    <div class="section-header">
-      <div class="step-num">1</div>
-      <div><div class="section-title">SEO audit</div><div class="section-sub">AI evaluates Local SEO, Technical SEO, On-Page SEO, AIO, GEO, and AEO — 6 categories scored out of 100</div></div>
-    </div>
-    <div class="seo-input-grid">
-      <div class="field"><label>Business Name</label><input type="text" id="seo-name" placeholder="e.g. Sunrise Dental"></div>
-      <div class="field"><label>Website (optional)</label><input type="text" id="seo-website" placeholder="https://..."></div>
-      <div class="field"><label>Business Type</label>
-        <select id="seo-type">
-          <option value="Restaurant">Restaurant</option><option value="Med Spa">Med Spa</option><option value="Dental Clinic">Dental Clinic</option><option value="Gym">Gym / Fitness Studio</option><option value="Law Firm">Law Firm</option><option value="Real Estate">Real Estate Agency</option><option value="Roofing">Roofing Company</option><option value="Plumbing">Plumbing Company</option>
+      <div class="market-field">
+        <div class="field-label">Prospects</div>
+        <select class="mf-select" id="sel-limit">
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
         </select>
       </div>
-      <div class="field"><label>City</label><input type="text" id="seo-city" placeholder="e.g. Austin"></div>
-      <div class="field"><label>State</label><input type="text" id="seo-state" placeholder="e.g. TX"></div>
-      <div class="field"><label style="opacity:0;user-select:none">Go</label><button class="btn btn-primary" id="seo-btn" onclick="analyzeSEO()" style="width:100%">✦ Analyze SEO</button></div>
+      <div class="market-field">
+        <div class="field-label">Source</div>
+        <div class="source-toggle"><div class="source-dot"></div> GMB</div>
+      </div>
+      <div class="market-field">
+        <div class="field-label">&nbsp;</div>
+        <button class="find-btn" id="find-btn" onclick="findProspects()">Find Prospects</button>
+      </div>
     </div>
   </div>
 
-  <div id="seo-loading" style="display:none">
-    <div class="card loading-state"><span class="spinner spinner-dark"></span><div style="margin-top:12px;font-size:14px;color:var(--text)">Running SEO audit across 6 categories...</div><div style="font-size:12px;color:var(--text3);margin-top:4px">This takes 10–15 seconds</div></div>
+  <!-- Section 2: Prospects -->
+  <div id="prospects-section">
+    <div id="summary-bar">
+      <div class="sum-item"><div class="sum-dot" style="background:#4ade80"></div><span id="sum-total">0 prospects</span></div>
+      <div class="sum-item"><div class="sum-dot" style="background:#60a5fa"></div><span id="sum-email">0 with email</span></div>
+      <div class="sum-item"><div class="sum-dot" style="background:#f97316"></div><span id="sum-noweb">0 no website</span></div>
+      <div class="sum-item"><div class="sum-dot" style="background:#a78bfa"></div><span id="sum-lowrating">0 low rating</span></div>
+    </div>
+    <div id="filter-bar">
+      <span class="chip" data-filter="has-website" onclick="toggleFilter(this)">Has Website</span>
+      <span class="chip" data-filter="no-website" onclick="toggleFilter(this)">No Website</span>
+      <span class="chip" data-filter="has-email" onclick="toggleFilter(this)">Has Email</span>
+      <span class="chip" data-filter="no-email" onclick="toggleFilter(this)">Missing Email</span>
+      <span class="chip" data-filter="low-rating" onclick="toggleFilter(this)">Low Rating (&lt;3.5)</span>
+      <span class="chip" data-filter="few-reviews" onclick="toggleFilter(this)">Few Reviews (&lt;50)</span>
+      <span class="chip" data-filter="high-loss" onclick="toggleFilter(this)">High Revenue Loss</span>
+      <select class="sort-select" id="sort-select" onchange="applyFilters()">
+        <option value="score">Sort: Lead Score</option>
+        <option value="loss">Sort: Revenue Loss</option>
+        <option value="rating">Sort: Rating ↑</option>
+        <option value="reviews">Sort: Reviews ↑</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table class="prospects-table" id="prospects-table">
+        <thead>
+          <tr>
+            <th>Business</th>
+            <th>Website</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Rating</th>
+            <th>Reviews</th>
+            <th>GMB</th>
+            <th>Rev Loss/Mo</th>
+            <th>Opp Score</th>
+            <th>Best Time</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="prospects-tbody"></tbody>
+      </table>
+    </div>
   </div>
-
-  <div id="seo-results" style="display:none">
-
-    <!-- Overall score -->
-    <div class="score-banner">
-      <div class="score-circle" id="seo-circle"><span class="sc-num" id="seo-score-num">0</span><span class="sc-denom">/ 100</span></div>
-      <div class="score-info">
-        <div class="score-label" id="seo-score-label">SEO Score</div>
-        <div class="score-bar-wrap"><div class="score-bar" id="seo-bar" style="width:0%"></div></div>
-        <div class="score-summary" id="seo-summary">Overall search visibility assessment</div>
-        <div class="seo-competitor-gap" id="seo-competitor-gap"></div>
-      </div>
-    </div>
-
-    <!-- Priority action plan -->
-    <div class="seo-priority-box">
-      <div class="seo-priority-header"><span>⚡</span> Priority Action Plan</div>
-      <div class="seo-priority-list" id="seo-priority-list"></div>
-    </div>
-
-    <!-- 6 Category cards -->
-    <div class="seo-cat-grid" id="seo-cat-grid"></div>
-
-    <!-- Live Evidence -->
-    <div id="seo-evidence-section" style="display:none;margin-bottom:1rem">
-      <div class="ev-section-header"><span>🔍</span> Live Evidence — How you appear across search engines and AI</div>
-      <div class="evidence-grid" id="evidence-grid"></div>
-    </div>
-
-    <!-- Report + Pitch -->
-    <div class="seo-actions-card">
-      <div class="seo-actions-header">
-        <div><div class="section-title">Generate outputs</div><div class="section-sub">Full audit report to present to the client, or a cold pitch to win the deal</div></div>
-      </div>
-      <div class="seo-btn-row" style="margin-top:1rem">
-        <button class="btn btn-primary" id="seo-report-btn" onclick="generateSEOReport()">📄 Generate SEO Report</button>
-        <button class="btn" id="seo-pitch-btn" onclick="generateSEOPitch()">✉ Generate SEO Pitch</button>
-      </div>
-
-      <div class="seo-inline-loading" id="seo-report-loading"><span class="spinner spinner-dark"></span> Writing full audit report (15–20 seconds)...</div>
-      <div id="seo-report-output" style="display:none">
-        <div class="output-panel open" style="margin-top:12px">
-          <div class="output-label">Full SEO Audit Report — ready to present or export as PDF</div>
-          <div class="output-body" id="seo-report-body"></div>
-        </div>
-        <div class="output-actions">
-          <button class="btn btn-sm" id="seo-copy-report-btn" onclick="copyContent('seo-report-body','seo-copy-report-btn')">Copy report</button>
-          <button class="btn btn-sm btn-ghost" onclick="this.closest('#seo-report-output, [id]').style.display='none';document.getElementById('seo-report-output').style.display='none'">✕ Clear</button>
-        </div>
-        <div class="ai-note">AI-generated — review before presenting to client.</div>
-      </div>
-
-      <div class="seo-inline-loading" id="seo-pitch-loading"><span class="spinner spinner-dark"></span> Writing personalized pitch...</div>
-      <div id="seo-pitch-output" style="display:none">
-        <div class="output-panel open" style="margin-top:12px">
-          <div class="output-label">SEO Sales Pitch</div>
-          <div class="output-body" id="seo-pitch-body"></div>
-        </div>
-        <div class="output-actions">
-          <button class="btn btn-sm" id="seo-copy-pitch-btn" onclick="copyContent('seo-pitch-body','seo-copy-pitch-btn')">Copy pitch</button>
-          <button class="btn btn-sm btn-ghost" onclick="document.getElementById('seo-pitch-output').style.display='none'">✕ Clear</button>
-        </div>
-        <div class="ai-note">AI-generated — review before sending.</div>
-      </div>
-    </div>
-
-  </div><!-- /seo-results -->
-
-</div><!-- /tab-seo -->
 
 </div><!-- /main -->
 
 <script>
-/* ═══════════════════════════
-   SHARED
-═══════════════════════════ */
-let currentLeads     = [];
-let currentNiche     = '';
-let currentCity      = '';
-let currentScorecard = null;
-let currentSEO       = null;
-
-const BACKEND = window.location.origin;
-
-function loadKeys() {
-  document.getElementById('cfg-google').value    = localStorage.getItem('lg_google')    || '';
-  document.getElementById('cfg-hunter').value    = localStorage.getItem('lg_hunter')    || '';
-  document.getElementById('cfg-anthropic').value = localStorage.getItem('lg_anthropic') || '';
-  updateStatus();
-}
-function saveKeys() {
-  localStorage.setItem('lg_google',    document.getElementById('cfg-google').value.trim());
-  localStorage.setItem('lg_hunter',    document.getElementById('cfg-hunter').value.trim());
-  localStorage.setItem('lg_anthropic', document.getElementById('cfg-anthropic').value.trim());
-  const msg = document.getElementById('keys-saved');
-  msg.style.display = 'block';
-  setTimeout(() => msg.style.display = 'none', 2500);
-  updateStatus();
-  if (localStorage.getItem('lg_google') && localStorage.getItem('lg_hunter') && localStorage.getItem('lg_anthropic'))
-    document.getElementById('setup-banner').style.display = 'none';
-}
-function updateStatus() {
-  const el = document.getElementById('api-status');
-  const ok = localStorage.getItem('lg_google') && localStorage.getItem('lg_hunter') && localStorage.getItem('lg_anthropic');
-  el.textContent = ok ? '● Ready' : '● Setup needed';
-  el.className   = ok ? 'badge ready' : 'badge';
-}
-function toggleConfig() { document.getElementById('config-panel').classList.toggle('open'); }
-
-function switchTab(btn) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-  btn.classList.add('active');
-}
-
-/* shared score helpers */
-function scClass(n)    { return n >= 71 ? 'sc-green' : n >= 41 ? 'sc-amber' : 'sc-red'; }
-function scLabel(n)    { return n >= 71 ? 'Strong' : n >= 41 ? 'Needs Work' : 'Critical'; }
-function scBarCls(n)   { return n >= 71 ? 'sc-green-bar' : n >= 41 ? 'sc-amber-bar' : 'sc-red-bar'; }
-function statusClass(s) {
-  if (s === 'Active'   || s === 'Strong')     return 'status-active';
-  if (s === 'Weak'     || s === 'Needs Work') return 'status-weak';
-  return 'status-missing'; /* Missing | Critical */
-}
-
-/* ═══════════════════════════
-   TAB 1 — FIND LEADS
-═══════════════════════════ */
-const STATE_DATA = {
-  'Alabama':{'abbr':'AL','cities':['Birmingham','Montgomery','Huntsville','Mobile','Tuscaloosa','Hoover','Dothan','Auburn','Decatur','Madison']},
-  'Alaska':{'abbr':'AK','cities':['Anchorage','Fairbanks','Juneau','Sitka','Ketchikan','Wasilla','Kenai','Kodiak','Bethel','Palmer']},
-  'Arizona':{'abbr':'AZ','cities':['Phoenix','Tucson','Mesa','Chandler','Scottsdale','Glendale','Gilbert','Tempe','Peoria','Surprise']},
-  'Arkansas':{'abbr':'AR','cities':['Little Rock','Fort Smith','Fayetteville','Springdale','Jonesboro','Rogers','Conway','Bentonville','Hot Springs','Pine Bluff']},
-  'California':{'abbr':'CA','cities':['Los Angeles','San Francisco','San Diego','Sacramento','San Jose','Fresno','Oakland','Santa Rosa','Petaluma','Napa','Sonoma','Modesto','Stockton','Bakersfield','Santa Barbara','Monterey','Irvine','Pasadena','Long Beach','Anaheim','Riverside','Palm Springs','Chico','Redding','Eureka','Napa Valley','Walnut Creek','Concord','Hayward','Fremont']},
-  'Colorado':{'abbr':'CO','cities':['Denver','Colorado Springs','Aurora','Fort Collins','Lakewood','Thornton','Arvada','Westminster','Pueblo','Boulder']},
-  'Connecticut':{'abbr':'CT','cities':['Bridgeport','New Haven','Hartford','Stamford','Waterbury','Norwalk','Danbury','New Britain','Greenwich','West Haven']},
-  'Delaware':{'abbr':'DE','cities':['Wilmington','Dover','Newark','Middletown','Smyrna','Milford','Seaford','Georgetown','Elsmere','New Castle']},
-  'Florida':{'abbr':'FL','cities':['Miami','Orlando','Tampa','Jacksonville','Fort Lauderdale','Naples','Sarasota','Boca Raton','West Palm Beach','Gainesville','Tallahassee','Clearwater','St Petersburg','Pensacola','Fort Myers']},
-  'Georgia':{'abbr':'GA','cities':['Atlanta','Augusta','Columbus','Macon','Savannah','Athens','Sandy Springs','Roswell','Johns Creek','Albany']},
-  'Hawaii':{'abbr':'HI','cities':['Honolulu','Pearl City','Hilo','Kailua','Waipahu','Kaneohe','Mililani','Kahului','Kihei','Makakilo']},
-  'Idaho':{'abbr':'ID','cities':['Boise','Meridian','Nampa','Idaho Falls','Pocatello','Caldwell',"Coeur d'Alene",'Twin Falls','Lewiston','Post Falls']},
-  'Illinois':{'abbr':'IL','cities':['Chicago','Aurora','Joliet','Naperville','Rockford','Springfield','Elgin','Peoria','Champaign','Waukegan']},
-  'Indiana':{'abbr':'IN','cities':['Indianapolis','Fort Wayne','Evansville','South Bend','Carmel','Fishers','Bloomington','Hammond','Gary','Lafayette']},
-  'Iowa':{'abbr':'IA','cities':['Des Moines','Cedar Rapids','Davenport','Sioux City','Iowa City','Waterloo','Ames','West Des Moines','Ankeny','Dubuque']},
-  'Kansas':{'abbr':'KS','cities':['Wichita','Overland Park','Kansas City','Topeka','Olathe','Lawrence','Shawnee','Manhattan','Lenexa','Salina']},
-  'Kentucky':{'abbr':'KY','cities':['Louisville','Lexington','Bowling Green','Owensboro','Covington','Hopkinsville','Richmond','Florence','Georgetown','Henderson']},
-  'Louisiana':{'abbr':'LA','cities':['New Orleans','Baton Rouge','Shreveport','Metairie','Lafayette','Lake Charles','Kenner','Bossier City','Monroe','Alexandria']},
-  'Maine':{'abbr':'ME','cities':['Portland','Lewiston','Bangor','South Portland','Auburn','Biddeford','Sanford','Saco','Westbrook','Augusta']},
-  'Maryland':{'abbr':'MD','cities':['Baltimore','Frederick','Rockville','Gaithersburg','Bowie','Hagerstown','Annapolis','College Park','Salisbury','Laurel']},
-  'Massachusetts':{'abbr':'MA','cities':['Boston','Worcester','Springfield','Cambridge','Lowell','Brockton','New Bedford','Quincy','Lynn','Fall River']},
-  'Michigan':{'abbr':'MI','cities':['Detroit','Grand Rapids','Warren','Sterling Heights','Ann Arbor','Lansing','Flint','Dearborn','Livonia','Troy']},
-  'Minnesota':{'abbr':'MN','cities':['Minneapolis','St Paul','Rochester','Duluth','Bloomington','Brooklyn Park','Plymouth','St Cloud','Eagan','Woodbury']},
-  'Mississippi':{'abbr':'MS','cities':['Jackson','Gulfport','Southaven','Hattiesburg','Biloxi','Meridian','Tupelo','Greenville','Olive Branch','Horn Lake']},
-  'Missouri':{'abbr':'MO','cities':['Kansas City','St Louis','Springfield','Columbia','Independence',"Lee's Summit","O'Fallon",'St Joseph','St Charles','Blue Springs']},
-  'Montana':{'abbr':'MT','cities':['Billings','Missoula','Great Falls','Bozeman','Butte','Helena','Kalispell','Havre','Anaconda','Miles City']},
-  'Nebraska':{'abbr':'NE','cities':['Omaha','Lincoln','Bellevue','Grand Island','Kearney','Fremont','Hastings','North Platte','Norfolk','Columbus']},
-  'Nevada':{'abbr':'NV','cities':['Las Vegas','Henderson','Reno','North Las Vegas','Sparks','Carson City','Fernley','Elko','Mesquite','Boulder City']},
-  'New Hampshire':{'abbr':'NH','cities':['Manchester','Nashua','Concord','Derry','Dover','Rochester','Salem','Merrimack','Hudson','Londonderry']},
-  'New Jersey':{'abbr':'NJ','cities':['Newark','Jersey City','Paterson','Elizabeth','Edison','Woodbridge','Lakewood','Toms River','Hamilton','Trenton']},
-  'New Mexico':{'abbr':'NM','cities':['Albuquerque','Las Cruces','Rio Rancho','Santa Fe','Roswell','Farmington','Clovis','Hobbs','Alamogordo','Carlsbad']},
-  'New York':{'abbr':'NY','cities':['New York City','Brooklyn','Queens','Bronx','Staten Island','Buffalo','Rochester','Albany','Syracuse','Yonkers','White Plains','Long Island','Hamptons','Westchester']},
-  'North Carolina':{'abbr':'NC','cities':['Charlotte','Raleigh','Greensboro','Durham','Winston-Salem','Fayetteville','Cary','Wilmington','High Point','Asheville']},
-  'North Dakota':{'abbr':'ND','cities':['Fargo','Bismarck','Grand Forks','Minot','West Fargo','Mandan','Dickinson','Jamestown','Williston','Wahpeton']},
-  'Ohio':{'abbr':'OH','cities':['Columbus','Cleveland','Cincinnati','Toledo','Akron','Dayton','Parma','Canton','Youngstown','Lorain']},
-  'Oklahoma':{'abbr':'OK','cities':['Oklahoma City','Tulsa','Norman','Broken Arrow','Lawton','Edmond','Moore','Midwest City','Enid','Stillwater']},
-  'Oregon':{'abbr':'OR','cities':['Portland','Salem','Eugene','Gresham','Hillsboro','Beaverton','Bend','Medford','Springfield','Corvallis']},
-  'Pennsylvania':{'abbr':'PA','cities':['Philadelphia','Pittsburgh','Allentown','Erie','Reading','Scranton','Bethlehem','Lancaster','Harrisburg','York']},
-  'Rhode Island':{'abbr':'RI','cities':['Providence','Cranston','Warwick','Pawtucket','East Providence','Woonsocket','Cumberland','Coventry','North Providence','South Kingstown']},
-  'South Carolina':{'abbr':'SC','cities':['Columbia','Charleston','North Charleston','Mount Pleasant','Rock Hill','Greenville','Summerville','Goose Creek','Hilton Head Island','Sumter']},
-  'South Dakota':{'abbr':'SD','cities':['Sioux Falls','Rapid City','Aberdeen','Brookings','Watertown','Mitchell','Yankton','Pierre','Huron','Vermillion']},
-  'Tennessee':{'abbr':'TN','cities':['Nashville','Memphis','Knoxville','Chattanooga','Clarksville','Murfreesboro','Franklin','Jackson','Johnson City','Bartlett']},
-  'Texas':{'abbr':'TX','cities':['Houston','Dallas','Austin','San Antonio','Fort Worth','El Paso','Arlington','Plano','Lubbock','Amarillo','McKinney','Frisco','Irving','Garland','Midland']},
-  'Utah':{'abbr':'UT','cities':['Salt Lake City','West Valley City','Provo','West Jordan','Orem','Sandy','Ogden','St George','Layton','South Jordan']},
-  'Vermont':{'abbr':'VT','cities':['Burlington','South Burlington','Rutland','Barre','Montpelier','Winooski','St Albans','Newport','Vergennes','Middlebury']},
-  'Virginia':{'abbr':'VA','cities':['Virginia Beach','Norfolk','Chesapeake','Richmond','Newport News','Alexandria','Hampton','Roanoke','Portsmouth','Suffolk']},
-  'Washington':{'abbr':'WA','cities':['Seattle','Spokane','Tacoma','Vancouver','Bellevue','Kent','Everett','Renton','Spokane Valley','Kirkland']},
-  'West Virginia':{'abbr':'WV','cities':['Charleston','Huntington','Morgantown','Parkersburg','Wheeling','Weirton','Fairmont','Beckley','Clarksburg','Martinsburg']},
-  'Wisconsin':{'abbr':'WI','cities':['Milwaukee','Madison','Green Bay','Kenosha','Racine','Appleton','Waukesha','Oshkosh','Eau Claire','Janesville']},
-  'Wyoming':{'abbr':'WY','cities':['Cheyenne','Casper','Laramie','Gillette','Rock Springs','Sheridan','Green River','Evanston','Riverton','Jackson']}
+// ── Constants ──────────────────────────────────────────────────────────────
+const DEAL_VALUES = {
+  'Med Spa':1800,'Restaurant':1200,'Dental Clinic':2200,'Gym':1400,
+  'Law Firm':3500,'Real Estate Agency':2800,'Roofing Company':2000,
+  'Plumbing Company':1800,'Hair Salon':900,'Chiropractor':1600
 };
 
-function updateCities() {
-  const state = document.getElementById('state').value;
-  const el    = document.getElementById('city');
-  if (!state || !STATE_DATA[state]) { el.innerHTML = '<option value="">Select a state first</option>'; el.disabled = true; return; }
-  const { abbr, cities } = STATE_DATA[state];
-  el.innerHTML = cities.map(c => `<option value="${c}, ${abbr}">${c}</option>`).join('');
-  el.disabled  = false;
+const CONTACT_TIMES = {
+  'Restaurant':       {days:'Tue–Thu',    time:'2:00–4:00 PM'},
+  'Med Spa':          {days:'Monday',     time:'9:00–11:00 AM'},
+  'Dental Clinic':    {days:'Tue–Wed',    time:'10:00 AM–12:00 PM'},
+  'Gym':              {days:'Mon–Wed',    time:'8:00–10:00 AM'},
+  'Law Firm':         {days:'Tue–Wed',    time:'10:00 AM–12:00 PM'},
+  'Real Estate Agency':{days:'Wed–Thu',  time:'11:00 AM–1:00 PM'},
+  'Roofing Company':  {days:'Mon–Tue',   time:'8:00–10:00 AM'},
+  'Plumbing Company': {days:'Weekdays',  time:'7:00–9:00 AM'},
+  'Hair Salon':       {days:'Wed–Thu',   time:'1:00–3:00 PM'},
+  'Chiropractor':     {days:'Mon–Wed',   time:'9:00–11:00 AM'}
+};
+
+const CITIES = {
+  'California':['Los Angeles','San Diego','San Jose','San Francisco','Fresno','Sacramento','Long Beach','Oakland','Bakersfield','Anaheim','Santa Ana','Riverside'],
+  'Texas':['Houston','San Antonio','Dallas','Austin','Fort Worth','El Paso','Arlington','Corpus Christi','Plano','Laredo','Lubbock','Garland'],
+  'Florida':['Jacksonville','Miami','Tampa','Orlando','St. Petersburg','Hialeah','Tallahassee','Fort Lauderdale','Port St. Lucie','Cape Coral','Pembroke Pines','Hollywood'],
+  'New York':['New York City','Buffalo','Rochester','Yonkers','Syracuse','Albany','New Rochelle','Mount Vernon','Schenectady','Utica','White Plains','Binghamton'],
+  'Illinois':['Chicago','Aurora','Joliet','Naperville','Rockford','Springfield','Elgin','Peoria','Champaign','Waukegan','Cicero','Bloomington'],
+  'Georgia':['Atlanta','Columbus','Augusta','Macon','Savannah','Athens','Sandy Springs','Roswell','Albany','Warner Robins','Alpharetta','Marietta'],
+  'Arizona':['Phoenix','Tucson','Mesa','Chandler','Scottsdale','Glendale','Gilbert','Tempe','Peoria','Surprise','Yuma','Avondale'],
+  'North Carolina':['Charlotte','Raleigh','Greensboro','Durham','Winston-Salem','Fayetteville','Cary','Wilmington','High Point','Concord','Greenville','Asheville'],
+  'Washington':['Seattle','Spokane','Tacoma','Vancouver','Bellevue','Kent','Everett','Renton','Spokane Valley','Kirkland','Bellingham','Kennewick'],
+  'Colorado':['Denver','Colorado Springs','Aurora','Fort Collins','Lakewood','Thornton','Arvada','Westminster','Pueblo','Centennial','Boulder','Highlands Ranch'],
+  'Nevada':['Las Vegas','Henderson','Reno','North Las Vegas','Sparks','Carson City','Fernley','Elko','Mesquite','Boulder City'],
+  'Tennessee':['Memphis','Nashville','Knoxville','Chattanooga','Clarksville','Murfreesboro','Franklin','Jackson','Johnson City','Bartlett']
+};
+
+const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3000'
+  : '';
+
+// ── State ─────────────────────────────────────────────────────────────────
+let leads = [];
+let filteredLeads = [];
+let currentNiche = '';
+let currentCity = '';
+let expandedIdx = -1;
+let activeFilters = new Set();
+let reportCache = {};
+let pitchCache = {};
+let videoPitchCache = {};
+let activeScriptTab = {};
+
+// ── Dashboard Stats ────────────────────────────────────────────────────────
+function loadStats() {
+  const s = JSON.parse(localStorage.getItem('lg_stats') || '{"prospects":0,"pitches":0,"meetings":0}');
+  document.getElementById('stat-prospects').textContent = s.prospects || 0;
+  document.getElementById('stat-pitches').textContent = s.pitches || 0;
+  document.getElementById('stat-meetings').textContent = s.meetings || 0;
+  updatePipeline(s.pitches || 0);
+}
+function saveStats(key, val) {
+  const s = JSON.parse(localStorage.getItem('lg_stats') || '{}');
+  s[key] = (s[key] || 0) + val;
+  localStorage.setItem('lg_stats', JSON.stringify(s));
+  loadStats();
+}
+function addMeeting() { saveStats('meetings', 1); }
+function resetStats() {
+  if (!confirm('Reset today\'s stats?')) return;
+  localStorage.removeItem('lg_stats');
+  loadStats();
+}
+function updatePipeline(pitches) {
+  const dealVal = DEAL_VALUES[currentNiche] || 1500;
+  const pipeline = pitches * dealVal;
+  document.getElementById('stat-pipeline').textContent = '$' + pipeline.toLocaleString();
 }
 
-function scoreClass(s) { return s >= 8 ? 'hot' : s >= 5 ? 'warm' : 'cold'; }
-function scoreLabel(s) { return s >= 8 ? '🔥 Hot' : s >= 5 ? '↑ Warm' : '❄ Cold'; }
-
-function renderLeads(leads) {
-  const el = document.getElementById('leads-container');
-  if (!leads.length) { el.innerHTML = '<div class="empty-state">No leads found. Try a different niche or city.</div>'; return; }
-  el.innerHTML = leads.map((l, i) => `
-    <div class="lead-card" id="card-${i}">
-      <div class="lead-top">
-        <div style="flex:1;min-width:0">
-          <div class="lead-name">${l.name}</div>
-          <div class="lead-meta">
-            ${l.phone   ? `<span>📞 ${l.phone}</span>` : ''}
-            ${l.website ? `<span>🌐 <a href="${l.website}" target="_blank">${l.domain||l.website}</a></span>` : '<span style="color:var(--red-text)">⚠ No website</span>'}
-            ${l.email   ? `<span>✉ ${l.email}</span>` : `<span><a href="https://hunter.io/search/${l.domain||''}" target="_blank">Find email ↗</a></span>`}
-          </div>
-        </div>
-        <div class="score-pill ${scoreClass(l.score)}">${scoreLabel(l.score)} · ${l.score}/10</div>
-      </div>
-      <div class="pain-tag">⚡ ${l.pain}</div>
-      <div class="lead-footer">
-        <div class="lead-tags">
-          ${l.rating ? `<span class="tag">⭐ ${l.rating} (${l.reviews} reviews)</span>` : '<span class="tag tag-red">No rating</span>'}
-          ${l.email  ? '<span class="tag tag-green">Email found</span>' : '<span class="tag tag-red">No email</span>'}
-          <span class="tag">${currentNiche}</span>
-        </div>
-        <button class="btn btn-sm btn-primary" onclick="writeEmail(${i})">✉ Write email</button>
-      </div>
-      <div class="email-panel" id="ep-${i}">
-        <div class="email-toolbar">
-          <span class="email-label">Personalized cold email</span>
-          <div style="display:flex;gap:6px">
-            <button class="btn btn-sm" onclick="copyEmail(${i})">Copy</button>
-            <button class="btn btn-sm btn-ghost" onclick="closeEmail(${i})">✕ Close</button>
-          </div>
-        </div>
-        <div class="email-body" id="eb-${i}">Generating email...</div>
-      </div>
-    </div>`).join('');
-  document.getElementById('m-total').textContent = leads.length;
-  document.getElementById('m-email').textContent = leads.filter(l => l.email).length;
-  document.getElementById('m-hot').textContent   = leads.filter(l => l.score >= 8).length;
-  document.getElementById('m-avg').textContent   = (leads.reduce((a,b)=>a+b.score,0)/leads.length).toFixed(1);
+// ── Config ─────────────────────────────────────────────────────────────────
+function loadConfig() {
+  const g = localStorage.getItem('lg_google') || '';
+  const h = localStorage.getItem('lg_hunter') || '';
+  const a = localStorage.getItem('lg_anthropic') || '';
+  if (g) document.getElementById('cfg-google').value = g;
+  if (h) document.getElementById('cfg-hunter').value = h;
+  if (a) document.getElementById('cfg-anthropic').value = a;
+  const badge = document.getElementById('api-badge');
+  if (g && h && a) { badge.textContent = '✓ APIs Ready'; badge.className = 'ready'; }
+  else { badge.textContent = '⚠ APIs Not Set'; badge.className = ''; }
 }
-
-async function generateLeads() {
-  const g = localStorage.getItem('lg_google'), h = localStorage.getItem('lg_hunter'), a = localStorage.getItem('lg_anthropic');
-  if (!g || !h || !a) { document.getElementById('config-panel').classList.add('open'); return; }
-  currentNiche = document.getElementById('niche').value;
-  currentCity  = document.getElementById('city').value;
-  if (!currentCity) { document.getElementById('state').focus(); return; }
-  const btn = document.getElementById('gen-btn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generating...';
-  document.getElementById('results-section').style.display = 'none';
-  document.getElementById('loading-section').style.display = 'block';
-  const msgs = ['Searching Google Maps...','Pulling business details...','Finding emails via Hunter.io...','Scoring leads with AI...'];
-  let mi = 0; const msgEl = document.getElementById('loading-msg');
-  const t = setInterval(() => { if (mi < msgs.length-1) msgEl.textContent = msgs[++mi]; }, 4500);
-  try {
-    const resp = await fetch(`${BACKEND}/api/generate`,{method:'POST',headers:{'Content-Type':'application/json','x-google-key':g,'x-hunter-key':h,'x-anthropic-key':a},body:JSON.stringify({niche:currentNiche,city:currentCity})});
-    const data = await resp.json(); clearInterval(t);
-    if (data.error) throw new Error(data.error);
-    currentLeads = data.leads; renderLeads(currentLeads);
-    document.getElementById('loading-section').style.display = 'none';
-    document.getElementById('results-section').style.display = 'block';
-  } catch(err) {
-    clearInterval(t);
-    document.getElementById('loading-section').style.display = 'none';
-    document.getElementById('results-section').style.display = 'block';
-    document.getElementById('leads-container').innerHTML = `<div class="empty-state">Error: ${err.message}<br><br>Check your API keys in Settings and try again.</div>`;
-  }
-  btn.disabled = false; btn.innerHTML = '✦ Regenerate';
+function saveConfig() {
+  const g = document.getElementById('cfg-google').value.trim();
+  const h = document.getElementById('cfg-hunter').value.trim();
+  const a = document.getElementById('cfg-anthropic').value.trim();
+  if (g) localStorage.setItem('lg_google', g);
+  if (h) localStorage.setItem('lg_hunter', h);
+  if (a) localStorage.setItem('lg_anthropic', a);
+  loadConfig();
+  document.getElementById('config-panel').style.display = 'none';
+  alert('Keys saved!');
 }
-
-async function writeEmail(idx) {
-  const lead=currentLeads[idx], panel=document.getElementById(`ep-${idx}`), body=document.getElementById(`eb-${idx}`);
-  panel.classList.add('open'); body.textContent='Writing your personalized email...';
-  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
-  try {
-    const resp=await fetch(`${BACKEND}/api/email`,{method:'POST',headers:{'Content-Type':'application/json','x-anthropic-key':localStorage.getItem('lg_anthropic')},body:JSON.stringify({lead,niche:currentNiche,city:currentCity})});
-    const data=await resp.json(); body.textContent=data.email||'Could not generate email.';
-  } catch { body.textContent='Error generating email. Please try again.'; }
+function toggleConfig() {
+  const p = document.getElementById('config-panel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
 }
-function closeEmail(idx) { document.getElementById(`ep-${idx}`).classList.remove('open'); }
-function copyEmail(idx) {
-  navigator.clipboard.writeText(document.getElementById(`eb-${idx}`).textContent).then(()=>{
-    const btn=document.querySelector(`#ep-${idx} .btn`), orig=btn.textContent;
-    btn.textContent='Copied!'; setTimeout(()=>btn.textContent=orig,1500);
-  });
-}
-function exportCSV() {
-  const h=['Name','Phone','Website','Email','Rating','Reviews','Score','Pain Point','City','Niche'];
-  const rows=currentLeads.map(l=>[l.name,l.phone||'',l.website||'',l.email||'',l.rating||'',l.reviews||'',l.score,l.pain,currentCity,currentNiche].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
-  const blob=new Blob([[h.join(','),...rows].join('\n')],{type:'text/csv'});
-  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:`leads-${currentNiche}-${currentCity}.csv`.replace(/\s/g,'-')});
-  a.click(); URL.revokeObjectURL(a.href);
-}
-
-/* ═══════════════════════════
-   TAB 2 — SOCIAL SCORECARD
-═══════════════════════════ */
-async function analyzeScorecard() {
-  const a=localStorage.getItem('lg_anthropic'); if (!a){toggleConfig();return;}
-  const businessName=document.getElementById('sc-name').value.trim();
-  if (!businessName){document.getElementById('sc-name').focus();return;}
-  const btn=document.getElementById('sc-btn');
-  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Analyzing...';
-  document.getElementById('sc-results').style.display='none';
-  document.getElementById('sc-loading').style.display='block';
-  document.getElementById('pitch-output').style.display='none';
-  try {
-    const resp=await fetch(`${BACKEND}/api/scorecard`,{method:'POST',headers:{'Content-Type':'application/json','x-anthropic-key':a},body:JSON.stringify({businessName,website:document.getElementById('sc-website').value.trim(),businessType:document.getElementById('sc-type').value})});
-    const data=await resp.json(); if(data.error)throw new Error(data.error);
-    currentScorecard={...data,businessName,businessType:document.getElementById('sc-type').value};
-    renderScorecard(data);
-    document.getElementById('sc-loading').style.display='none';
-    document.getElementById('sc-results').style.display='block';
-  } catch(err){document.getElementById('sc-loading').style.display='none';alert('Error: '+err.message);}
-  btn.disabled=false; btn.innerHTML='✦ Analyze';
-}
-
-function renderScorecard(data) {
-  const s=data.score||0, cls=scClass(s);
-  const circle=document.getElementById('sc-circle'); circle.className=`score-circle ${cls}`;
-  document.getElementById('sc-score-num').textContent=s;
-  document.getElementById('sc-score-label').textContent=scLabel(s)+' social presence';
-  const bar=document.getElementById('sc-bar'); bar.className=`score-bar ${scBarCls(s)}`; bar.style.width='0%';
-  setTimeout(()=>bar.style.width=s+'%',50);
-  document.getElementById('sc-summary').textContent=data.summary||'';
-  document.getElementById('sc-priority-tags').innerHTML=(data.priority||[]).map((n,i)=>`<div class="priority-tag"><span class="priority-num">${i+1}</span>${n}</div>`).join('');
-  document.getElementById('sc-channel-grid').innerHTML=(data.channels||[]).map(ch=>`
-    <div class="channel-card">
-      <div class="channel-top"><div class="channel-name"><span class="channel-icon">${ch.icon}</span>${ch.name}</div><span class="status-badge ${statusClass(ch.status)}">${ch.status}</span></div>
-      <div class="channel-row"><span class="channel-row-icon" style="color:var(--red-text)">⚠</span><span style="color:var(--text2)">${ch.problem}</span></div>
-      <div class="channel-row"><span class="channel-row-icon" style="color:var(--green-text)">→</span><span class="channel-action">${ch.action}</span></div>
-    </div>`).join('');
-}
-
-async function generatePitch() {
-  const a=localStorage.getItem('lg_anthropic'); if(!a||!currentScorecard)return;
-  const btn=document.getElementById('pitch-btn');
-  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Writing...';
-  document.getElementById('pitch-loading').style.display='flex';
-  document.getElementById('pitch-output').style.display='none';
-  try {
-    const resp=await fetch(`${BACKEND}/api/pitch`,{method:'POST',headers:{'Content-Type':'application/json','x-anthropic-key':a},body:JSON.stringify(currentScorecard)});
-    const data=await resp.json(); if(data.error)throw new Error(data.error);
-    document.getElementById('pitch-body').textContent=data.pitch||'';
-    document.getElementById('pitch-loading').style.display='none';
-    document.getElementById('pitch-output').style.display='block';
-  } catch(err){document.getElementById('pitch-loading').style.display='none';alert('Error: '+err.message);}
-  btn.disabled=false; btn.innerHTML='✉ Generate pitch';
-}
-function copyPitch() {
-  navigator.clipboard.writeText(document.getElementById('pitch-body').textContent).then(()=>{
-    const btn=document.getElementById('pitch-btn'), orig=btn.innerHTML;
-    btn.textContent='Copied!'; setTimeout(()=>btn.innerHTML=orig,1500);
-  });
-}
-
-/* ═══════════════════════════
-   TAB 3 — SEO SCORECARD
-═══════════════════════════ */
-function seoCatClass(status) { return status==='Strong'?'cat-strong':status==='Needs Work'?'cat-work':'cat-critical'; }
-function seoCatColor(status) { return status==='Strong'?'var(--c-green)':status==='Needs Work'?'var(--c-amber)':'var(--c-red)'; }
-function impactTag(v) { return v==='High'?'tag-green':v==='Low'?'tag-red':''; }
-function effortTag(v) { return v==='Low'?'tag-green':v==='High'?'tag-red':''; }
-
-async function analyzeSEO() {
-  const a=localStorage.getItem('lg_anthropic'); if(!a){toggleConfig();return;}
-  const businessName=document.getElementById('seo-name').value.trim();
-  if(!businessName){document.getElementById('seo-name').focus();return;}
-  const btn=document.getElementById('seo-btn');
-  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Analyzing...';
-  document.getElementById('seo-results').style.display='none';
-  document.getElementById('seo-loading').style.display='block';
-  document.getElementById('seo-report-output').style.display='none';
-  document.getElementById('seo-pitch-output').style.display='none';
-  document.getElementById('seo-evidence-section').style.display='none';
-  try {
-    const resp=await fetch(`${BACKEND}/api/seo-scorecard`,{method:'POST',headers:{'Content-Type':'application/json','x-anthropic-key':a},body:JSON.stringify({
-      businessName,
-      website:document.getElementById('seo-website').value.trim(),
-      businessType:document.getElementById('seo-type').value,
-      city:document.getElementById('seo-city').value.trim(),
-      state:document.getElementById('seo-state').value.trim()
-    })});
-    const data=await resp.json(); if(data.error)throw new Error(data.error);
-    currentSEO={...data,businessName,website:document.getElementById('seo-website').value.trim(),businessType:document.getElementById('seo-type').value,city:document.getElementById('seo-city').value.trim(),state:document.getElementById('seo-state').value.trim()};
-    renderSEO(data);
-    renderEvidence(currentSEO);
-    generateAIEvidence(currentSEO);
-    document.getElementById('seo-loading').style.display='none';
-    document.getElementById('seo-results').style.display='block';
-  } catch(err){document.getElementById('seo-loading').style.display='none';alert('Error: '+err.message);}
-  btn.disabled=false; btn.innerHTML='✦ Analyze SEO';
-}
-
-function renderSEO(data) {
-  const s=data.overallScore||0;
-  const circle=document.getElementById('seo-circle'); circle.className=`score-circle ${scClass(s)}`;
-  document.getElementById('seo-score-num').textContent=s;
-  document.getElementById('seo-score-label').textContent='SEO Score — '+scLabel(s);
-  const bar=document.getElementById('seo-bar'); bar.className=`score-bar ${scBarCls(s)}`; bar.style.width='0%';
-  setTimeout(()=>bar.style.width=s+'%',50);
-  document.getElementById('seo-competitor-gap').textContent='📊 '+( data.competitorGap||'');
-
-  /* priority actions */
-  document.getElementById('seo-priority-list').innerHTML=(data.priorityActions||[]).map(a=>`
-    <div class="seo-priority-item">
-      <div class="seo-rank">${a.rank}</div>
-      <div style="flex:1;min-width:0">
-        <div class="seo-priority-action">${a.action}</div>
-        <div class="seo-priority-meta">
-          <span class="tag ${impactTag(a.impact)}">Impact: ${a.impact}</span>
-          <span class="tag ${effortTag(a.effort)}">Effort: ${a.effort}</span>
-          <span class="tag">${a.category}</span>
-        </div>
-      </div>
-    </div>`).join('');
-
-  /* category cards */
-  document.getElementById('seo-cat-grid').innerHTML=(data.categories||[]).map(cat=>`
-    <div class="seo-cat-card ${seoCatClass(cat.status)}">
-      <div class="seo-cat-top">
-        <div>
-          <div class="seo-cat-name">${cat.name}</div>
-          <span class="status-badge ${statusClass(cat.status)}">${cat.status}</span>
-        </div>
-        <div class="seo-cat-score">${cat.score}<span>/100</span></div>
-      </div>
-      <div class="seo-cat-bar"><div class="seo-cat-fill" style="width:${cat.score}%;background:${seoCatColor(cat.status)}"></div></div>
-      <div class="seo-cat-section-label">Issues found</div>
-      ${cat.issues.map(i=>`<div class="seo-cat-row"><span class="seo-cat-row-icon" style="color:var(--red-text);flex-shrink:0">⚠</span><span>${i}</span></div>`).join('')}
-      <div class="seo-cat-section-label" style="margin-top:10px">Quick wins</div>
-      ${cat.quickWins.map(w=>`<div class="seo-cat-row win"><span class="seo-cat-row-icon" style="color:var(--green-text);flex-shrink:0">→</span><span>${w}</span></div>`).join('')}
-      <div class="seo-impact-tag">⚡ ${cat.trafficImpact}</div>
-    </div>`).join('');
-}
-
-async function generateSEOReport() {
-  const a=localStorage.getItem('lg_anthropic'); if(!a||!currentSEO)return;
-  const btn=document.getElementById('seo-report-btn');
-  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Generating...';
-  document.getElementById('seo-report-loading').classList.add('show');
-  document.getElementById('seo-report-output').style.display='none';
-  try {
-    const resp=await fetch(`${BACKEND}/api/seo-report`,{method:'POST',headers:{'Content-Type':'application/json','x-anthropic-key':a},body:JSON.stringify(currentSEO)});
-    const data=await resp.json(); if(data.error)throw new Error(data.error);
-    document.getElementById('seo-report-body').textContent=data.report||'';
-    document.getElementById('seo-report-loading').classList.remove('show');
-    document.getElementById('seo-report-output').style.display='block';
-    document.getElementById('seo-report-output').scrollIntoView({behavior:'smooth',block:'start'});
-  } catch(err){document.getElementById('seo-report-loading').classList.remove('show');alert('Error: '+err.message);}
-  btn.disabled=false; btn.innerHTML='📄 Generate SEO Report';
-}
-
-async function generateSEOPitch() {
-  const a=localStorage.getItem('lg_anthropic'); if(!a||!currentSEO)return;
-  const btn=document.getElementById('seo-pitch-btn');
-  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Writing...';
-  document.getElementById('seo-pitch-loading').classList.add('show');
-  document.getElementById('seo-pitch-output').style.display='none';
-  try {
-    const resp=await fetch(`${BACKEND}/api/seo-pitch`,{method:'POST',headers:{'Content-Type':'application/json','x-anthropic-key':a},body:JSON.stringify(currentSEO)});
-    const data=await resp.json(); if(data.error)throw new Error(data.error);
-    document.getElementById('seo-pitch-body').textContent=data.pitch||'';
-    document.getElementById('seo-pitch-loading').classList.remove('show');
-    document.getElementById('seo-pitch-output').style.display='block';
-  } catch(err){document.getElementById('seo-pitch-loading').classList.remove('show');alert('Error: '+err.message);}
-  btn.disabled=false; btn.innerHTML='✉ Generate SEO Pitch';
-}
-
-function copyContent(bodyId,btnId) {
-  navigator.clipboard.writeText(document.getElementById(bodyId).textContent).then(()=>{
-    const btn=document.getElementById(btnId), orig=btn.textContent;
-    btn.textContent='Copied!'; setTimeout(()=>btn.textContent=orig,1500);
-  });
-}
-
-/* ═══════════════════════════
-   SEO EVIDENCE SECTION
-═══════════════════════════ */
-function evStatusLabel(s) { return s==='appearing'?'✓ Appearing':s==='partial'?'~ Partially':'✕ Not Found'; }
-function evStatus(score, hi=65, lo=40) { return score>=hi?'appearing':score>=lo?'partial':'not-appearing'; }
-
-function buildGoogleMockup(name, type, city, status) {
-  const biz = name.toLowerCase().replace(/\s+/g,'-');
-  const packItems = status==='appearing' ? `
-    <div class="gpack-item"><div class="gpack-dot" style="background:#4a9b2a"></div><div><div class="gpack-name" style="color:#1a6600">${name}</div><div class="gpack-stars">★★★★☆</div></div><span class="gpack-badge" style="background:#eaf3de;color:#27500a">Top 3</span></div>
-    <div class="gpack-item"><div class="gpack-dot" style="background:#ccc"></div><div><div class="gpack-name">Premier ${type} Co</div><div class="gpack-stars">★★★★★</div></div></div>
-    <div class="gpack-item"><div class="gpack-dot" style="background:#ccc"></div><div><div class="gpack-name">City ${type} Group</div><div class="gpack-stars">★★★★☆</div></div></div>`
-  : status==='partial' ? `
-    <div class="gpack-item"><div class="gpack-dot" style="background:#ccc"></div><div><div class="gpack-name">Premier ${type} Co</div><div class="gpack-stars">★★★★★</div></div></div>
-    <div class="gpack-item"><div class="gpack-dot" style="background:#ccc"></div><div><div class="gpack-name">City ${type} Group</div><div class="gpack-stars">★★★★☆</div></div></div>
-    <div class="gpack-item"><div class="gpack-dot" style="background:#d98c3a"></div><div><div class="gpack-name" style="color:#633806">${name}</div><div class="gpack-stars" style="color:#d98c3a">★★★☆☆</div></div><span class="gpack-badge" style="background:#faeeda;color:#633806">Low</span></div>`
-  : `
-    <div class="gpack-item"><div class="gpack-dot" style="background:#ccc"></div><div><div class="gpack-name">Premier ${type} Co</div><div class="gpack-stars">★★★★★</div></div></div>
-    <div class="gpack-item"><div class="gpack-dot" style="background:#ccc"></div><div><div class="gpack-name">City ${type} Group</div><div class="gpack-stars">★★★★☆</div></div></div>
-    <div class="gpack-item"><div class="gpack-dot" style="background:#ccc"></div><div><div class="gpack-name">Elite ${type} Services</div><div class="gpack-stars">★★★★☆</div></div></div>`;
-  const organic = status==='appearing'
-    ? `<div class="gserp-result ev-highlight"><div class="gserp-url">🌐 ${biz}.com ▾</div><div class="gserp-title">${name} — Best ${type} in ${city}</div><div class="gserp-snip">Highly rated ${type} serving ${city}. Services, reviews, and online booking available.</div></div>`
-    : status==='partial'
-    ? `<div class="gserp-result ev-amber"><div class="gserp-url">🌐 ${biz}.com ▾</div><div class="gserp-title">${name} — ${type} Services</div><div class="gserp-snip">Local ${type} in ${city}. Contact us for more information.</div></div>`
-    : `<div class="ev-notfound">⚠ ${name} — Not found in top 10 results</div>`;
-  return `<div class="gserp"><div class="gserp-bar"><div class="gserp-logo"><span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span></div><div class="gserp-input">${name} ${city}</div></div><div class="gserp-body"><div class="gserp-count">About 43,800 results (0.38 sec)</div><div class="gpack"><div class="gpack-header">📍 Local businesses · ${city}</div>${packItems}</div>${organic}<div class="gserp-result"><div class="gserp-url">yelp.com ▾</div><div class="gserp-title">Best ${type} in ${city} — Yelp</div><div class="gserp-snip">Find top-rated ${type} options in ${city}. Reviews and photos.</div></div></div></div>`;
-}
-
-function buildAIOMockup(name, type, city, status, score) {
-  const q = `best ${type} in ${city}`;
-  const text = status==='appearing'
-    ? `Based on local reviews and web presence, <strong style="color:#1a6600">${name}</strong> is among the top-rated ${type} options in ${city}, with strong customer ratings and an established online profile.`
-    : status==='partial'
-    ? `Several well-reviewed ${type} options serve ${city}. <strong style="color:#633806">${name}</strong> has some online presence but limited visibility in AI-generated summaries compared to top competitors.`
-    : `Popular ${type} options in ${city} include Premier ${type} Co and City ${type} Group, which have strong review profiles and consistent online citations. <em style="color:#791f1f">${name} was not surfaced</em> in this overview.`;
-  return `<div class="gaio-wrap"><div class="gaio-box"><div class="gaio-label">✨ AI Overview <span style="font-weight:400;color:#5f6368;font-size:9px">— Google Search</span></div><div class="gaio-query">🔍 ${q}</div><div class="gaio-text">${text}</div><div class="gaio-sources"><span class="gaio-source">google.com</span><span class="gaio-source">yelp.com</span><span class="gaio-source">maps.google.com</span></div></div></div>`;
-}
-
-function buildBingMockup(name, type, city, status, score) {
-  const copText = status==='appearing'
-    ? `${name} is a highly recommended ${type} in ${city} with strong reviews and an active web presence.`
-    : status==='partial'
-    ? `${city} has several ${type} options. ${name} appears in some results but has limited Bing indexing and citation signals.`
-    : `Top ${type} options in ${city} based on Bing data are Premier ${type} Co and City ${type} Group. ${name} was not found in Copilot results.`;
-  const organic = status!=='not-appearing'
-    ? `<div class="bing-result ${status==='partial'?'ev-amber':'ev-highlight'}" style="${status==='partial'?'background:rgba(217,140,58,0.06);border-left:2px solid #d98c3a;padding-left:5px':'background:rgba(74,155,42,0.06);border-left:2px solid #4a9b2a;padding-left:5px'}"><div class="bing-r-url">${name.toLowerCase().replace(/\s+/g,'-')}.com</div><div class="bing-r-title">${name} — ${type} in ${city}</div><div class="bing-r-snip">Local ${type} serving ${city}.</div></div>`
-    : `<div class="ev-notfound" style="margin-top:4px">⚠ ${name} — Not indexed in Bing top results</div>`;
-  return `<div class="bing-wrap"><div class="bing-bar"><div class="bing-logo">Bing</div><div class="bing-input">${name} ${city}</div></div><div class="bing-body"><div class="bing-copilot"><div class="bing-cop-label">🤖 Copilot answer</div><div class="bing-cop-text">${copText}</div></div>${organic}<div class="bing-result"><div class="bing-r-url">yelp.com</div><div class="bing-r-title">Best ${type} in ${city} — Yelp</div></div></div></div>`;
-}
-
-function buildVoiceMockup(name, type, city, status) {
-  const query = `Hey Google, find best ${type} near me in ${city}`;
-  const answer = status==='appearing'
-    ? `I found ${name} near you in ${city}. They're rated 4.4 stars and are open now. Want me to get directions?`
-    : status==='partial'
-    ? `Here are some ${type} options in ${city}. ${name} is listed, though other businesses have more reviews. Want more details?`
-    : `The top ${type} near you in ${city} is Premier ${type} Co, rated 4.8 stars. I couldn't find ${name} in voice search results.`;
-  const dotColors = status==='appearing'?['#4285F4','#EA4335','#FBBC05','#34A853']:status==='partial'?['#FBBC05','#FBBC05','#FBBC05','#FBBC05']:['#EA4335','#EA4335','#EA4335','#EA4335'];
-  return `<div class="voice-wrap"><div class="voice-phone"><div class="voice-screen-inner"><div class="voice-mic-btn">🎤</div></div><div class="voice-wave">${[6,11,8,13,7].map(h=>`<div class="voice-wbar" style="height:${h}px"></div>`).join('')}</div></div><div class="voice-content"><div class="voice-query-bubble"><span style="font-size:9px;opacity:0.6">You said: </span><br>${query}</div><div class="voice-answer-bubble"><div class="voice-google-badge"><div class="voice-g-dot" style="background:${dotColors[0]}"></div><div class="voice-g-dot" style="background:${dotColors[1]}"></div><div class="voice-g-dot" style="background:${dotColors[2]}"></div><div class="voice-g-dot" style="background:${dotColors[3]}"></div><span style="font-size:10px;opacity:0.7;margin-left:3px">Google</span></div>${answer}</div></div></div>`;
-}
-
-function evSummary(platform, status, name, type, city) {
-  const lose = `Every day without visibility, potential customers choose a competitor instead.`;
-  const msgs = {
-    google: {
-      appearing:    `${name} appears in Google's local 3-pack — capturing high-intent searches for ${type} in ${city}.`,
-      partial:      `${name} ranks below the top 3 on Google Maps. Most clicks go to the top 3 — you're missing the majority of local traffic.`,
-      'not-appearing': `${name} is invisible on Google for "${type} ${city}" searches. ${lose}`
-    },
-    aio: {
-      appearing:    `Google's AI Overview mentions ${name} — positioning you as a trusted authority before users even click.`,
-      partial:      `${name} gets minimal mention in Google's AI summaries. Competitors with better GEO scores appear first.`,
-      'not-appearing': `${name} does not appear in Google's AI Overview. Users asking AI get sent to competitors. ${lose}`
-    },
-    bing: {
-      appearing:    `${name} shows up in Bing Copilot answers — reaching the 30%+ of search users on Microsoft browsers.`,
-      partial:      `${name} has limited Bing presence. Bing Copilot recommends competitors with stronger technical SEO.`,
-      'not-appearing': `${name} is absent from Bing and Copilot. ${lose}`
-    },
-    voice: {
-      appearing:    `Voice search surfaces ${name} when customers say "find best ${type} near me" — critical for mobile and smart speaker users.`,
-      partial:      `${name} appears inconsistently in voice results. Incomplete GMB data limits voice search eligibility.`,
-      'not-appearing': `Voice assistants don't recommend ${name}. Without GMB optimization, you're invisible to "near me" voice queries. ${lose}`
-    }
+function getKeys() {
+  return {
+    google: localStorage.getItem('lg_google') || '',
+    hunter: localStorage.getItem('lg_hunter') || '',
+    anthropic: localStorage.getItem('lg_anthropic') || ''
   };
-  return (msgs[platform] || {})[status] || '';
 }
 
-function renderEvidence(seo) {
-  const { businessName: name, businessType: type, city, state, categories } = seo;
-  const cityName = city || 'your city';
-  const cats = categories || [];
-  const catScore = n => (cats.find(c => c.name === n) || {}).score || 0;
-  const localScore  = catScore('Local SEO');
-  const techScore   = catScore('Technical SEO');
-  const onPageScore = catScore('On-Page SEO');
-  const aioScore    = catScore('AIO — AI Optimization');
-  const geoScore    = catScore('GEO — Generative Engine Optimization');
-  const aeoScore    = catScore('AEO — Answer Engine Optimization');
-  const bingScore   = Math.round((techScore + onPageScore) / 2);
-
-  const gSt   = evStatus(localScore);
-  const aioSt = evStatus(geoScore);
-  const aiSt  = evStatus(aioScore);
-  const bSt   = evStatus(bingScore);
-  const vSt   = evStatus(Math.round((localScore + aeoScore) / 2));
-
-  const aiQuery = encodeURIComponent(`What is the best ${type} in ${cityName}?`);
-
-  document.getElementById('evidence-grid').innerHTML = `
-    <div class="ev-card">
-      <div class="ev-platform-row">
-        <div class="ev-platform-name"><span class="ev-platform-icon" style="background:linear-gradient(135deg,#4285F4,#34A853)">G</span>Google Search + Maps</div>
-        <span class="ev-status ${gSt}">${evStatusLabel(gSt)}</span>
-      </div>
-      <div class="ev-mockup">${buildGoogleMockup(name, type, cityName, gSt)}</div>
-      <div class="ev-summary">${evSummary('google', gSt, name, type, cityName)}</div>
-      <a href="https://www.google.com/search?q=${encodeURIComponent(name+' '+cityName)}" target="_blank" class="ev-link">Search on Google ↗</a>
-    </div>
-
-    <div class="ev-card">
-      <div class="ev-platform-row">
-        <div class="ev-platform-name"><span class="ev-platform-icon" style="background:#1a73e8">✨</span>Google AI Overview</div>
-        <span class="ev-status ${aioSt}">${evStatusLabel(aioSt)}</span>
-      </div>
-      <div class="ev-mockup">${buildAIOMockup(name, type, cityName, aioSt, geoScore)}</div>
-      <div class="ev-summary">${evSummary('aio', aioSt, name, type, cityName)}</div>
-      <a href="https://www.google.com/search?q=${aiQuery}" target="_blank" class="ev-link">Check on Google ↗</a>
-    </div>
-
-    <div class="ev-card" id="ev-chatgpt-card">
-      <div class="ev-platform-row">
-        <div class="ev-platform-name"><span class="ev-platform-icon" style="background:#10a37f">G</span>ChatGPT</div>
-        <span class="ev-status ${aiSt}" id="ev-chatgpt-status">${evStatusLabel(aiSt)}</span>
-      </div>
-      <div class="ev-mockup">
-        <div class="cgpt">
-          <div class="cgpt-bar"><div class="cgpt-dots"><div class="cgpt-dot2" style="background:#ff5f57"></div><div class="cgpt-dot2" style="background:#febc2e"></div><div class="cgpt-dot2" style="background:#28c840"></div></div><span class="cgpt-bar-title">ChatGPT</span></div>
-          <div class="cgpt-body">
-            <div class="cgpt-user">What is the best ${type} in ${cityName}?</div>
-            <div class="cgpt-ai"><div class="cgpt-avatar">G</div><div class="cgpt-text" id="ev-chatgpt-text"><div class="ev-dots"><div class="ev-dot-a"></div><div class="ev-dot-a"></div><div class="ev-dot-a"></div></div></div></div>
-          </div>
-        </div>
-      </div>
-      <div class="ev-summary" id="ev-chatgpt-summary" style="color:var(--text3);font-style:italic">Generating AI response...</div>
-      <a href="https://chatgpt.com/?q=${aiQuery}" target="_blank" class="ev-link">Ask ChatGPT ↗</a>
-    </div>
-
-    <div class="ev-card" id="ev-claude-card">
-      <div class="ev-platform-row">
-        <div class="ev-platform-name"><span class="ev-platform-icon" style="background:#cc785c">C</span>Claude AI</div>
-        <span class="ev-status ${aiSt}" id="ev-claude-status">${evStatusLabel(aiSt)}</span>
-      </div>
-      <div class="ev-mockup">
-        <div class="cld">
-          <div class="cld-bar"><div class="cld-icon"></div><span class="cld-bar-title">Claude</span></div>
-          <div class="cld-body">
-            <div class="cld-user">What is the best ${type} in ${cityName}?</div>
-            <div class="cld-ai"><div class="cld-avatar">C</div><div class="cld-text" id="ev-claude-text"><div class="ev-dots"><div class="ev-dot-b"></div><div class="ev-dot-b"></div><div class="ev-dot-b"></div></div></div></div>
-          </div>
-        </div>
-      </div>
-      <div class="ev-summary" id="ev-claude-summary" style="color:var(--text3);font-style:italic">Generating AI response...</div>
-      <a href="https://claude.ai/new?q=${aiQuery}" target="_blank" class="ev-link">Ask Claude ↗</a>
-    </div>
-
-    <div class="ev-card">
-      <div class="ev-platform-row">
-        <div class="ev-platform-name"><span class="ev-platform-icon" style="background:#0078d4">B</span>Bing / Copilot</div>
-        <span class="ev-status ${bSt}">${evStatusLabel(bSt)}</span>
-      </div>
-      <div class="ev-mockup">${buildBingMockup(name, type, cityName, bSt, bingScore)}</div>
-      <div class="ev-summary">${evSummary('bing', bSt, name, type, cityName)}</div>
-      <a href="https://www.bing.com/search?q=${encodeURIComponent(name+' '+cityName)}" target="_blank" class="ev-link">Search on Bing ↗</a>
-    </div>
-
-    <div class="ev-card">
-      <div class="ev-platform-row">
-        <div class="ev-platform-name"><span class="ev-platform-icon" style="background:#e94560">🎤</span>Voice Search</div>
-        <span class="ev-status ${vSt}">${evStatusLabel(vSt)}</span>
-      </div>
-      <div class="ev-mockup">${buildVoiceMockup(name, type, cityName, vSt)}</div>
-      <div class="ev-summary">${evSummary('voice', vSt, name, type, cityName)}</div>
-    </div>`;
-
-  document.getElementById('seo-evidence-section').style.display = 'block';
+// ── City Dropdowns ─────────────────────────────────────────────────────────
+function onStateChange() {
+  const state = document.getElementById('sel-state').value;
+  const cityEl = document.getElementById('sel-city');
+  const cities = CITIES[state] || [];
+  cityEl.innerHTML = cities.length
+    ? cities.map(c => `<option value="${c}">${c}</option>`).join('')
+    : '<option value="">— Select State First —</option>';
+}
+function onNicheChange() {
+  currentNiche = document.getElementById('sel-niche').value;
 }
 
-async function generateAIEvidence(seo) {
-  const a = localStorage.getItem('lg_anthropic'); if (!a || !seo) return;
-  const cats = seo.categories || [];
-  const aioScore = (cats.find(c => c.name === 'AIO — AI Optimization') || {}).score || 0;
+// ── Revenue Loss Calc ──────────────────────────────────────────────────────
+function calcRevenueLoss(lead, niche) {
+  let loss = 0;
+  const rating = parseFloat(lead.rating) || 0;
+  const reviews = parseInt(lead.reviews) || 0;
+  if (!lead.website) loss += 1800;
+  else if (rating < 3.0) loss += 2800;
+  else if (rating < 3.5) loss += 2200;
+  else if (rating < 4.0) loss += 1600;
+  else if (rating < 4.5) loss += 900;
+  if (reviews === 0) loss += 2000;
+  else if (reviews < 20) loss += 1400;
+  else if (reviews < 50) loss += 900;
+  else if (reviews < 100) loss += 400;
+  if (!lead.website) loss += 0; // already counted
+  else if (reviews < 30 && rating < 4.0) loss += 600;
+  const multipliers = {
+    'Law Firm':1.8,'Dental Clinic':1.6,'Real Estate Agency':1.5,
+    'Med Spa':1.3,'Roofing Company':1.2,'Plumbing Company':1.2,
+    'Gym':1.0,'Chiropractor':1.0,'Restaurant':0.9,'Hair Salon':0.8
+  };
+  loss = Math.round(loss * (multipliers[niche] || 1.0) / 100) * 100;
+  return Math.max(loss, 500);
+}
+
+function oppScore(loss, niche) {
+  const maxLoss = { 'Law Firm':12000,'Dental Clinic':9000,'Real Estate Agency':8000,
+    'Med Spa':7000,'Roofing Company':6000,'Plumbing Company':6000,
+    'Gym':5000,'Chiropractor':5000,'Restaurant':5000,'Hair Salon':4000 };
+  const max = maxLoss[niche] || 6000;
+  return Math.min(10, Math.round((loss / max) * 10));
+}
+
+// ── Find Prospects ─────────────────────────────────────────────────────────
+async function findProspects() {
+  const niche = document.getElementById('sel-niche').value;
+  const city = document.getElementById('sel-city').value;
+  const limit = document.getElementById('sel-limit').value;
+  if (!niche || !city) { alert('Please select a niche and city.'); return; }
+
+  const keys = getKeys();
+  if (!keys.google || !keys.hunter || !keys.anthropic) {
+    alert('Please set all API keys in Settings first.'); return;
+  }
+
+  currentNiche = niche;
+  currentCity = city;
+  reportCache = {}; pitchCache = {}; videoPitchCache = {};
+
+  const btn = document.getElementById('find-btn');
+  btn.disabled = true; btn.textContent = 'Searching...';
+
   try {
-    const resp = await fetch(`${BACKEND}/api/seo-evidence`, {
+    const resp = await fetch(`${BASE_URL}/api/generate`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-anthropic-key': a },
-      body: JSON.stringify({ businessName: seo.businessName, businessType: seo.businessType, city: seo.city, state: seo.state, aioScore })
+      headers: {
+        'Content-Type': 'application/json',
+        'x-google-key': keys.google,
+        'x-hunter-key': keys.hunter,
+        'x-anthropic-key': keys.anthropic
+      },
+      body: JSON.stringify({ niche, city, limit: parseInt(limit) })
     });
     const data = await resp.json();
-    if (data.chatgpt) {
-      document.getElementById('ev-chatgpt-text').textContent = data.chatgpt;
-      const cgptSum = aioScore >= 65
-        ? `ChatGPT recommends ${seo.businessName} when users ask for the best ${seo.businessType} in ${seo.city || 'your area'}.`
-        : aioScore >= 40
-        ? `ChatGPT mentions ${seo.businessName} but not as a top pick — competitors with stronger AIO scores rank higher in AI answers.`
-        : `ChatGPT doesn't mention ${seo.businessName}. Customers asking AI for ${seo.businessType} recommendations are directed to competitors.`;
-      document.getElementById('ev-chatgpt-summary').textContent = cgptSum;
-      document.getElementById('ev-chatgpt-summary').style.cssText = '';
-    }
-    if (data.claude) {
-      document.getElementById('ev-claude-text').textContent = data.claude;
-      const clSum = aioScore >= 65
-        ? `Claude AI includes ${seo.businessName} in its recommendations, giving you visibility with AI-first users.`
-        : aioScore >= 40
-        ? `Claude AI gives ${seo.businessName} limited mentions. Stronger structured data and content authority would improve AI visibility.`
-        : `Claude AI does not surface ${seo.businessName}. Without AIO optimization, you're invisible to the growing share of users who research via AI.`;
-      document.getElementById('ev-claude-summary').textContent = clSum;
-      document.getElementById('ev-claude-summary').style.cssText = '';
-    }
-  } catch(err) {
-    document.getElementById('ev-chatgpt-text').textContent = 'Could not load AI response.';
-    document.getElementById('ev-claude-text').textContent = 'Could not load AI response.';
+    if (!resp.ok) { alert(data.error || 'Search failed.'); return; }
+
+    leads = (data.leads || []).map(l => ({
+      ...l,
+      revenueLoss: calcRevenueLoss(l, niche),
+      oppScore: 0
+    }));
+    leads.forEach(l => { l.oppScore = oppScore(l.revenueLoss, niche); });
+
+    saveStats('prospects', leads.length);
+    activeFilters.clear();
+    document.querySelectorAll('.chip.active').forEach(c => c.classList.remove('active'));
+    document.getElementById('sort-select').value = 'score';
+
+    renderTable();
+    updateSummary();
+    document.getElementById('prospects-section').style.display = 'block';
+    document.getElementById('summary-bar').style.display = 'flex';
+    document.getElementById('filter-bar').style.display = 'flex';
+  } catch(e) {
+    alert('Error: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Find Prospects';
   }
 }
 
-/* ── Init ── */
-loadKeys();
-if (localStorage.getItem('lg_google')&&localStorage.getItem('lg_hunter')&&localStorage.getItem('lg_anthropic'))
-  document.getElementById('setup-banner').style.display='none';
+// ── Filter & Sort ──────────────────────────────────────────────────────────
+function toggleFilter(el) {
+  const f = el.dataset.filter;
+  if (activeFilters.has(f)) { activeFilters.delete(f); el.classList.remove('active'); }
+  else { activeFilters.add(f); el.classList.add('active'); }
+  applyFilters();
+}
+
+function applyFilters() {
+  let arr = [...leads];
+  activeFilters.forEach(f => {
+    if (f === 'has-website') arr = arr.filter(l => l.website);
+    if (f === 'no-website') arr = arr.filter(l => !l.website);
+    if (f === 'has-email') arr = arr.filter(l => l.email);
+    if (f === 'no-email') arr = arr.filter(l => !l.email);
+    if (f === 'low-rating') arr = arr.filter(l => !l.rating || parseFloat(l.rating) < 3.5);
+    if (f === 'few-reviews') arr = arr.filter(l => parseInt(l.reviews) < 50);
+    if (f === 'high-loss') arr = arr.filter(l => l.revenueLoss > 3000);
+  });
+  const sort = document.getElementById('sort-select').value;
+  if (sort === 'score') arr.sort((a,b) => b.score - a.score);
+  else if (sort === 'loss') arr.sort((a,b) => b.revenueLoss - a.revenueLoss);
+  else if (sort === 'rating') arr.sort((a,b) => (parseFloat(a.rating)||0) - (parseFloat(b.rating)||0));
+  else if (sort === 'reviews') arr.sort((a,b) => (a.reviews||0) - (b.reviews||0));
+  filteredLeads = arr;
+  expandedIdx = -1;
+  renderTableBody();
+}
+
+function updateSummary() {
+  const total = leads.length;
+  const withEmail = leads.filter(l => l.email).length;
+  const noWeb = leads.filter(l => !l.website).length;
+  const lowRating = leads.filter(l => !l.rating || parseFloat(l.rating) < 3.5).length;
+  document.getElementById('sum-total').textContent = total + ' prospects';
+  document.getElementById('sum-email').textContent = withEmail + ' with email';
+  document.getElementById('sum-noweb').textContent = noWeb + ' no website';
+  document.getElementById('sum-lowrating').textContent = lowRating + ' low rating';
+}
+
+// ── Render Table ───────────────────────────────────────────────────────────
+function renderTable() {
+  filteredLeads = [...leads];
+  filteredLeads.sort((a,b) => b.score - a.score);
+  renderTableBody();
+}
+
+function renderTableBody() {
+  const tbody = document.getElementById('prospects-tbody');
+  tbody.innerHTML = '';
+  if (!filteredLeads.length) {
+    tbody.innerHTML = `<tr><td colspan="12" class="empty-state"><h3>No prospects found</h3><p>Try adjusting your filters.</p></td></tr>`;
+    return;
+  }
+  filteredLeads.forEach((lead, idx) => {
+    const isExpanded = expandedIdx === idx;
+    const ct = CONTACT_TIMES[currentNiche] || {};
+    const status = getStatus(lead.name);
+    const statusClass = getStatusClass(status);
+
+    const opp = lead.oppScore;
+    const oppClass = opp >= 7 ? 'opp-high' : opp >= 4 ? 'opp-med' : 'opp-low';
+
+    const gmbStatus = lead.website ? 'Claimed' : (lead.rating ? 'Unclaimed' : 'Missing');
+    const gmbClass = gmbStatus === 'Claimed' ? 'gmb-verified' : gmbStatus === 'Unclaimed' ? 'gmb-unclaimed' : 'gmb-missing';
+
+    const scoreColor = lead.score >= 7 ? '#c62828' : lead.score >= 4 ? '#b45309' : '#2e7d32';
+
+    const row = document.createElement('tr');
+    row.className = isExpanded ? 'expanded' : '';
+    row.onclick = () => togglePanel(idx);
+    row.innerHTML = `
+      <td><div class="biz-name" title="${esc(lead.name)}">${esc(lead.name)}</div></td>
+      <td>${lead.website ? `<a class="biz-link" href="${esc(lead.website)}" target="_blank" onclick="e=>{e.stopPropagation()}" rel="noreferrer">${shortUrl(lead.website)}</a>` : '<span class="no-web">No Website</span>'}</td>
+      <td style="font-size:11px;white-space:nowrap">${esc(lead.phone || '—')}</td>
+      <td style="font-size:11px">${lead.email ? `<span title="${esc(lead.email)}">${esc(lead.email.split('@')[0])}@…</span>` : '<span style="color:var(--text3)">—</span>'}</td>
+      <td><span class="rating-stars">★</span> ${lead.rating || '—'}</td>
+      <td class="reviews-cnt">${lead.reviews || 0}</td>
+      <td><span class="gmb-badge ${gmbClass}">${gmbStatus}</span></td>
+      <td><span class="loss-badge">$${lead.revenueLoss.toLocaleString()}</span></td>
+      <td><span class="opp-score ${oppClass}">${opp}</span></td>
+      <td><span class="time-badge">🕐 ${ct.days || '—'}<br><small>${ct.time || ''}</small></span></td>
+      <td><span class="status-pill ${statusClass}">${status}</span></td>
+      <td><button class="view-btn ${isExpanded ? 'active' : ''}" onclick="event.stopPropagation();togglePanel(${idx})">${isExpanded ? 'Close' : 'View'}</button></td>
+    `;
+    tbody.appendChild(row);
+
+    if (isExpanded) {
+      const snapRow = document.createElement('tr');
+      snapRow.className = 'snap-row';
+      snapRow.innerHTML = `<td colspan="12"><div id="snap-${idx}"></div></td>`;
+      tbody.appendChild(snapRow);
+      setTimeout(() => buildSnapPanel(idx, lead), 0);
+    }
+  });
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function shortUrl(url) {
+  try { const u = new URL(url); return u.hostname.replace('www.',''); } catch { return url; }
+}
+
+// ── Toggle Panel ───────────────────────────────────────────────────────────
+function togglePanel(idx) {
+  expandedIdx = (expandedIdx === idx) ? -1 : idx;
+  renderTableBody();
+  if (expandedIdx !== -1) {
+    setTimeout(() => {
+      const el = document.getElementById(`snap-${idx}`);
+      if (el) el.closest('tr').previousElementSibling?.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }, 100);
+  }
+}
+
+// ── Snapshot Panel ─────────────────────────────────────────────────────────
+function buildSnapPanel(idx, lead) {
+  const el = document.getElementById(`snap-${idx}`);
+  if (!el) return;
+  const ct = CONTACT_TIMES[currentNiche] || {};
+  const status = getStatus(lead.name);
+
+  // Pain points from lead.pain (simple version, will be enhanced by reports)
+  const painPoints = [
+    { rank:1, problem: lead.pain || 'Weak online presence', costMin: Math.round(lead.revenueLoss * 0.4), costMax: Math.round(lead.revenueLoss * 0.5) },
+    { rank:2, problem: !lead.website ? 'No website — losing every web-based lead' : 'Low review count hurting credibility', costMin: Math.round(lead.revenueLoss * 0.25), costMax: Math.round(lead.revenueLoss * 0.35) },
+    { rank:3, problem: (parseFloat(lead.rating)||0) < 4.0 ? 'Below-average ratings vs. competitors' : 'No paid ads — missing buyer-intent traffic', costMin: Math.round(lead.revenueLoss * 0.1), costMax: Math.round(lead.revenueLoss * 0.2) }
+  ];
+
+  const aiInsight = `${lead.name} is currently losing an estimated $${lead.revenueLoss.toLocaleString()}/month in digital revenue. ` +
+    `With ${lead.reviews || 0} reviews and a ${lead.rating || 'unknown'} rating, they rank poorly against local competitors who dominate search results. ` +
+    `The best entry point is ${currentNiche === 'Law Firm' ? 'local SEO to capture high-intent search traffic' : 'GMB optimization and review generation'} — the fastest path to visible results.`;
+
+  el.innerHTML = `
+<div class="snap-panel">
+  <div class="snap-grid">
+    <div>
+      <!-- Revenue Loss Box -->
+      <div class="loss-box">
+        <div class="loss-box-label">Estimated Monthly Revenue Loss</div>
+        <div class="loss-box-amount">$${lead.revenueLoss.toLocaleString()}</div>
+        <div class="loss-box-sub">Based on rating, reviews & digital presence</div>
+      </div>
+
+      <!-- Contact Time -->
+      <div class="contact-box">
+        <div class="contact-box-label">🕐 Best Time to Contact</div>
+        <div class="contact-box-time">${ct.days || 'Weekdays'} · ${ct.time || '9:00 AM–5:00 PM'}</div>
+      </div>
+
+      <!-- Prospect Details -->
+      <div class="snap-card">
+        <div class="snap-card-title">Prospect Details</div>
+        <div class="snap-row"><span class="snap-key">Business</span><span class="snap-val font-bold">${esc(lead.name)}</span></div>
+        <div class="snap-row"><span class="snap-key">Rating</span><span class="snap-val">★ ${lead.rating || '—'} (${lead.reviews || 0} reviews)</span></div>
+        <div class="snap-row"><span class="snap-key">Phone</span><span class="snap-val">${esc(lead.phone || '—')}</span></div>
+        <div class="snap-row"><span class="snap-key">Email</span><span class="snap-val">${esc(lead.email || '—')}</span></div>
+        <div class="snap-row"><span class="snap-key">Website</span><span class="snap-val">${lead.website ? `<a href="${esc(lead.website)}" target="_blank" rel="noreferrer">${shortUrl(lead.website)}</a>` : '<span class="no-web">None</span>'}</span></div>
+        <div class="snap-row"><span class="snap-key">Address</span><span class="snap-val" style="font-size:11px">${esc(lead.address || '—')}</span></div>
+        <div class="snap-row"><span class="snap-key">Status</span><span class="snap-val"><span class="status-pill ${getStatusClass(status)}">${status}</span></span></div>
+      </div>
+    </div>
+
+    <div>
+      <!-- Pain Point Prioritizer -->
+      <div class="snap-card mb-1" style="margin-bottom:0.75rem">
+        <div class="snap-card-title">Pain Point Prioritizer</div>
+        <ul class="pain-list">
+          ${painPoints.map(p => `
+          <li class="pain-item">
+            <div class="pain-rank">${p.rank}</div>
+            <div class="pain-text">${esc(p.problem)}</div>
+            <div class="pain-cost">$${p.costMin.toLocaleString()}–$${p.costMax.toLocaleString()}/mo</div>
+          </li>`).join('')}
+        </ul>
+      </div>
+
+      <!-- AI Insight -->
+      <div class="insight-box">
+        <div class="insight-label">🤖 AI Sales Insight</div>
+        <div class="insight-text">${esc(aiInsight)}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Buttons -->
+  <div class="section-title">Analysis Reports</div>
+  <div class="report-btn-grid">
+    <button class="rpt-btn rpt-localseo" onclick="runReport(${idx},'local-seo',this)">📍 Local SEO / GMB</button>
+    <button class="rpt-btn rpt-seo" onclick="runReport(${idx},'seo',this)">🔍 SEO Analysis</button>
+    <button class="rpt-btn rpt-social" onclick="runReport(${idx},'social',this)">📱 Social Media</button>
+    <button class="rpt-btn rpt-website" onclick="runReport(${idx},'website',this)">🌐 Website Audit</button>
+    <button class="rpt-btn rpt-ads" onclick="runReport(${idx},'ads',this)">📣 Ads Opportunity</button>
+    <button class="rpt-btn rpt-360" onclick="runReport(${idx},'360',this)">🎯 360 Degree</button>
+    <button class="rpt-btn rpt-competitors" onclick="runReport(${idx},'competitors',this)">⚔️ Competitor Analysis</button>
+  </div>
+
+  <!-- Report Output -->
+  <div id="report-output-${idx}"></div>
+
+  <!-- Pitch Section -->
+  <div id="pitch-section-${idx}"></div>
+
+  <!-- Outreach Bar -->
+  <div class="outreach-bar">
+    ${lead.email ? `<a class="out-btn primary" href="mailto:${esc(lead.email)}?subject=Quick question about ${esc(lead.name)}&body=Hi,%0D%0A%0D%0AI wanted to reach out about your online presence..." target="_blank">✉ Email</a>` : ''}
+    ${lead.phone ? `<a class="out-btn green" href="https://wa.me/${lead.phone.replace(/\D/g,'')}" target="_blank" rel="noreferrer">💬 WhatsApp</a>` : ''}
+    <button class="out-btn" onclick="markContacted('${esc(lead.name)}', ${idx})">✓ Mark Contacted</button>
+    <button class="out-btn" onclick="toggleNote(${idx})">📝 Add Note</button>
+    <select class="status-select" id="status-sel-${idx}" onchange="setStatus('${esc(lead.name)}',this.value,${idx})">
+      <option value="Not Contacted" ${status==='Not Contacted'?'selected':''}>Not Contacted</option>
+      <option value="Contacted" ${status==='Contacted'?'selected':''}>Contacted</option>
+      <option value="Proposal Sent" ${status==='Proposal Sent'?'selected':''}>Proposal Sent</option>
+      <option value="Follow Up" ${status==='Follow Up'?'selected':''}>Follow Up</option>
+      <option value="Negotiating" ${status==='Negotiating'?'selected':''}>Negotiating</option>
+      <option value="Closed Won" ${status==='Closed Won'?'selected':''}>Closed Won</option>
+      <option value="Closed Lost" ${status==='Closed Lost'?'selected':''}>Closed Lost</option>
+    </select>
+    <textarea class="note-area" id="note-${idx}" placeholder="Add follow-up note..." onblur="saveNote('${esc(lead.name)}',${idx})">${getNote(lead.name)}</textarea>
+  </div>
+</div>`;
+}
+
+// ── Status & Notes ─────────────────────────────────────────────────────────
+function getStatus(name) {
+  const s = JSON.parse(localStorage.getItem('lg_status') || '{}');
+  return s[name] || 'Not Contacted';
+}
+function setStatus(name, val, idx) {
+  const s = JSON.parse(localStorage.getItem('lg_status') || '{}');
+  s[name] = val;
+  localStorage.setItem('lg_status', JSON.stringify(s));
+  if (val === 'Proposal Sent') saveStats('pitches', 1);
+  if (val === 'Closed Won') saveStats('meetings', 1);
+  renderTableBody();
+  expandedIdx = idx;
+  renderTableBody();
+}
+function markContacted(name, idx) {
+  setStatus(name, 'Contacted', idx);
+}
+function getNote(name) {
+  const n = JSON.parse(localStorage.getItem('lg_notes') || '{}');
+  return n[name] || '';
+}
+function saveNote(name, idx) {
+  const el = document.getElementById(`note-${idx}`);
+  if (!el) return;
+  const n = JSON.parse(localStorage.getItem('lg_notes') || '{}');
+  n[name] = el.value;
+  localStorage.setItem('lg_notes', JSON.stringify(n));
+}
+function toggleNote(idx) {
+  const el = document.getElementById(`note-${idx}`);
+  if (el) el.classList.toggle('visible');
+}
+function getStatusClass(s) {
+  const m = { 'Contacted':'status-contacted','Proposal Sent':'status-proposal',
+    'Follow Up':'status-followup','Negotiating':'status-negotiating',
+    'Closed Won':'status-won','Closed Lost':'status-lost' };
+  return m[s] || '';
+}
+
+// ── Run Reports ────────────────────────────────────────────────────────────
+async function runReport(idx, type, btn) {
+  const lead = filteredLeads[idx];
+  if (!lead) return;
+  const cacheKey = `${idx}-${type}`;
+  const keys = getKeys();
+  const outEl = document.getElementById(`report-output-${idx}`);
+
+  outEl.innerHTML = `<div class="report-output report-loading"><span class="spinner"></span>Generating ${type} report...</div>`;
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  try {
+    let data;
+    if (reportCache[cacheKey]) {
+      data = reportCache[cacheKey];
+    } else if (type === 'competitors') {
+      const resp = await fetch(`${BASE_URL}/api/competitors`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-google-key':keys.google,'x-anthropic-key':keys.anthropic},
+        body: JSON.stringify({ lat:lead.lat, lng:lead.lng, niche:currentNiche, radius:5000,
+          prospectName:lead.name, prospectRating:lead.rating, prospectReviews:lead.reviews })
+      });
+      data = await resp.json();
+    } else if (type === 'seo') {
+      const resp = await fetch(`${BASE_URL}/api/seo-scorecard`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-anthropic-key':keys.anthropic},
+        body: JSON.stringify({ businessName:lead.name, niche:currentNiche, city:currentCity,
+          website:lead.website, rating:lead.rating, reviews:lead.reviews })
+      });
+      data = await resp.json();
+    } else if (type === 'social') {
+      const resp = await fetch(`${BASE_URL}/api/scorecard`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-anthropic-key':keys.anthropic},
+        body: JSON.stringify({ businessName:lead.name, niche:currentNiche, city:currentCity,
+          website:lead.website, rating:lead.rating, reviews:lead.reviews })
+      });
+      data = await resp.json();
+    } else {
+      const resp = await fetch(`${BASE_URL}/api/report`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-anthropic-key':keys.anthropic},
+        body: JSON.stringify({ type, lead, niche:currentNiche, city:currentCity })
+      });
+      data = await resp.json();
+    }
+    reportCache[cacheKey] = data;
+    renderReport(idx, type, data, outEl);
+    renderPitchSection(idx, lead, data);
+  } catch(e) {
+    outEl.innerHTML = `<div class="report-output report-loading">Error: ${esc(e.message)}</div>`;
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+// ── Render Report ──────────────────────────────────────────────────────────
+function renderReport(idx, type, data, el) {
+  let html = '';
+
+  if (type === 'competitors') {
+    html = renderCompetitors(data);
+  } else if (type === 'seo') {
+    html = renderSeoReport(data, idx);
+  } else if (type === 'social') {
+    html = renderSocialReport(data);
+  } else if (type === 'local-seo' || type === 'website' || type === 'ads' || type === '360') {
+    html = renderGenericReport(type, data);
+  }
+
+  el.innerHTML = `<div class="report-output">${html}</div>`;
+  animateScores(el);
+}
+
+function renderGenericReport(type, d) {
+  const titles = {'local-seo':'📍 Local SEO / GMB Report','website':'🌐 Website Audit','ads':'📣 Ads Opportunity Report','360':'🎯 360° Digital Marketing Audit'};
+  const scoreColor = d.overallScore >= 60 ? '#2e7d32' : d.overallScore >= 40 ? '#b45309' : '#c62828';
+  const oppColor = d.opportunityScore >= 70 ? '#c62828' : d.opportunityScore >= 40 ? '#b45309' : '#2e7d32';
+
+  let html = `
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:1rem;">${titles[type] || type}</h3>
+  <div class="score-card">
+    <div class="score-ring">
+      <svg width="72" height="72" viewBox="0 0 72 72">
+        <circle class="bg" cx="36" cy="36" r="30"/>
+        <circle class="fg" cx="36" cy="36" r="30"
+          stroke="${scoreColor}"
+          stroke-dasharray="${2*Math.PI*30}"
+          stroke-dashoffset="${2*Math.PI*30*(1-d.overallScore/100)}"
+          data-score="${d.overallScore}"/>
+      </svg>
+      <div class="val" style="color:${scoreColor}">${d.overallScore}</div>
+    </div>
+    <div class="score-meta">
+      <h3>${d.salesAngle || 'Digital Presence Audit'}</h3>
+      <div class="sub">${d.salesSummary || ''}</div>
+      <span class="opp-pill" style="background:${oppColor}1a;color:${oppColor};border:1px solid ${oppColor}30">Opportunity Score: ${d.opportunityScore}/100</span>
+    </div>
+  </div>`;
+
+  // Subscores (local-seo, website, ads)
+  if (d.subscores && d.subscores.length) {
+    html += `<div class="subscores">`;
+    d.subscores.forEach(s => {
+      const c = s.score >= 60 ? '#2e7d32' : s.score >= 40 ? '#b45309' : '#c62828';
+      const sc = s.status?.toLowerCase().includes('critical') ? 'status-critical' :
+                 s.status?.toLowerCase().includes('need') ? 'status-needs' :
+                 s.status?.toLowerCase().includes('average') ? 'status-average' : 'status-strong';
+      html += `<div class="subscore-row">
+        <div class="subscore-name">${esc(s.name)}</div>
+        <div class="subscore-bar-wrap"><div class="subscore-bar" style="width:${s.score}%;background:${c}"></div></div>
+        <div class="subscore-score" style="color:${c}">${s.score}</div>
+        <div class="subscore-status ${sc}">${esc(s.status||'')}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // 360 Categories
+  if (d.categories && d.categories.length) {
+    html += `<div class="cat-grid">`;
+    d.categories.forEach(c => {
+      const col = c.score >= 60 ? '#2e7d32' : c.score >= 40 ? '#b45309' : '#c62828';
+      html += `<div class="cat-card">
+        <div class="cat-header">
+          <div class="cat-name">${esc(c.name)}</div>
+          <div class="cat-score" style="color:${col}">${c.score}</div>
+        </div>
+        <div class="cat-bar-wrap"><div class="cat-bar" style="width:${c.score}%;background:${col}"></div></div>
+        <div class="cat-action" style="font-size:11px;color:var(--text2)">${esc(c.action||'')} · <strong>${esc(c.opportunity||'')} Opp</strong></div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Platform status (ads)
+  if (d.platforms) {
+    html += `<div class="platform-grid">`;
+    Object.entries(d.platforms).forEach(([p, info]) => {
+      const running = info.status === 'Running';
+      html += `<div class="platform-card">
+        <div class="platform-name">${p.charAt(0).toUpperCase()+p.slice(1)} Ads</div>
+        <span class="platform-status ${running ? 'platform-running' : 'platform-not'}">${running ? '⚠ Running' : '✓ Not Running'}</span>
+        <div class="platform-meta">Competitor: ${esc(info.competitorSpend||'')}<br>Missed: ${esc(info.missedRevenue||'')}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Pain Points
+  if (d.painPoints && d.painPoints.length) {
+    html += `<div class="section-title" style="margin-top:1rem">Pain Point Prioritizer</div>
+    <ul class="pain-list">`;
+    d.painPoints.forEach(p => {
+      html += `<li class="pain-item">
+        <div class="pain-rank">${p.rank}</div>
+        <div class="pain-text">${esc(p.problem)}</div>
+        <div class="pain-cost">$${(p.costMin||0).toLocaleString()}–$${(p.costMax||0).toLocaleString()}/mo</div>
+      </li>`;
+    });
+    html += `</ul>`;
+  }
+
+  // Roadmap (360)
+  if (d.roadmap) {
+    html += `<div class="section-title" style="margin-top:1rem">90-Day Roadmap</div><div class="roadmap-grid">`;
+    ['month1','month2','month3'].forEach(m => {
+      const rm = d.roadmap[m] || {};
+      html += `<div class="roadmap-month">
+        <div class="roadmap-title">Month ${m.slice(-1)}: ${esc(rm.title||'')}</div>
+        <ul class="roadmap-tasks">${(rm.tasks||[]).map(t=>`<li>${esc(t)}</li>`).join('')}</ul>
+        <div class="roadmap-expected">${esc(rm.expected||'')}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Next Best Step
+  if (d.nextBestStep) {
+    html += `<div class="nbs-box">
+      <div class="nbs-label">Next Best Step</div>
+      <div class="nbs-text">${esc(d.nextBestStep)}</div>
+    </div>`;
+  }
+
+  // Recommended service
+  if (d.recommendedService) {
+    html += `<div style="font-size:12px;color:var(--text2);margin-top:0.5rem">Recommended Service: <strong>${esc(d.recommendedService)}</strong></div>`;
+  }
+
+  return html;
+}
+
+function renderCompetitors(data) {
+  const comps = data.competitors || [];
+  if (!comps.length) return '<p style="color:var(--text2);font-size:13px">No competitors found nearby.</p>';
+  const rankClass = r => r==='Market Leader'?'rank-leader':r==='Rising Threat'?'rank-rising':r==='Similar Level'?'rank-similar':'rank-weaker';
+  return `
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:1rem;">⚔️ Competitor Analysis</h3>
+  <div class="comp-grid">
+    ${comps.map(c => `<div class="comp-card">
+      <div class="comp-header">
+        <div class="comp-name">${esc(c.name)}</div>
+        <span class="comp-rank ${rankClass(c.rank)}">${esc(c.rank)}</span>
+      </div>
+      <div class="comp-stats">
+        <span>★ ${c.rating||'—'}</span>
+        <span>${c.reviews||0} reviews</span>
+        <span>${c.adSpend||'N/A'} ads</span>
+      </div>
+      <div class="comp-bars">
+        <div class="comp-bar-row"><span class="comp-bar-label">SEO</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${c.seoEstimate||0}%"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">${c.seoEstimate||0}</span></div>
+        <div class="comp-bar-row"><span class="comp-bar-label">Social</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${c.socialEstimate||0}%"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">${c.socialEstimate||0}</span></div>
+        <div class="comp-bar-row"><span class="comp-bar-label">Website</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${c.websiteQuality||0}%"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">${c.websiteQuality||0}</span></div>
+      </div>
+      ${c.website ? `<div style="font-size:10px;color:var(--blue)"><a href="${esc(c.website)}" target="_blank" rel="noreferrer">${shortUrl(c.website)}</a></div>` : ''}
+      <div class="comp-gap">${esc(c.gap||'')}</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function renderSeoReport(data, idx) {
+  const score = data.overallScore || data.aioScore || 50;
+  const scoreColor = score >= 60 ? '#2e7d32' : score >= 40 ? '#b45309' : '#c62828';
+  let html = `
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:1rem;">🔍 SEO Analysis Report</h3>
+  <div class="score-card">
+    <div class="score-ring">
+      <svg width="72" height="72" viewBox="0 0 72 72">
+        <circle class="bg" cx="36" cy="36" r="30"/>
+        <circle class="fg" cx="36" cy="36" r="30" stroke="${scoreColor}"
+          stroke-dasharray="${2*Math.PI*30}"
+          stroke-dashoffset="${2*Math.PI*30*(1-score/100)}"
+          data-score="${score}"/>
+      </svg>
+      <div class="val" style="color:${scoreColor}">${score}</div>
+    </div>
+    <div class="score-meta">
+      <h3>${esc(data.salesAngle || data.overallAnalysis || 'SEO Audit Results')}</h3>
+      <div class="sub">${esc(data.salesSummary || data.keyInsight || '')}</div>
+    </div>
+  </div>`;
+
+  // Subscores
+  const subs = data.subscores || data.categories || [];
+  if (subs.length) {
+    html += `<div class="subscores">`;
+    subs.forEach(s => {
+      const sc = s.score || s.value || 0;
+      const c = sc >= 60 ? '#2e7d32' : sc >= 40 ? '#b45309' : '#c62828';
+      html += `<div class="subscore-row">
+        <div class="subscore-name">${esc(s.name||s.category||'')}</div>
+        <div class="subscore-bar-wrap"><div class="subscore-bar" style="width:${sc}%;background:${c}"></div></div>
+        <div class="subscore-score" style="color:${c}">${sc}</div>
+        <div class="subscore-status ${sc>=60?'status-strong':sc>=40?'status-average':'status-critical'}">${esc(s.status||s.label||'')}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // LLM Mockups
+  if (data.chatgptResponse || data.claudeResponse) {
+    html += `<div class="section-title" style="margin-top:1rem">AI Platform Visibility</div>
+    <div class="llm-grid" style="grid-template-columns:1fr 1fr">`;
+    if (data.chatgptResponse) {
+      html += `<div class="llm-card llm-chatgpt">
+        <div class="llm-header"><div class="llm-dot"></div>ChatGPT</div>
+        <div class="llm-body">${esc(data.chatgptResponse)}</div>
+      </div>`;
+    }
+    if (data.claudeResponse) {
+      html += `<div class="llm-card llm-claude">
+        <div class="llm-header"><div class="llm-dot"></div>Claude AI</div>
+        <div class="llm-body">${esc(data.claudeResponse)}</div>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+
+  // Pain/Next step
+  const pps = data.painPoints || [];
+  if (pps.length) {
+    html += `<div class="section-title" style="margin-top:1rem">Pain Points</div><ul class="pain-list">`;
+    pps.forEach(p => {
+      html += `<li class="pain-item">
+        <div class="pain-rank">${p.rank||'!'}</div>
+        <div class="pain-text">${esc(p.problem||p.issue||'')}</div>
+        <div class="pain-cost">$${(p.costMin||0).toLocaleString()}–$${(p.costMax||0).toLocaleString()}/mo</div>
+      </li>`;
+    });
+    html += `</ul>`;
+  }
+  if (data.nextBestStep) {
+    html += `<div class="nbs-box"><div class="nbs-label">Next Best Step</div><div class="nbs-text">${esc(data.nextBestStep)}</div></div>`;
+  }
+  return html;
+}
+
+function renderSocialReport(data) {
+  const score = data.overallScore || 50;
+  const scoreColor = score >= 60 ? '#2e7d32' : score >= 40 ? '#b45309' : '#c62828';
+  let html = `
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:1rem;">📱 Social Media Report</h3>
+  <div class="score-card">
+    <div class="score-ring">
+      <svg width="72" height="72" viewBox="0 0 72 72">
+        <circle class="bg" cx="36" cy="36" r="30"/>
+        <circle class="fg" cx="36" cy="36" r="30" stroke="${scoreColor}"
+          stroke-dasharray="${2*Math.PI*30}"
+          stroke-dashoffset="${2*Math.PI*30*(1-score/100)}"
+          data-score="${score}"/>
+      </svg>
+      <div class="val" style="color:${scoreColor}">${score}</div>
+    </div>
+    <div class="score-meta">
+      <h3>${esc(data.salesAngle || data.overallAnalysis || 'Social Media Audit')}</h3>
+      <div class="sub">${esc(data.salesSummary || data.keyInsight || '')}</div>
+    </div>
+  </div>`;
+  const subs = data.subscores || data.platforms || data.categories || [];
+  if (Array.isArray(subs) && subs.length) {
+    html += `<div class="subscores">`;
+    subs.forEach(s => {
+      const sc = s.score || s.value || 0;
+      const c = sc >= 60 ? '#2e7d32' : sc >= 40 ? '#b45309' : '#c62828';
+      html += `<div class="subscore-row">
+        <div class="subscore-name">${esc(s.name||s.platform||'')}</div>
+        <div class="subscore-bar-wrap"><div class="subscore-bar" style="width:${sc}%;background:${c}"></div></div>
+        <div class="subscore-score" style="color:${c}">${sc}</div>
+        <div class="subscore-status ${sc>=60?'status-strong':sc>=40?'status-average':'status-critical'}">${esc(s.status||s.label||'')}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+  const pps = data.painPoints || [];
+  if (pps.length) {
+    html += `<ul class="pain-list">`;
+    pps.forEach(p => {
+      html += `<li class="pain-item"><div class="pain-rank">${p.rank||'!'}</div><div class="pain-text">${esc(p.problem||'')}</div><div class="pain-cost">$${(p.costMin||0).toLocaleString()}–$${(p.costMax||0).toLocaleString()}/mo</div></li>`;
+    });
+    html += `</ul>`;
+  }
+  if (data.nextBestStep) {
+    html += `<div class="nbs-box"><div class="nbs-label">Next Best Step</div><div class="nbs-text">${esc(data.nextBestStep)}</div></div>`;
+  }
+  return html;
+}
+
+function animateScores(container) {
+  container.querySelectorAll('.subscore-bar, .cat-bar, .comp-bar-fill').forEach(bar => {
+    const w = bar.style.width;
+    bar.style.width = '0';
+    setTimeout(() => { bar.style.width = w; }, 50);
+  });
+}
+
+// ── Pitch Section ──────────────────────────────────────────────────────────
+function renderPitchSection(idx, lead, reportData) {
+  const el = document.getElementById(`pitch-section-${idx}`);
+  if (!el) return;
+  el.innerHTML = `
+  <hr class="divider">
+  <div class="pitch-section">
+    <div class="pitch-header">
+      <div class="pitch-title">📄 Text Pitch Deck</div>
+      <button class="gen-pitch-btn" id="gen-pitch-btn-${idx}" onclick="generatePitch(${idx})">Generate Pitch</button>
+    </div>
+    <div id="pitch-content-${idx}"></div>
+  </div>
+  <div class="video-pitch-section">
+    <div class="video-pitch-title">🎥 Video Pitch Scripts</div>
+    <div id="video-pitch-content-${idx}">
+      <button class="gen-pitch-btn" id="gen-video-btn-${idx}" onclick="generateVideoPitch(${idx})" style="background:var(--purple);border-color:var(--purple)">Generate Video Scripts</button>
+    </div>
+  </div>`;
+}
+
+async function generatePitch(idx) {
+  const lead = filteredLeads[idx];
+  if (!lead) return;
+  const keys = getKeys();
+  const btn = document.getElementById(`gen-pitch-btn-${idx}`);
+  const contentEl = document.getElementById(`pitch-content-${idx}`);
+  if (pitchCache[idx]) { renderPitch(idx, pitchCache[idx]); return; }
+  btn.disabled = true; btn.textContent = 'Generating...';
+  contentEl.innerHTML = `<div class="report-loading"><span class="spinner"></span>Building pitch deck...</div>`;
+  try {
+    const reportData = Object.values(reportCache).find((_,i) => Math.floor(i/7) === Math.floor(idx/7));
+    const resp = await fetch(`${BASE_URL}/api/pitch-v2`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-anthropic-key':keys.anthropic},
+      body: JSON.stringify({ lead, niche:currentNiche, city:currentCity, revenueLoss:lead.revenueLoss, reportData })
+    });
+    const data = await resp.json();
+    pitchCache[idx] = data;
+    renderPitch(idx, data);
+    saveStats('pitches', 0); // don't auto-increment; user marks as sent
+  } catch(e) {
+    contentEl.innerHTML = `<p style="color:var(--red-text)">Error: ${esc(e.message)}</p>`;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Regenerate';
+  }
+}
+
+function renderPitch(idx, d) {
+  const el = document.getElementById(`pitch-content-${idx}`);
+  if (!el || !d) return;
+  let html = `
+  <div class="pitch-content">
+    <div class="pitch-headline">${esc(d.headline||'')}</div>
+    <div class="pitch-subheadline">${esc(d.subheadline||'')}</div>`;
+
+  if (d.painPoints?.length) {
+    html += `<div class="pitch-section-label">Top Revenue Killers</div>`;
+    d.painPoints.forEach(p => {
+      html += `<div class="pitch-pain-item">
+        <div class="pitch-pain-rank">${p.rank}</div>
+        <div class="pitch-pain-info">
+          <div class="pitch-pain-problem">${esc(p.problem)}</div>
+          <div class="pitch-pain-detail">${esc(p.detail||'')}</div>
+        </div>
+        <div class="pitch-pain-cost">${esc(p.cost||'')}</div>
+      </div>`;
+    });
+  }
+
+  if (d.industryScores?.length) {
+    html += `<div class="pitch-section-label">Your Score vs Industry Average</div><div class="comparison-section">`;
+    d.industryScores.forEach(s => {
+      html += `<div class="comparison-row">
+        <div class="comparison-label">${esc(s.name)}</div>
+        <div class="comparison-bars">
+          <div class="cbar-row"><span class="cbar-label" style="color:#1565c0">Yours</span><div class="cbar-track"><div class="cbar-fill yours" style="width:${s.yours||0}%"></div></div><span class="cbar-score">${s.yours||0}</span></div>
+          <div class="cbar-row"><span class="cbar-label">Avg</span><div class="cbar-track"><div class="cbar-fill avg" style="width:${s.average||0}%"></div></div><span class="cbar-score">${s.average||0}</span></div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  if (d.keyFindings?.length) {
+    html += `<div class="pitch-section-label">Key Findings</div><div class="findings-grid">`;
+    d.keyFindings.forEach(f => { html += `<div class="finding-box">${esc(f)}</div>`; });
+    html += `</div>`;
+  }
+
+  if (d.pricingTiers?.length) {
+    html += `<div class="pitch-section-label">Investment Options</div><div class="pricing-grid">`;
+    d.pricingTiers.forEach((t,i) => {
+      html += `<div class="price-tier ${i===1?'featured':''}">
+        <div class="price-name">${esc(t.name)}</div>
+        <div class="price-amount">${esc(t.price)}</div>
+        <div class="price-tagline">${esc(t.tagline||'')}</div>
+        <ul class="price-includes">${(t.includes||[]).map(inc=>`<li>${esc(inc)}</li>`).join('')}</ul>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  if (d.roi) {
+    html += `<div class="pitch-section-label">ROI Projection</div><div class="roi-grid">
+      <div class="roi-box roi-before"><div class="roi-box-label">⚠ Current State</div><div class="roi-box-text">${esc(d.roi.currentState||'')}</div></div>
+      <div class="roi-box roi-after"><div class="roi-box-label">✓ In 90 Days</div><div class="roi-box-text">${esc(d.roi.projectedState||'')}</div></div>
+    </div>`;
+  }
+
+  if (d.timeline?.length) {
+    html += `<div class="pitch-section-label">90-Day Timeline</div><div class="timeline">`;
+    d.timeline.forEach(t => {
+      html += `<div class="timeline-month"><div class="timeline-num">Month ${t.month}</div><div class="timeline-milestone">${esc(t.milestone||'')}</div></div>`;
+    });
+    html += `</div>`;
+  }
+
+  if (d.nextSteps?.length) {
+    html += `<div class="pitch-section-label">Next Steps</div><ul class="pain-list">`;
+    d.nextSteps.forEach((s,i) => {
+      html += `<li class="pain-item"><div class="pain-rank">${i+1}</div><div class="pain-text">${esc(s)}</div></li>`;
+    });
+    html += `</ul>`;
+  }
+
+  if (d.closingLine) {
+    html += `<div class="pitch-closing">${esc(d.closingLine)}</div>`;
+  }
+
+  html += `</div>`;
+  el.innerHTML = html;
+  animateScores(el);
+}
+
+// ── Video Pitch ────────────────────────────────────────────────────────────
+async function generateVideoPitch(idx) {
+  const lead = filteredLeads[idx];
+  if (!lead) return;
+  const keys = getKeys();
+  const btn = document.getElementById(`gen-video-btn-${idx}`);
+  const el = document.getElementById(`video-pitch-content-${idx}`);
+  if (videoPitchCache[idx]) { renderVideoPitch(idx, videoPitchCache[idx]); return; }
+  btn.disabled = true; btn.textContent = 'Generating Scripts...';
+  el.innerHTML = `<div class="report-loading"><span class="spinner"></span>Writing video scripts...</div>`;
+
+  // Get nextBestStep from any cached report
+  const cached = Object.values(reportCache).find(r => r && r.nextBestStep);
+  const nbs = cached?.nextBestStep || `Book a free 15-minute call this week`;
+
+  try {
+    const resp = await fetch(`${BASE_URL}/api/video-pitch`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-anthropic-key':keys.anthropic},
+      body: JSON.stringify({ lead, niche:currentNiche, city:currentCity, revenueLoss:lead.revenueLoss, nextBestStep:nbs })
+    });
+    const data = await resp.json();
+    videoPitchCache[idx] = data;
+    renderVideoPitch(idx, data);
+  } catch(e) {
+    el.innerHTML = `<p style="color:var(--red-text)">Error: ${esc(e.message)}</p>`;
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Regenerate Scripts'; }
+  }
+}
+
+function renderVideoPitch(idx, d) {
+  const el = document.getElementById(`video-pitch-content-${idx}`);
+  if (!el || !d) return;
+  activeScriptTab[idx] = activeScriptTab[idx] || 'hook';
+  const tabs = [
+    {key:'hook', label:'Hook (15s)'},
+    {key:'short45', label:'45-Second'},
+    {key:'standard60', label:'60-Second'},
+    {key:'loom', label:'Loom Walkthrough'},
+    {key:'ctas', label:'3 CTAs'}
+  ];
+  const active = activeScriptTab[idx];
+
+  let content = '';
+  if (active === 'ctas') {
+    content = `<ul class="cta-list">${(d.ctas||[]).map((c,i) => `<li><strong>CTA ${i+1}:</strong> ${esc(c)}</li>`).join('')}</ul>`;
+  } else {
+    content = `<div class="script-content">${esc(d[active]||'Script not available.')}</div>`;
+  }
+
+  el.innerHTML = `
+  <div class="script-tabs">
+    ${tabs.map(t => `<button class="script-tab ${active===t.key?'active':''}" onclick="switchScriptTab(${idx},'${t.key}')">${t.label}</button>`).join('')}
+  </div>
+  ${content}
+  <div style="margin-top:0.75rem">
+    <button class="gen-pitch-btn" id="gen-video-btn-${idx}" onclick="generateVideoPitch(${idx})" style="background:var(--purple);border-color:var(--purple)">Regenerate Scripts</button>
+  </div>`;
+}
+
+function switchScriptTab(idx, key) {
+  activeScriptTab[idx] = key;
+  renderVideoPitch(idx, videoPitchCache[idx]);
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+loadConfig();
+loadStats();
 </script>
 </body>
 </html>
