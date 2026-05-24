@@ -20,291 +20,197 @@
     --radius-lg: 14px;
     --green-bg: #eaf3de; --green-text: #27500a;
     --amber-bg: #faeeda; --amber-text: #633806;
-    --red-bg: #fcebeb;   --red-text: #791f1f;
-    --blue-bg: #e6f1fb;  --blue-text: #0c447c;
+    --red-bg:   #fcebeb; --red-text:   #791f1f;
+    --blue-bg:  #e6f1fb; --blue-text:  #0c447c;
     --accent: #111111;
   }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg2);
-    color: var(--text);
-    min-height: 100vh;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg2); color: var(--text); min-height: 100vh; }
 
   /* ── Header ── */
-  header {
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-    padding: 0 2rem;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
+  header { background: var(--bg); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
   .logo { font-size: 15px; font-weight: 700; letter-spacing: -0.4px; }
   .logo span { font-weight: 400; color: var(--text2); margin-left: 4px; }
   .header-right { display: flex; align-items: center; gap: 10px; }
-  .badge {
-    font-size: 11px; font-weight: 500;
-    padding: 3px 10px; border-radius: 20px;
-    background: var(--red-bg); color: var(--red-text);
-    white-space: nowrap;
-  }
+  .badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; background: var(--red-bg); color: var(--red-text); white-space: nowrap; }
   .badge.ready { background: var(--green-bg); color: var(--green-text); }
 
+  /* ── Tab nav ── */
+  .tab-nav { background: var(--bg); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; gap: 0; position: sticky; top: 56px; z-index: 99; }
+  .tab-btn { padding: 0 1.25rem; height: 44px; font-size: 13px; font-family: inherit; font-weight: 500; border: none; border-bottom: 2px solid transparent; background: none; color: var(--text2); cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: color .15s, border-color .15s; white-space: nowrap; }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+
+  /* ── Tab panels ── */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
   /* ── Main ── */
-  .main {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem 4rem;
-  }
+  .main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
 
   /* ── Cards ── */
-  .card {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-  }
+  .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; }
 
-  /* ── Setup banner ── */
-  .setup-banner {
-    background: var(--blue-bg);
-    border: 1px solid rgba(24,95,165,0.18);
-    border-radius: var(--radius-lg);
-    padding: 1rem 1.25rem;
-    margin-bottom: 1rem;
-    font-size: 13px;
-    color: var(--blue-text);
-    line-height: 1.6;
-  }
+  /* ── Setup / info banners ── */
+  .setup-banner { background: var(--blue-bg); border: 1px solid rgba(24,95,165,0.18); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; font-size: 13px; color: var(--blue-text); line-height: 1.6; }
   .setup-banner strong { font-weight: 600; }
 
   /* ── Config panel ── */
-  .config-panel {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    display: none;
-  }
+  .config-panel { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; display: none; }
   .config-panel.open { display: block; }
   .config-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; }
-  .config-icon {
-    width: 28px; height: 28px; border-radius: 8px;
-    background: var(--bg3); display: flex; align-items: center;
-    justify-content: center; font-size: 14px; flex-shrink: 0;
-  }
+  .config-icon { width: 28px; height: 28px; border-radius: 8px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
   .config-title { font-size: 14px; font-weight: 600; }
   .config-sub { font-size: 12px; color: var(--text2); margin-top: 1px; }
-  .config-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
-  }
+  .config-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 
   /* ── Form fields ── */
   .field { display: flex; flex-direction: column; gap: 5px; }
-  .field label {
-    font-size: 11px; color: var(--text2);
-    font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
-  }
+  .field label { font-size: 11px; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
   .field-note { font-size: 11px; color: var(--text3); margin-top: 3px; }
-  input, select {
-    font-size: 14px; font-family: inherit;
-    padding: 9px 12px;
-    border: 1px solid var(--border2);
-    border-radius: var(--radius);
-    background: var(--bg);
-    color: var(--text);
-    width: 100%;
-    outline: none;
-    transition: border-color .15s, box-shadow .15s;
-  }
-  input:focus, select:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(0,0,0,0.07);
-  }
+  input, select { font-size: 14px; font-family: inherit; padding: 9px 12px; border: 1px solid var(--border2); border-radius: var(--radius); background: var(--bg); color: var(--text); width: 100%; outline: none; transition: border-color .15s, box-shadow .15s; }
+  input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,0,0,0.07); }
   input[type="password"] { letter-spacing: 0.1em; }
+  select:disabled { opacity: 0.45; cursor: not-allowed; }
 
   /* ── Buttons ── */
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-    padding: 9px 18px;
-    font-size: 13px; font-family: inherit; font-weight: 500;
-    border: 1px solid var(--border2);
-    border-radius: var(--radius);
-    background: var(--bg);
-    color: var(--text);
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background .15s, border-color .15s;
-    text-decoration: none;
-  }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 18px; font-size: 13px; font-family: inherit; font-weight: 500; border: 1px solid var(--border2); border-radius: var(--radius); background: var(--bg); color: var(--text); cursor: pointer; white-space: nowrap; transition: background .15s, border-color .15s; text-decoration: none; }
   .btn:hover { background: var(--bg3); }
   .btn:active { transform: scale(0.98); }
-  .btn-primary {
-    background: var(--accent); color: #fff;
-    border-color: var(--accent);
-  }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
   .btn-primary:hover { background: #333; border-color: #333; }
   .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
   .btn-sm { padding: 6px 14px; font-size: 12px; }
   .btn-ghost { border-color: transparent; color: var(--text2); }
   .btn-ghost:hover { background: var(--bg3); border-color: var(--border); color: var(--text); }
 
-  /* ── Search section ── */
-  .search-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 1.25rem; }
-  .step-num {
-    width: 26px; height: 26px; border-radius: 50%;
-    background: var(--accent); color: #fff;
-    font-size: 11px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    margin-top: 1px;
-  }
+  /* ── Section headers ── */
+  .section-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 1.25rem; }
+  .step-num { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
   .section-title { font-size: 15px; font-weight: 600; }
   .section-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
 
-  .search-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
-    gap: 12px;
-    align-items: end;
-  }
-  select:disabled { opacity: 0.45; cursor: not-allowed; }
+  /* ── Search row (Find Leads) ── */
+  .search-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
 
   /* ── Metrics ── */
-  .metrics {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-bottom: 1rem;
-  }
-  .metric {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1rem 1.25rem;
-  }
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1rem; }
+  .metric { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; }
   .metric-label { font-size: 11px; color: var(--text2); font-weight: 500; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
   .metric-val { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
 
   /* ── Lead cards ── */
   .results-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; }
-  .results-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 1.25rem; flex-wrap: wrap; gap: 10px;
-  }
+  .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 10px; }
   .leads-list { display: flex; flex-direction: column; gap: 10px; }
-  .lead-card {
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.1rem 1.25rem;
-    transition: border-color .15s, box-shadow .15s;
-    background: var(--bg);
-  }
+  .lead-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; transition: border-color .15s, box-shadow .15s; background: var(--bg); }
   .lead-card:hover { border-color: var(--border2); box-shadow: 0 1px 6px rgba(0,0,0,0.05); }
-  .lead-top {
-    display: flex; align-items: flex-start;
-    justify-content: space-between; gap: 12px;
-    margin-bottom: 6px;
-  }
+  .lead-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
   .lead-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
-  .lead-meta {
-    font-size: 12px; color: var(--text2);
-    display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
-  }
+  .lead-meta { font-size: 12px; color: var(--text2); display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
   .lead-meta a { color: var(--text2); text-decoration: none; }
   .lead-meta a:hover { color: var(--text); text-decoration: underline; }
-
-  .score-pill {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 4px 12px; border-radius: 20px;
-    font-size: 12px; font-weight: 600; flex-shrink: 0;
-  }
+  .score-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; flex-shrink: 0; }
   .hot  { background: var(--green-bg); color: var(--green-text); }
   .warm { background: var(--amber-bg); color: var(--amber-text); }
   .cold { background: var(--red-bg);   color: var(--red-text); }
-
-  .pain-tag {
-    font-size: 12px; color: var(--text2);
-    background: var(--bg2);
-    padding: 6px 10px; border-radius: 7px;
-    margin: 8px 0; line-height: 1.5;
-  }
-  .lead-footer {
-    display: flex; align-items: center;
-    justify-content: space-between; flex-wrap: wrap; gap: 8px;
-    margin-top: 8px;
-  }
+  .pain-tag { font-size: 12px; color: var(--text2); background: var(--bg2); padding: 6px 10px; border-radius: 7px; margin: 8px 0; line-height: 1.5; }
+  .lead-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
   .lead-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-  .tag {
-    font-size: 11px; font-weight: 500;
-    background: var(--bg2); color: var(--text2);
-    padding: 3px 9px; border-radius: 6px;
-  }
+  .tag { font-size: 11px; font-weight: 500; background: var(--bg2); color: var(--text2); padding: 3px 9px; border-radius: 6px; }
   .tag-green { background: var(--green-bg); color: var(--green-text); }
   .tag-red   { background: var(--red-bg);   color: var(--red-text); }
 
   /* ── Email panel ── */
-  .email-panel {
-    background: var(--bg2); border-radius: var(--radius);
-    padding: 1.1rem; margin-top: 10px; display: none;
-    border: 1px solid var(--border);
-  }
+  .email-panel { background: var(--bg2); border-radius: var(--radius); padding: 1.1rem; margin-top: 10px; display: none; border: 1px solid var(--border); }
   .email-panel.open { display: block; }
-  .email-toolbar {
-    display: flex; align-items: center;
-    justify-content: space-between; margin-bottom: 8px;
-  }
+  .email-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
   .email-label { font-size: 11px; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-  .email-body {
-    font-size: 13px; line-height: 1.8; color: var(--text);
-    white-space: pre-wrap; background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 1rem;
-    min-height: 60px;
-  }
-  .email-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .email-body { font-size: 13px; line-height: 1.8; color: var(--text); white-space: pre-wrap; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; min-height: 60px; }
 
   /* ── Spinner ── */
-  .spinner {
-    display: inline-block; width: 14px; height: 14px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: #fff; border-radius: 50%;
-    animation: spin .65s linear infinite; vertical-align: middle;
-    flex-shrink: 0;
-  }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin .65s linear infinite; vertical-align: middle; flex-shrink: 0; }
   .spinner-dark { border-color: rgba(0,0,0,0.12); border-top-color: var(--text); }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ── Loading / empty ── */
-  .loading-state, .empty-state {
-    text-align: center; padding: 3rem 1rem;
-    color: var(--text2); font-size: 13px;
-  }
+  .loading-state, .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text2); font-size: 13px; }
   .loading-state .spinner-dark { width: 20px; height: 20px; margin-bottom: 12px; border-width: 2.5px; display: block; margin-left: auto; margin-right: auto; }
 
   /* ── Keys saved ── */
   .keys-saved-msg { font-size: 12px; color: var(--green-text); margin-top: 8px; display: none; }
 
+  /* ════════════════════════════════════
+     SOCIAL SCORECARD STYLES
+  ════════════════════════════════════ */
+
+  /* Scorecard input row */
+  .sc-input-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
+
+  /* Overall score banner */
+  .score-banner { display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border); margin-bottom: 1rem; background: var(--bg); }
+  .score-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 800; letter-spacing: -1px; }
+  .score-circle .sc-num { font-size: 28px; line-height: 1; }
+  .score-circle .sc-denom { font-size: 12px; font-weight: 500; opacity: 0.75; }
+  .score-circle.sc-red   { background: var(--red-bg);   color: var(--red-text); }
+  .score-circle.sc-amber { background: var(--amber-bg); color: var(--amber-text); }
+  .score-circle.sc-green { background: var(--green-bg); color: var(--green-text); }
+  .score-info { flex: 1; min-width: 0; }
+  .score-label { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .score-bar-wrap { height: 6px; background: var(--bg3); border-radius: 99px; overflow: hidden; margin-bottom: 8px; }
+  .score-bar { height: 100%; border-radius: 99px; transition: width .6s ease; }
+  .sc-red-bar   { background: #e05555; }
+  .sc-amber-bar { background: #d98c3a; }
+  .sc-green-bar { background: #4a9b2a; }
+  .score-summary { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  /* Priority box */
+  .priority-box { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1rem; display: flex; align-items: flex-start; gap: 1rem; flex-wrap: wrap; }
+  .priority-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text2); white-space: nowrap; padding-top: 2px; }
+  .priority-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .priority-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--amber-bg); color: var(--amber-text); font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 20px; }
+  .priority-num { width: 16px; height: 16px; border-radius: 50%; background: var(--amber-text); color: var(--amber-bg); font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+  /* Channel cards grid */
+  .channel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem; }
+  .channel-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.1rem; transition: border-color .15s; }
+  .channel-card:hover { border-color: var(--border2); }
+  .channel-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .channel-name { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; }
+  .channel-icon { font-size: 16px; line-height: 1; }
+  .status-badge { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+  .status-active  { background: var(--green-bg); color: var(--green-text); }
+  .status-weak    { background: var(--amber-bg); color: var(--amber-text); }
+  .status-missing { background: var(--red-bg);   color: var(--red-text); }
+  .channel-row { display: flex; gap: 6px; margin-top: 6px; font-size: 12px; line-height: 1.5; }
+  .channel-row-icon { flex-shrink: 0; margin-top: 1px; color: var(--text3); }
+  .channel-problem { color: var(--text2); }
+  .channel-action  { color: var(--text); font-weight: 500; }
+
+  /* Pitch panel */
+  .pitch-section { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; }
+  .pitch-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px; }
+  .pitch-body { font-size: 13px; line-height: 1.8; white-space: pre-wrap; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; min-height: 80px; color: var(--text); margin-top: 12px; }
+  .pitch-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .ai-note { font-size: 11px; color: var(--text3); margin-top: 6px; }
+
   /* ── Responsive ── */
-  @media (max-width: 680px) {
-    header { padding: 0 1rem; }
+  @media (max-width: 720px) {
+    header, .tab-nav { padding: 0 1rem; }
     .main { padding: 1rem 1rem 3rem; }
-    .search-row { grid-template-columns: 1fr; }
+    .search-row, .sc-input-row { grid-template-columns: 1fr 1fr; }
+    .search-row > :last-child, .sc-input-row > :last-child { grid-column: 1 / -1; }
     .metrics { grid-template-columns: repeat(2, 1fr); }
-    .config-grid { grid-template-columns: 1fr; }
-    .card, .results-card { padding: 1.1rem; }
+    .config-grid { grid-template-columns: 1fr 1fr; }
+    .channel-grid { grid-template-columns: repeat(2, 1fr); }
+    .card, .results-card, .pitch-section { padding: 1.1rem; }
   }
   @media (max-width: 480px) {
-    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .search-row, .sc-input-row { grid-template-columns: 1fr; }
+    .search-row > :last-child, .sc-input-row > :last-child { grid-column: 1; }
+    .config-grid { grid-template-columns: 1fr; }
+    .channel-grid { grid-template-columns: 1fr; }
+    .score-banner { flex-direction: column; gap: 1rem; }
     .lead-top { flex-direction: column; }
     .score-pill { align-self: flex-start; }
   }
@@ -320,14 +226,14 @@
   </div>
 </header>
 
-<div class="main">
+<!-- Tab navigation -->
+<div class="tab-nav">
+  <button class="tab-btn active" data-tab="leads" onclick="switchTab(this)">✦ Find Leads</button>
+  <button class="tab-btn" data-tab="scorecard" onclick="switchTab(this)">📊 Social Scorecard</button>
+</div>
 
-  <!-- Setup banner -->
-  <div class="setup-banner" id="setup-banner">
-    <strong>First-time setup:</strong> Click <strong>Settings</strong> above and paste your three API keys — Google Places, Hunter.io, and Anthropic. Keys are stored only in your browser and sent directly to each API.
-  </div>
-
-  <!-- Config panel -->
+<!-- Config panel (shared, lives outside tabs) -->
+<div style="max-width:960px;margin:0 auto;padding:0 1.5rem">
   <div class="config-panel" id="config-panel">
     <div class="config-header">
       <div class="config-icon">⚙</div>
@@ -359,126 +265,277 @@
     </div>
     <div class="keys-saved-msg" id="keys-saved">✓ Keys saved successfully.</div>
   </div>
-
-  <!-- Search card -->
-  <div class="card">
-    <div class="search-header">
-      <div class="step-num">1</div>
-      <div>
-        <div class="section-title">Find leads</div>
-        <div class="section-sub">Pulls real businesses from Google Maps, finds emails via Hunter.io, and scores them with AI</div>
-      </div>
-    </div>
-    <div class="search-row">
-      <div class="field">
-        <label>Niche</label>
-        <select id="niche">
-          <option value="med spa">Med Spa</option>
-          <option value="dental clinic">Dental Clinic</option>
-          <option value="restaurant">Restaurant</option>
-          <option value="chiropractic clinic">Chiropractic Clinic</option>
-          <option value="real estate agency">Real Estate Agency</option>
-          <option value="law firm">Law Firm</option>
-          <option value="gym fitness studio">Gym / Fitness Studio</option>
-          <option value="auto dealership">Auto Dealership</option>
-          <option value="roofing company">Roofing Company</option>
-          <option value="plumbing company">Plumbing Company</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>State</label>
-        <select id="state" onchange="updateCities()">
-          <option value="">Select a state…</option>
-          <option>Alabama</option><option>Alaska</option><option>Arizona</option>
-          <option>Arkansas</option><option>California</option><option>Colorado</option>
-          <option>Connecticut</option><option>Delaware</option><option>Florida</option>
-          <option>Georgia</option><option>Hawaii</option><option>Idaho</option>
-          <option>Illinois</option><option>Indiana</option><option>Iowa</option>
-          <option>Kansas</option><option>Kentucky</option><option>Louisiana</option>
-          <option>Maine</option><option>Maryland</option><option>Massachusetts</option>
-          <option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
-          <option>Missouri</option><option>Montana</option><option>Nebraska</option>
-          <option>Nevada</option><option>New Hampshire</option><option>New Jersey</option>
-          <option>New Mexico</option><option>New York</option><option>North Carolina</option>
-          <option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
-          <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option>
-          <option>South Carolina</option><option>South Dakota</option><option>Tennessee</option>
-          <option>Texas</option><option>Utah</option><option>Vermont</option>
-          <option>Virginia</option><option>Washington</option><option>West Virginia</option>
-          <option>Wisconsin</option><option>Wyoming</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>City</label>
-        <select id="city" disabled>
-          <option value="">Select a state first</option>
-        </select>
-      </div>
-      <div class="field">
-        <label style="opacity:0;user-select:none">Run</label>
-        <button class="btn btn-primary" id="gen-btn" onclick="generateLeads()" style="width:100%">
-          ✦ Generate leads
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Loading -->
-  <div id="loading-section" style="display:none">
-    <div class="card loading-state">
-      <span class="spinner spinner-dark"></span>
-      <div id="loading-msg" style="margin-top:12px;font-size:14px;color:var(--text)">Searching Google Maps...</div>
-      <div style="font-size:12px;color:var(--text3);margin-top:4px">This takes 10–20 seconds</div>
-    </div>
-  </div>
-
-  <!-- Results -->
-  <div id="results-section" style="display:none">
-
-    <div class="metrics">
-      <div class="metric">
-        <div class="metric-label">Total leads</div>
-        <div class="metric-val" id="m-total">0</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">With email</div>
-        <div class="metric-val" style="color:var(--green-text)" id="m-email">0</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Hot leads (8+)</div>
-        <div class="metric-val" style="color:var(--green-text)" id="m-hot">0</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Avg score</div>
-        <div class="metric-val" id="m-avg">0</div>
-      </div>
-    </div>
-
-    <div class="results-card">
-      <div class="results-header">
-        <div style="display:flex;align-items:flex-start;gap:12px">
-          <div class="step-num">2</div>
-          <div>
-            <div class="section-title">Qualified prospects</div>
-            <div class="section-sub">Sorted by lead score — click "Write email" on any lead</div>
-          </div>
-        </div>
-        <button class="btn btn-sm" onclick="exportCSV()">↓ Export CSV</button>
-      </div>
-      <div class="leads-list" id="leads-container"></div>
-    </div>
-
-  </div>
-
 </div>
 
+<div class="main">
+
+  <!-- ══════════════════════════════════
+       TAB 1: FIND LEADS
+  ══════════════════════════════════ -->
+  <div id="tab-leads" class="tab-panel active">
+
+    <div class="setup-banner" id="setup-banner">
+      <strong>First-time setup:</strong> Click <strong>Settings</strong> above and paste your three API keys — Google Places, Hunter.io, and Anthropic. Keys are stored only in your browser and sent directly to each API.
+    </div>
+
+    <!-- Search card -->
+    <div class="card">
+      <div class="section-header">
+        <div class="step-num">1</div>
+        <div>
+          <div class="section-title">Find leads</div>
+          <div class="section-sub">Pulls real businesses from Google Maps, finds emails via Hunter.io, scores with AI</div>
+        </div>
+      </div>
+      <div class="search-row">
+        <div class="field">
+          <label>Niche</label>
+          <select id="niche">
+            <option value="med spa">Med Spa</option>
+            <option value="dental clinic">Dental Clinic</option>
+            <option value="restaurant">Restaurant</option>
+            <option value="chiropractic clinic">Chiropractic Clinic</option>
+            <option value="real estate agency">Real Estate Agency</option>
+            <option value="law firm">Law Firm</option>
+            <option value="gym fitness studio">Gym / Fitness Studio</option>
+            <option value="auto dealership">Auto Dealership</option>
+            <option value="roofing company">Roofing Company</option>
+            <option value="plumbing company">Plumbing Company</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>State</label>
+          <select id="state" onchange="updateCities()">
+            <option value="">Select a state…</option>
+            <option>Alabama</option><option>Alaska</option><option>Arizona</option>
+            <option>Arkansas</option><option>California</option><option>Colorado</option>
+            <option>Connecticut</option><option>Delaware</option><option>Florida</option>
+            <option>Georgia</option><option>Hawaii</option><option>Idaho</option>
+            <option>Illinois</option><option>Indiana</option><option>Iowa</option>
+            <option>Kansas</option><option>Kentucky</option><option>Louisiana</option>
+            <option>Maine</option><option>Maryland</option><option>Massachusetts</option>
+            <option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
+            <option>Missouri</option><option>Montana</option><option>Nebraska</option>
+            <option>Nevada</option><option>New Hampshire</option><option>New Jersey</option>
+            <option>New Mexico</option><option>New York</option><option>North Carolina</option>
+            <option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
+            <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option>
+            <option>South Carolina</option><option>South Dakota</option><option>Tennessee</option>
+            <option>Texas</option><option>Utah</option><option>Vermont</option>
+            <option>Virginia</option><option>Washington</option><option>West Virginia</option>
+            <option>Wisconsin</option><option>Wyoming</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>City</label>
+          <select id="city" disabled>
+            <option value="">Select a state first</option>
+          </select>
+        </div>
+        <div class="field">
+          <label style="opacity:0;user-select:none">Run</label>
+          <button class="btn btn-primary" id="gen-btn" onclick="generateLeads()" style="width:100%">
+            ✦ Generate leads
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading-section" style="display:none">
+      <div class="card loading-state">
+        <span class="spinner spinner-dark"></span>
+        <div id="loading-msg" style="margin-top:12px;font-size:14px;color:var(--text)">Searching Google Maps...</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">This takes 10–20 seconds</div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="results-section" style="display:none">
+      <div class="metrics">
+        <div class="metric"><div class="metric-label">Total leads</div><div class="metric-val" id="m-total">0</div></div>
+        <div class="metric"><div class="metric-label">With email</div><div class="metric-val" style="color:var(--green-text)" id="m-email">0</div></div>
+        <div class="metric"><div class="metric-label">Hot leads (8+)</div><div class="metric-val" style="color:var(--green-text)" id="m-hot">0</div></div>
+        <div class="metric"><div class="metric-label">Avg score</div><div class="metric-val" id="m-avg">0</div></div>
+      </div>
+      <div class="results-card">
+        <div class="results-header">
+          <div style="display:flex;align-items:flex-start;gap:12px">
+            <div class="step-num">2</div>
+            <div>
+              <div class="section-title">Qualified prospects</div>
+              <div class="section-sub">Sorted by lead score — click "Write email" on any lead</div>
+            </div>
+          </div>
+          <button class="btn btn-sm" onclick="exportCSV()">↓ Export CSV</button>
+        </div>
+        <div class="leads-list" id="leads-container"></div>
+      </div>
+    </div>
+
+  </div><!-- /tab-leads -->
+
+  <!-- ══════════════════════════════════
+       TAB 2: SOCIAL SCORECARD
+  ══════════════════════════════════ -->
+  <div id="tab-scorecard" class="tab-panel">
+
+    <!-- Input card -->
+    <div class="card">
+      <div class="section-header">
+        <div class="step-num">1</div>
+        <div>
+          <div class="section-title">Audit a business</div>
+          <div class="section-sub">AI evaluates presence across 9 social channels and scores their digital footprint</div>
+        </div>
+      </div>
+      <div class="sc-input-row">
+        <div class="field">
+          <label>Business Name</label>
+          <input type="text" id="sc-name" placeholder="e.g. Sunrise Med Spa">
+        </div>
+        <div class="field">
+          <label>Website (optional)</label>
+          <input type="text" id="sc-website" placeholder="https://...">
+        </div>
+        <div class="field">
+          <label>Business Type</label>
+          <select id="sc-type">
+            <option value="Restaurant">Restaurant</option>
+            <option value="Med Spa">Med Spa</option>
+            <option value="Dental Clinic">Dental Clinic</option>
+            <option value="Gym">Gym / Fitness Studio</option>
+            <option value="Law Firm">Law Firm</option>
+            <option value="Real Estate">Real Estate Agency</option>
+            <option value="Roofing">Roofing Company</option>
+            <option value="Plumbing">Plumbing Company</option>
+          </select>
+        </div>
+        <div class="field">
+          <label style="opacity:0;user-select:none">Go</label>
+          <button class="btn btn-primary" id="sc-btn" onclick="analyzeScorecard()" style="width:100%">
+            ✦ Analyze
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scorecard loading -->
+    <div id="sc-loading" style="display:none">
+      <div class="card loading-state">
+        <span class="spinner spinner-dark"></span>
+        <div style="margin-top:12px;font-size:14px;color:var(--text)">Auditing social media presence...</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">Takes 5–10 seconds</div>
+      </div>
+    </div>
+
+    <!-- Scorecard results -->
+    <div id="sc-results" style="display:none">
+
+      <!-- Overall score -->
+      <div class="score-banner" id="sc-score-banner">
+        <div class="score-circle" id="sc-circle">
+          <span class="sc-num" id="sc-score-num">0</span>
+          <span class="sc-denom">/ 100</span>
+        </div>
+        <div class="score-info">
+          <div class="score-label" id="sc-score-label">Social Media Score</div>
+          <div class="score-bar-wrap">
+            <div class="score-bar" id="sc-bar" style="width:0%"></div>
+          </div>
+          <div class="score-summary" id="sc-summary"></div>
+        </div>
+      </div>
+
+      <!-- Priority box -->
+      <div class="priority-box" id="sc-priority-box">
+        <div class="priority-label">Top 3 to fix</div>
+        <div class="priority-tags" id="sc-priority-tags"></div>
+      </div>
+
+      <!-- Channel cards -->
+      <div class="channel-grid" id="sc-channel-grid"></div>
+
+      <!-- Pitch section -->
+      <div class="pitch-section">
+        <div class="pitch-header">
+          <div>
+            <div class="section-title">Generate sales pitch</div>
+            <div class="section-sub">Personalized pitch based on their weakest channels</div>
+          </div>
+          <button class="btn btn-primary" id="pitch-btn" onclick="generatePitch()">✉ Generate pitch</button>
+        </div>
+        <div id="pitch-output" style="display:none">
+          <div class="pitch-body" id="pitch-body"></div>
+          <div class="pitch-actions">
+            <button class="btn btn-sm" onclick="copyPitch()">Copy pitch</button>
+            <button class="btn btn-sm btn-ghost" onclick="document.getElementById('pitch-output').style.display='none'">✕ Clear</button>
+          </div>
+          <div class="ai-note">AI-generated — review before sending.</div>
+        </div>
+        <div id="pitch-loading" style="display:none;padding:1rem 0;text-align:center;color:var(--text2);font-size:13px">
+          <span class="spinner spinner-dark"></span>
+          <span style="margin-left:8px">Writing pitch...</span>
+        </div>
+      </div>
+
+    </div><!-- /sc-results -->
+
+  </div><!-- /tab-scorecard -->
+
+</div><!-- /main -->
+
 <script>
-let currentLeads = [];
-let currentNiche = '';
-let currentCity = '';
+/* ═══════════════════════════════════
+   SHARED STATE
+═══════════════════════════════════ */
+let currentLeads    = [];
+let currentNiche    = '';
+let currentCity     = '';
+let currentScorecard = null;
 
 const BACKEND = window.location.origin;
 
+/* ── Keys & status ── */
+function loadKeys() {
+  document.getElementById('cfg-google').value    = localStorage.getItem('lg_google')    || '';
+  document.getElementById('cfg-hunter').value    = localStorage.getItem('lg_hunter')    || '';
+  document.getElementById('cfg-anthropic').value = localStorage.getItem('lg_anthropic') || '';
+  updateStatus();
+}
+function saveKeys() {
+  localStorage.setItem('lg_google',    document.getElementById('cfg-google').value.trim());
+  localStorage.setItem('lg_hunter',    document.getElementById('cfg-hunter').value.trim());
+  localStorage.setItem('lg_anthropic', document.getElementById('cfg-anthropic').value.trim());
+  const msg = document.getElementById('keys-saved');
+  msg.style.display = 'block';
+  setTimeout(() => msg.style.display = 'none', 2500);
+  updateStatus();
+  if (localStorage.getItem('lg_google') && localStorage.getItem('lg_hunter') && localStorage.getItem('lg_anthropic')) {
+    document.getElementById('setup-banner').style.display = 'none';
+  }
+}
+function updateStatus() {
+  const g = localStorage.getItem('lg_google');
+  const h = localStorage.getItem('lg_hunter');
+  const a = localStorage.getItem('lg_anthropic');
+  const el = document.getElementById('api-status');
+  if (g && h && a) { el.textContent = '● Ready'; el.className = 'badge ready'; }
+  else             { el.textContent = '● Setup needed'; el.className = 'badge'; }
+}
+function toggleConfig() { document.getElementById('config-panel').classList.toggle('open'); }
+
+/* ── Tab switching ── */
+function switchTab(btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ═══════════════════════════════════
+   TAB 1 — FIND LEADS
+═══════════════════════════════════ */
 const STATE_DATA = {
   'Alabama':        { abbr:'AL', cities:['Birmingham','Montgomery','Huntsville','Mobile','Tuscaloosa','Hoover','Dothan','Auburn','Decatur','Madison'] },
   'Alaska':         { abbr:'AK', cities:['Anchorage','Fairbanks','Juneau','Sitka','Ketchikan','Wasilla','Kenai','Kodiak','Bethel','Palmer'] },
@@ -491,7 +548,7 @@ const STATE_DATA = {
   'Florida':        { abbr:'FL', cities:['Miami','Orlando','Tampa','Jacksonville','Fort Lauderdale','Naples','Sarasota','Boca Raton','West Palm Beach','Gainesville','Tallahassee','Clearwater','St Petersburg','Pensacola','Fort Myers'] },
   'Georgia':        { abbr:'GA', cities:['Atlanta','Augusta','Columbus','Macon','Savannah','Athens','Sandy Springs','Roswell','Johns Creek','Albany'] },
   'Hawaii':         { abbr:'HI', cities:['Honolulu','Pearl City','Hilo','Kailua','Waipahu','Kaneohe','Mililani','Kahului','Kihei','Makakilo'] },
-  'Idaho':          { abbr:'ID', cities:['Boise','Meridian','Nampa','Idaho Falls','Pocatello','Caldwell','Coeur d\'Alene','Twin Falls','Lewiston','Post Falls'] },
+  'Idaho':          { abbr:'ID', cities:['Boise','Meridian','Nampa','Idaho Falls','Pocatello','Caldwell',"Coeur d'Alene",'Twin Falls','Lewiston','Post Falls'] },
   'Illinois':       { abbr:'IL', cities:['Chicago','Aurora','Joliet','Naperville','Rockford','Springfield','Elgin','Peoria','Champaign','Waukegan'] },
   'Indiana':        { abbr:'IN', cities:['Indianapolis','Fort Wayne','Evansville','South Bend','Carmel','Fishers','Bloomington','Hammond','Gary','Lafayette'] },
   'Iowa':           { abbr:'IA', cities:['Des Moines','Cedar Rapids','Davenport','Sioux City','Iowa City','Waterloo','Ames','West Des Moines','Ankeny','Dubuque'] },
@@ -504,7 +561,7 @@ const STATE_DATA = {
   'Michigan':       { abbr:'MI', cities:['Detroit','Grand Rapids','Warren','Sterling Heights','Ann Arbor','Lansing','Flint','Dearborn','Livonia','Troy'] },
   'Minnesota':      { abbr:'MN', cities:['Minneapolis','St Paul','Rochester','Duluth','Bloomington','Brooklyn Park','Plymouth','St Cloud','Eagan','Woodbury'] },
   'Mississippi':    { abbr:'MS', cities:['Jackson','Gulfport','Southaven','Hattiesburg','Biloxi','Meridian','Tupelo','Greenville','Olive Branch','Horn Lake'] },
-  'Missouri':       { abbr:'MO', cities:['Kansas City','St Louis','Springfield','Columbia','Independence','Lee\'s Summit','O\'Fallon','St Joseph','St Charles','Blue Springs'] },
+  'Missouri':       { abbr:'MO', cities:['Kansas City','St Louis','Springfield','Columbia','Independence',"Lee's Summit","O'Fallon",'St Joseph','St Charles','Blue Springs'] },
   'Montana':        { abbr:'MT', cities:['Billings','Missoula','Great Falls','Bozeman','Butte','Helena','Kalispell','Havre','Anaconda','Miles City'] },
   'Nebraska':       { abbr:'NE', cities:['Omaha','Lincoln','Bellevue','Grand Island','Kearney','Fremont','Hastings','North Platte','Norfolk','Columbus'] },
   'Nevada':         { abbr:'NV', cities:['Las Vegas','Henderson','Reno','North Las Vegas','Sparks','Carson City','Fernley','Elko','Mesquite','Boulder City'] },
@@ -533,8 +590,8 @@ const STATE_DATA = {
 };
 
 function updateCities() {
-  const state   = document.getElementById('state').value;
-  const cityEl  = document.getElementById('city');
+  const state  = document.getElementById('state').value;
+  const cityEl = document.getElementById('city');
   if (!state || !STATE_DATA[state]) {
     cityEl.innerHTML = '<option value="">Select a state first</option>';
     cityEl.disabled  = true;
@@ -545,54 +602,12 @@ function updateCities() {
   cityEl.disabled  = false;
 }
 
-function loadKeys() {
-  document.getElementById('cfg-google').value    = localStorage.getItem('lg_google')    || '';
-  document.getElementById('cfg-hunter').value    = localStorage.getItem('lg_hunter')    || '';
-  document.getElementById('cfg-anthropic').value = localStorage.getItem('lg_anthropic') || '';
-  updateStatus();
-}
-
-function saveKeys() {
-  localStorage.setItem('lg_google',    document.getElementById('cfg-google').value.trim());
-  localStorage.setItem('lg_hunter',    document.getElementById('cfg-hunter').value.trim());
-  localStorage.setItem('lg_anthropic', document.getElementById('cfg-anthropic').value.trim());
-  const msg = document.getElementById('keys-saved');
-  msg.style.display = 'block';
-  setTimeout(() => msg.style.display = 'none', 2500);
-  updateStatus();
-  if (localStorage.getItem('lg_google') && localStorage.getItem('lg_hunter') && localStorage.getItem('lg_anthropic')) {
-    document.getElementById('setup-banner').style.display = 'none';
-  }
-}
-
-function updateStatus() {
-  const g = localStorage.getItem('lg_google');
-  const h = localStorage.getItem('lg_hunter');
-  const a = localStorage.getItem('lg_anthropic');
-  const el = document.getElementById('api-status');
-  if (g && h && a) {
-    el.textContent = '● Ready';
-    el.className = 'badge ready';
-  } else {
-    el.textContent = '● Setup needed';
-    el.className = 'badge';
-  }
-}
-
-function toggleConfig() {
-  document.getElementById('config-panel').classList.toggle('open');
-}
-
 function scoreClass(s) { return s >= 8 ? 'hot' : s >= 5 ? 'warm' : 'cold'; }
 function scoreLabel(s) { return s >= 8 ? '🔥 Hot' : s >= 5 ? '↑ Warm' : '❄ Cold'; }
 
 function renderLeads(leads) {
   const container = document.getElementById('leads-container');
-  if (!leads.length) {
-    container.innerHTML = '<div class="empty-state">No leads found. Try a different niche or city.</div>';
-    return;
-  }
-
+  if (!leads.length) { container.innerHTML = '<div class="empty-state">No leads found. Try a different niche or city.</div>'; return; }
   container.innerHTML = leads.map((l, i) => `
     <div class="lead-card" id="card-${i}">
       <div class="lead-top">
@@ -600,10 +615,8 @@ function renderLeads(leads) {
           <div class="lead-name">${l.name}</div>
           <div class="lead-meta">
             ${l.phone   ? `<span>📞 ${l.phone}</span>` : ''}
-            ${l.website ? `<span>🌐 <a href="${l.website}" target="_blank">${l.domain || l.website}</a></span>`
-                        : '<span style="color:var(--red-text)">⚠ No website</span>'}
-            ${l.email   ? `<span>✉ ${l.email}</span>`
-                        : `<span><a href="https://hunter.io/search/${l.domain || ''}" target="_blank">Find email ↗</a></span>`}
+            ${l.website ? `<span>🌐 <a href="${l.website}" target="_blank">${l.domain || l.website}</a></span>` : '<span style="color:var(--red-text)">⚠ No website</span>'}
+            ${l.email   ? `<span>✉ ${l.email}</span>` : `<span><a href="https://hunter.io/search/${l.domain||''}" target="_blank">Find email ↗</a></span>`}
           </div>
         </div>
         <div class="score-pill ${scoreClass(l.score)}">${scoreLabel(l.score)} · ${l.score}/10</div>
@@ -627,9 +640,7 @@ function renderLeads(leads) {
         </div>
         <div class="email-body" id="eb-${i}">Generating email...</div>
       </div>
-    </div>
-  `).join('');
-
+    </div>`).join('');
   document.getElementById('m-total').textContent = leads.length;
   document.getElementById('m-email').textContent = leads.filter(l => l.email).length;
   document.getElementById('m-hot').textContent   = leads.filter(l => l.score >= 8).length;
@@ -638,131 +649,190 @@ function renderLeads(leads) {
 }
 
 async function generateLeads() {
-  const google    = localStorage.getItem('lg_google');
-  const hunter    = localStorage.getItem('lg_hunter');
-  const anthropic = localStorage.getItem('lg_anthropic');
-
-  if (!google || !hunter || !anthropic) {
-    document.getElementById('config-panel').classList.add('open');
-    return;
-  }
-
+  const google = localStorage.getItem('lg_google'), hunter = localStorage.getItem('lg_hunter'), anthropic = localStorage.getItem('lg_anthropic');
+  if (!google || !hunter || !anthropic) { document.getElementById('config-panel').classList.add('open'); return; }
   currentNiche = document.getElementById('niche').value;
   currentCity  = document.getElementById('city').value;
-
-  if (!currentCity) {
-    document.getElementById('state').focus();
-    return;
-  }
-
+  if (!currentCity) { document.getElementById('state').focus(); return; }
   const btn = document.getElementById('gen-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Generating...';
-
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generating...';
   document.getElementById('results-section').style.display = 'none';
   document.getElementById('loading-section').style.display = 'block';
-
-  const msgs = [
-    'Searching Google Maps...',
-    'Pulling business details...',
-    'Finding emails via Hunter.io...',
-    'Scoring leads with AI...'
-  ];
+  const msgs = ['Searching Google Maps...','Pulling business details...','Finding emails via Hunter.io...','Scoring leads with AI...'];
   let mi = 0;
-  const msgEl  = document.getElementById('loading-msg');
+  const msgEl = document.getElementById('loading-msg');
   const msgInt = setInterval(() => { if (mi < msgs.length - 1) msgEl.textContent = msgs[++mi]; }, 4500);
-
   try {
-    const resp = await fetch(`${BACKEND}/api/generate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-google-key':    google,
-        'x-hunter-key':    hunter,
-        'x-anthropic-key': anthropic
-      },
-      body: JSON.stringify({ niche: currentNiche, city: currentCity })
-    });
-
+    const resp = await fetch(`${BACKEND}/api/generate`, { method:'POST', headers:{'Content-Type':'application/json','x-google-key':google,'x-hunter-key':hunter,'x-anthropic-key':anthropic}, body: JSON.stringify({ niche: currentNiche, city: currentCity }) });
     const data = await resp.json();
     clearInterval(msgInt);
     if (data.error) throw new Error(data.error);
-
     currentLeads = data.leads;
     renderLeads(currentLeads);
     document.getElementById('loading-section').style.display  = 'none';
     document.getElementById('results-section').style.display  = 'block';
-
   } catch (err) {
     clearInterval(msgInt);
     document.getElementById('loading-section').style.display = 'none';
     document.getElementById('results-section').style.display = 'block';
-    document.getElementById('leads-container').innerHTML =
-      `<div class="empty-state">Error: ${err.message}<br><br>Check your API keys in Settings and try again.</div>`;
+    document.getElementById('leads-container').innerHTML = `<div class="empty-state">Error: ${err.message}<br><br>Check your API keys in Settings and try again.</div>`;
   }
-
-  btn.disabled = false;
-  btn.innerHTML = '✦ Regenerate';
+  btn.disabled = false; btn.innerHTML = '✦ Regenerate';
 }
 
 async function writeEmail(idx) {
-  const lead      = currentLeads[idx];
-  const panel     = document.getElementById(`ep-${idx}`);
-  const body      = document.getElementById(`eb-${idx}`);
-  const anthropic = localStorage.getItem('lg_anthropic');
-
-  panel.classList.add('open');
-  body.textContent = 'Writing your personalized email...';
-  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
+  const lead = currentLeads[idx], panel = document.getElementById(`ep-${idx}`), body = document.getElementById(`eb-${idx}`);
+  panel.classList.add('open'); body.textContent = 'Writing your personalized email...';
+  panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
   try {
-    const resp = await fetch(`${BACKEND}/api/email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-anthropic-key': anthropic
-      },
-      body: JSON.stringify({ lead, niche: currentNiche, city: currentCity })
-    });
+    const resp = await fetch(`${BACKEND}/api/email`, { method:'POST', headers:{'Content-Type':'application/json','x-anthropic-key':localStorage.getItem('lg_anthropic')}, body: JSON.stringify({ lead, niche: currentNiche, city: currentCity }) });
     const data = await resp.json();
     body.textContent = data.email || 'Could not generate email.';
-  } catch {
-    body.textContent = 'Error generating email. Please try again.';
-  }
+  } catch { body.textContent = 'Error generating email. Please try again.'; }
 }
 
-function closeEmail(idx) {
-  document.getElementById(`ep-${idx}`).classList.remove('open');
-}
+function closeEmail(idx) { document.getElementById(`ep-${idx}`).classList.remove('open'); }
 
 function copyEmail(idx) {
-  const text = document.getElementById(`eb-${idx}`).textContent;
-  navigator.clipboard.writeText(text).then(() => {
+  navigator.clipboard.writeText(document.getElementById(`eb-${idx}`).textContent).then(() => {
     const btn = document.querySelector(`#ep-${idx} .btn`);
-    const orig = btn.textContent;
-    btn.textContent = 'Copied!';
+    const orig = btn.textContent; btn.textContent = 'Copied!';
     setTimeout(() => btn.textContent = orig, 1500);
   });
 }
 
 function exportCSV() {
   const headers = ['Name','Phone','Website','Email','Rating','Reviews','Score','Pain Point','City','Niche'];
-  const rows = currentLeads.map(l =>
-    [l.name, l.phone||'', l.website||'', l.email||'',
-     l.rating||'', l.reviews||'', l.score, l.pain,
-     currentCity, currentNiche]
-    .map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')
-  );
-  const csv  = [headers.join(','), ...rows].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url;
-  a.download = `leads-${currentNiche}-${currentCity}.csv`.replace(/\s/g,'-');
-  a.click();
-  URL.revokeObjectURL(url);
+  const rows = currentLeads.map(l => [l.name,l.phone||'',l.website||'',l.email||'',l.rating||'',l.reviews||'',l.score,l.pain,currentCity,currentNiche].map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
+  const blob = new Blob([[headers.join(','),...rows].join('\n')], { type:'text/csv' });
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `leads-${currentNiche}-${currentCity}.csv`.replace(/\s/g,'-') });
+  a.click(); URL.revokeObjectURL(a.href);
 }
 
+/* ═══════════════════════════════════
+   TAB 2 — SOCIAL SCORECARD
+═══════════════════════════════════ */
+function scScoreClass(n) { return n >= 71 ? 'sc-green' : n >= 41 ? 'sc-amber' : 'sc-red'; }
+function scScoreLabel(n) { return n >= 71 ? 'Strong presence' : n >= 41 ? 'Needs work' : 'Critical gaps'; }
+function scBarClass(n)   { return n >= 71 ? 'sc-green-bar' : n >= 41 ? 'sc-amber-bar' : 'sc-red-bar'; }
+function statusClass(s)  { return s === 'Active' ? 'status-active' : s === 'Weak' ? 'status-weak' : 'status-missing'; }
+
+async function analyzeScorecard() {
+  const anthropic = localStorage.getItem('lg_anthropic');
+  if (!anthropic) { toggleConfig(); return; }
+  const businessName = document.getElementById('sc-name').value.trim();
+  const website      = document.getElementById('sc-website').value.trim();
+  const businessType = document.getElementById('sc-type').value;
+  if (!businessName) { document.getElementById('sc-name').focus(); return; }
+
+  const btn = document.getElementById('sc-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Analyzing...';
+  document.getElementById('sc-results').style.display  = 'none';
+  document.getElementById('sc-loading').style.display  = 'block';
+  document.getElementById('pitch-output').style.display = 'none';
+
+  try {
+    const resp = await fetch(`${BACKEND}/api/scorecard`, { method:'POST', headers:{'Content-Type':'application/json','x-anthropic-key':anthropic}, body: JSON.stringify({ businessName, website, businessType }) });
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    currentScorecard = { ...data, businessName, businessType };
+    renderScorecard(data);
+    document.getElementById('sc-loading').style.display = 'none';
+    document.getElementById('sc-results').style.display = 'block';
+  } catch (err) {
+    document.getElementById('sc-loading').style.display = 'none';
+    alert('Error: ' + err.message);
+  }
+  btn.disabled = false; btn.innerHTML = '✦ Analyze';
+}
+
+function renderScorecard(data) {
+  const score = data.score || 0;
+  const cls   = scScoreClass(score);
+
+  // Score banner
+  const circle = document.getElementById('sc-circle');
+  circle.className = `score-circle ${cls}`;
+  document.getElementById('sc-score-num').textContent   = score;
+  document.getElementById('sc-score-label').textContent = scScoreLabel(score);
+  const bar = document.getElementById('sc-bar');
+  bar.className = `score-bar ${scBarClass(score)}`;
+  bar.style.width = '0%';
+  setTimeout(() => bar.style.width = score + '%', 50);
+  document.getElementById('sc-summary').textContent = data.summary || '';
+
+  // Priority
+  const tags = (data.priority || []).map((name, i) => `
+    <div class="priority-tag">
+      <span class="priority-num">${i + 1}</span>
+      ${name}
+    </div>`).join('');
+  document.getElementById('sc-priority-tags').innerHTML = tags;
+
+  // Channel cards
+  const grid = document.getElementById('sc-channel-grid');
+  grid.innerHTML = (data.channels || []).map(ch => `
+    <div class="channel-card">
+      <div class="channel-top">
+        <div class="channel-name">
+          <span class="channel-icon">${ch.icon}</span>
+          ${ch.name}
+        </div>
+        <span class="status-badge ${statusClass(ch.status)}">${ch.status}</span>
+      </div>
+      <div class="channel-row">
+        <span class="channel-row-icon">⚠</span>
+        <span class="channel-problem">${ch.problem}</span>
+      </div>
+      <div class="channel-row">
+        <span class="channel-row-icon">→</span>
+        <span class="channel-action">${ch.action}</span>
+      </div>
+    </div>`).join('');
+}
+
+async function generatePitch() {
+  const anthropic = localStorage.getItem('lg_anthropic');
+  if (!anthropic || !currentScorecard) return;
+
+  const btn = document.getElementById('pitch-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Writing...';
+  document.getElementById('pitch-loading').style.display = 'block';
+  document.getElementById('pitch-output').style.display  = 'none';
+
+  try {
+    const resp = await fetch(`${BACKEND}/api/pitch`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'x-anthropic-key': anthropic },
+      body: JSON.stringify({
+        businessName: currentScorecard.businessName,
+        businessType: currentScorecard.businessType,
+        score:        currentScorecard.score,
+        priority:     currentScorecard.priority,
+        channels:     currentScorecard.channels
+      })
+    });
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    document.getElementById('pitch-body').textContent   = data.pitch || '';
+    document.getElementById('pitch-loading').style.display = 'none';
+    document.getElementById('pitch-output').style.display  = 'block';
+  } catch (err) {
+    document.getElementById('pitch-loading').style.display = 'none';
+    alert('Error generating pitch: ' + err.message);
+  }
+  btn.disabled = false; btn.innerHTML = '✉ Generate pitch';
+}
+
+function copyPitch() {
+  navigator.clipboard.writeText(document.getElementById('pitch-body').textContent).then(() => {
+    const btn = document.getElementById('pitch-btn');
+    const orig = btn.innerHTML; btn.textContent = 'Copied!';
+    setTimeout(() => btn.innerHTML = orig, 1500);
+  });
+}
+
+/* ── Init ── */
 loadKeys();
 if (localStorage.getItem('lg_google') && localStorage.getItem('lg_hunter') && localStorage.getItem('lg_anthropic')) {
   document.getElementById('setup-banner').style.display = 'none';
