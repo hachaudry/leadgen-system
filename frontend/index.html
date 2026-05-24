@@ -173,10 +173,11 @@
 
   .search-row {
     display: grid;
-    grid-template-columns: 1fr 1fr auto;
+    grid-template-columns: 1fr 1fr 1fr auto;
     gap: 12px;
     align-items: end;
   }
+  select:disabled { opacity: 0.45; cursor: not-allowed; }
 
   /* ── Metrics ── */
   .metrics {
@@ -385,23 +386,32 @@
         </select>
       </div>
       <div class="field">
-        <label>US City</label>
-        <select id="city">
-          <option>Los Angeles, CA</option>
-          <option>New York, NY</option>
-          <option>Houston, TX</option>
-          <option>Chicago, IL</option>
-          <option>Phoenix, AZ</option>
-          <option>Miami, FL</option>
-          <option>Dallas, TX</option>
-          <option>San Diego, CA</option>
-          <option>Austin, TX</option>
-          <option>Atlanta, GA</option>
-          <option>Seattle, WA</option>
-          <option>Denver, CO</option>
-          <option>Las Vegas, NV</option>
-          <option>Nashville, TN</option>
-          <option>Boston, MA</option>
+        <label>State</label>
+        <select id="state" onchange="updateCities()">
+          <option value="">Select a state…</option>
+          <option>Alabama</option><option>Alaska</option><option>Arizona</option>
+          <option>Arkansas</option><option>California</option><option>Colorado</option>
+          <option>Connecticut</option><option>Delaware</option><option>Florida</option>
+          <option>Georgia</option><option>Hawaii</option><option>Idaho</option>
+          <option>Illinois</option><option>Indiana</option><option>Iowa</option>
+          <option>Kansas</option><option>Kentucky</option><option>Louisiana</option>
+          <option>Maine</option><option>Maryland</option><option>Massachusetts</option>
+          <option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
+          <option>Missouri</option><option>Montana</option><option>Nebraska</option>
+          <option>Nevada</option><option>New Hampshire</option><option>New Jersey</option>
+          <option>New Mexico</option><option>New York</option><option>North Carolina</option>
+          <option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
+          <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option>
+          <option>South Carolina</option><option>South Dakota</option><option>Tennessee</option>
+          <option>Texas</option><option>Utah</option><option>Vermont</option>
+          <option>Virginia</option><option>Washington</option><option>West Virginia</option>
+          <option>Wisconsin</option><option>Wyoming</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>City</label>
+        <select id="city" disabled>
+          <option value="">Select a state first</option>
         </select>
       </div>
       <div class="field">
@@ -468,6 +478,72 @@ let currentNiche = '';
 let currentCity = '';
 
 const BACKEND = window.location.origin;
+
+const STATE_DATA = {
+  'Alabama':        { abbr:'AL', cities:['Birmingham','Montgomery','Huntsville','Mobile','Tuscaloosa','Hoover','Dothan','Auburn','Decatur','Madison'] },
+  'Alaska':         { abbr:'AK', cities:['Anchorage','Fairbanks','Juneau','Sitka','Ketchikan','Wasilla','Kenai','Kodiak','Bethel','Palmer'] },
+  'Arizona':        { abbr:'AZ', cities:['Phoenix','Tucson','Mesa','Chandler','Scottsdale','Glendale','Gilbert','Tempe','Peoria','Surprise'] },
+  'Arkansas':       { abbr:'AR', cities:['Little Rock','Fort Smith','Fayetteville','Springdale','Jonesboro','Rogers','Conway','Bentonville','Hot Springs','Pine Bluff'] },
+  'California':     { abbr:'CA', cities:['Los Angeles','San Francisco','San Diego','Sacramento','San Jose','Fresno','Oakland','Santa Rosa','Petaluma','Napa','Sonoma','Modesto','Stockton','Bakersfield','Santa Barbara','Monterey','Irvine','Pasadena','Long Beach','Anaheim','Riverside','Palm Springs','Chico','Redding','Eureka','Napa Valley','Walnut Creek','Concord','Hayward','Fremont'] },
+  'Colorado':       { abbr:'CO', cities:['Denver','Colorado Springs','Aurora','Fort Collins','Lakewood','Thornton','Arvada','Westminster','Pueblo','Boulder'] },
+  'Connecticut':    { abbr:'CT', cities:['Bridgeport','New Haven','Hartford','Stamford','Waterbury','Norwalk','Danbury','New Britain','Greenwich','West Haven'] },
+  'Delaware':       { abbr:'DE', cities:['Wilmington','Dover','Newark','Middletown','Smyrna','Milford','Seaford','Georgetown','Elsmere','New Castle'] },
+  'Florida':        { abbr:'FL', cities:['Miami','Orlando','Tampa','Jacksonville','Fort Lauderdale','Naples','Sarasota','Boca Raton','West Palm Beach','Gainesville','Tallahassee','Clearwater','St Petersburg','Pensacola','Fort Myers'] },
+  'Georgia':        { abbr:'GA', cities:['Atlanta','Augusta','Columbus','Macon','Savannah','Athens','Sandy Springs','Roswell','Johns Creek','Albany'] },
+  'Hawaii':         { abbr:'HI', cities:['Honolulu','Pearl City','Hilo','Kailua','Waipahu','Kaneohe','Mililani','Kahului','Kihei','Makakilo'] },
+  'Idaho':          { abbr:'ID', cities:['Boise','Meridian','Nampa','Idaho Falls','Pocatello','Caldwell','Coeur d\'Alene','Twin Falls','Lewiston','Post Falls'] },
+  'Illinois':       { abbr:'IL', cities:['Chicago','Aurora','Joliet','Naperville','Rockford','Springfield','Elgin','Peoria','Champaign','Waukegan'] },
+  'Indiana':        { abbr:'IN', cities:['Indianapolis','Fort Wayne','Evansville','South Bend','Carmel','Fishers','Bloomington','Hammond','Gary','Lafayette'] },
+  'Iowa':           { abbr:'IA', cities:['Des Moines','Cedar Rapids','Davenport','Sioux City','Iowa City','Waterloo','Ames','West Des Moines','Ankeny','Dubuque'] },
+  'Kansas':         { abbr:'KS', cities:['Wichita','Overland Park','Kansas City','Topeka','Olathe','Lawrence','Shawnee','Manhattan','Lenexa','Salina'] },
+  'Kentucky':       { abbr:'KY', cities:['Louisville','Lexington','Bowling Green','Owensboro','Covington','Hopkinsville','Richmond','Florence','Georgetown','Henderson'] },
+  'Louisiana':      { abbr:'LA', cities:['New Orleans','Baton Rouge','Shreveport','Metairie','Lafayette','Lake Charles','Kenner','Bossier City','Monroe','Alexandria'] },
+  'Maine':          { abbr:'ME', cities:['Portland','Lewiston','Bangor','South Portland','Auburn','Biddeford','Sanford','Saco','Westbrook','Augusta'] },
+  'Maryland':       { abbr:'MD', cities:['Baltimore','Frederick','Rockville','Gaithersburg','Bowie','Hagerstown','Annapolis','College Park','Salisbury','Laurel'] },
+  'Massachusetts':  { abbr:'MA', cities:['Boston','Worcester','Springfield','Cambridge','Lowell','Brockton','New Bedford','Quincy','Lynn','Fall River'] },
+  'Michigan':       { abbr:'MI', cities:['Detroit','Grand Rapids','Warren','Sterling Heights','Ann Arbor','Lansing','Flint','Dearborn','Livonia','Troy'] },
+  'Minnesota':      { abbr:'MN', cities:['Minneapolis','St Paul','Rochester','Duluth','Bloomington','Brooklyn Park','Plymouth','St Cloud','Eagan','Woodbury'] },
+  'Mississippi':    { abbr:'MS', cities:['Jackson','Gulfport','Southaven','Hattiesburg','Biloxi','Meridian','Tupelo','Greenville','Olive Branch','Horn Lake'] },
+  'Missouri':       { abbr:'MO', cities:['Kansas City','St Louis','Springfield','Columbia','Independence','Lee\'s Summit','O\'Fallon','St Joseph','St Charles','Blue Springs'] },
+  'Montana':        { abbr:'MT', cities:['Billings','Missoula','Great Falls','Bozeman','Butte','Helena','Kalispell','Havre','Anaconda','Miles City'] },
+  'Nebraska':       { abbr:'NE', cities:['Omaha','Lincoln','Bellevue','Grand Island','Kearney','Fremont','Hastings','North Platte','Norfolk','Columbus'] },
+  'Nevada':         { abbr:'NV', cities:['Las Vegas','Henderson','Reno','North Las Vegas','Sparks','Carson City','Fernley','Elko','Mesquite','Boulder City'] },
+  'New Hampshire':  { abbr:'NH', cities:['Manchester','Nashua','Concord','Derry','Dover','Rochester','Salem','Merrimack','Hudson','Londonderry'] },
+  'New Jersey':     { abbr:'NJ', cities:['Newark','Jersey City','Paterson','Elizabeth','Edison','Woodbridge','Lakewood','Toms River','Hamilton','Trenton'] },
+  'New Mexico':     { abbr:'NM', cities:['Albuquerque','Las Cruces','Rio Rancho','Santa Fe','Roswell','Farmington','Clovis','Hobbs','Alamogordo','Carlsbad'] },
+  'New York':       { abbr:'NY', cities:['New York City','Brooklyn','Queens','Bronx','Staten Island','Buffalo','Rochester','Albany','Syracuse','Yonkers','White Plains','Long Island','Hamptons','Westchester'] },
+  'North Carolina': { abbr:'NC', cities:['Charlotte','Raleigh','Greensboro','Durham','Winston-Salem','Fayetteville','Cary','Wilmington','High Point','Asheville'] },
+  'North Dakota':   { abbr:'ND', cities:['Fargo','Bismarck','Grand Forks','Minot','West Fargo','Mandan','Dickinson','Jamestown','Williston','Wahpeton'] },
+  'Ohio':           { abbr:'OH', cities:['Columbus','Cleveland','Cincinnati','Toledo','Akron','Dayton','Parma','Canton','Youngstown','Lorain'] },
+  'Oklahoma':       { abbr:'OK', cities:['Oklahoma City','Tulsa','Norman','Broken Arrow','Lawton','Edmond','Moore','Midwest City','Enid','Stillwater'] },
+  'Oregon':         { abbr:'OR', cities:['Portland','Salem','Eugene','Gresham','Hillsboro','Beaverton','Bend','Medford','Springfield','Corvallis'] },
+  'Pennsylvania':   { abbr:'PA', cities:['Philadelphia','Pittsburgh','Allentown','Erie','Reading','Scranton','Bethlehem','Lancaster','Harrisburg','York'] },
+  'Rhode Island':   { abbr:'RI', cities:['Providence','Cranston','Warwick','Pawtucket','East Providence','Woonsocket','Cumberland','Coventry','North Providence','South Kingstown'] },
+  'South Carolina': { abbr:'SC', cities:['Columbia','Charleston','North Charleston','Mount Pleasant','Rock Hill','Greenville','Summerville','Goose Creek','Hilton Head Island','Sumter'] },
+  'South Dakota':   { abbr:'SD', cities:['Sioux Falls','Rapid City','Aberdeen','Brookings','Watertown','Mitchell','Yankton','Pierre','Huron','Vermillion'] },
+  'Tennessee':      { abbr:'TN', cities:['Nashville','Memphis','Knoxville','Chattanooga','Clarksville','Murfreesboro','Franklin','Jackson','Johnson City','Bartlett'] },
+  'Texas':          { abbr:'TX', cities:['Houston','Dallas','Austin','San Antonio','Fort Worth','El Paso','Arlington','Plano','Lubbock','Amarillo','McKinney','Frisco','Irving','Garland','Midland'] },
+  'Utah':           { abbr:'UT', cities:['Salt Lake City','West Valley City','Provo','West Jordan','Orem','Sandy','Ogden','St George','Layton','South Jordan'] },
+  'Vermont':        { abbr:'VT', cities:['Burlington','South Burlington','Rutland','Barre','Montpelier','Winooski','St Albans','Newport','Vergennes','Middlebury'] },
+  'Virginia':       { abbr:'VA', cities:['Virginia Beach','Norfolk','Chesapeake','Richmond','Newport News','Alexandria','Hampton','Roanoke','Portsmouth','Suffolk'] },
+  'Washington':     { abbr:'WA', cities:['Seattle','Spokane','Tacoma','Vancouver','Bellevue','Kent','Everett','Renton','Spokane Valley','Kirkland'] },
+  'West Virginia':  { abbr:'WV', cities:['Charleston','Huntington','Morgantown','Parkersburg','Wheeling','Weirton','Fairmont','Beckley','Clarksburg','Martinsburg'] },
+  'Wisconsin':      { abbr:'WI', cities:['Milwaukee','Madison','Green Bay','Kenosha','Racine','Appleton','Waukesha','Oshkosh','Eau Claire','Janesville'] },
+  'Wyoming':        { abbr:'WY', cities:['Cheyenne','Casper','Laramie','Gillette','Rock Springs','Sheridan','Green River','Evanston','Riverton','Jackson'] }
+};
+
+function updateCities() {
+  const state   = document.getElementById('state').value;
+  const cityEl  = document.getElementById('city');
+  if (!state || !STATE_DATA[state]) {
+    cityEl.innerHTML = '<option value="">Select a state first</option>';
+    cityEl.disabled  = true;
+    return;
+  }
+  const { abbr, cities } = STATE_DATA[state];
+  cityEl.innerHTML = cities.map(c => `<option value="${c}, ${abbr}">${c}</option>`).join('');
+  cityEl.disabled  = false;
+}
 
 function loadKeys() {
   document.getElementById('cfg-google').value    = localStorage.getItem('lg_google')    || '';
@@ -573,6 +649,11 @@ async function generateLeads() {
 
   currentNiche = document.getElementById('niche').value;
   currentCity  = document.getElementById('city').value;
+
+  if (!currentCity) {
+    document.getElementById('state').focus();
+    return;
+  }
 
   const btn = document.getElementById('gen-btn');
   btn.disabled = true;
