@@ -222,8 +222,122 @@
   .seo-inline-loading { font-size:13px; color:var(--text2); padding:0.75rem 0; display:none; align-items:center; gap:8px; }
   .seo-inline-loading.show { display:flex; }
 
+  /* ════════════════════════
+     SEO EVIDENCE SECTION
+  ════════════════════════ */
+  .ev-section-header { font-size:14px; font-weight:600; margin-bottom:1rem; display:flex; align-items:center; gap:8px; }
+  .evidence-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem; }
+  .ev-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem; }
+  .ev-platform-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.85rem; }
+  .ev-platform-name { font-size:13px; font-weight:600; display:flex; align-items:center; gap:7px; }
+  .ev-platform-icon { width:20px; height:20px; border-radius:4px; display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#fff; flex-shrink:0; }
+  .ev-status { font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; white-space:nowrap; }
+  .ev-status.appearing    { background:var(--green-bg); color:var(--green-text); }
+  .ev-status.partial      { background:var(--amber-bg); color:var(--amber-text); }
+  .ev-status.not-appearing{ background:var(--red-bg);   color:var(--red-text); }
+  .ev-mockup { border-radius:8px; overflow:hidden; margin-bottom:0.85rem; border:1px solid var(--border); }
+  .ev-summary { font-size:12px; color:var(--text2); line-height:1.6; margin-bottom:0.6rem; }
+  .ev-link { font-size:12px; font-weight:500; color:#1a73e8; text-decoration:none; display:inline-flex; align-items:center; gap:3px; }
+  .ev-link:hover { text-decoration:underline; }
+
+  /* Google SERP */
+  .gserp { background:#fff; font-family:Arial,sans-serif; }
+  .gserp-bar { background:#fff; padding:8px 10px; border-bottom:1px solid #eee; display:flex; align-items:center; gap:8px; }
+  .gserp-logo { font-size:15px; font-weight:700; letter-spacing:-0.5px; line-height:1; }
+  .gserp-logo span:nth-child(1){color:#4285F4}.gserp-logo span:nth-child(2){color:#EA4335}.gserp-logo span:nth-child(3){color:#FBBC05}.gserp-logo span:nth-child(4){color:#4285F4}.gserp-logo span:nth-child(5){color:#34A853}.gserp-logo span:nth-child(6){color:#EA4335}
+  .gserp-input { flex:1; background:#f1f3f4; border-radius:20px; padding:4px 12px; font-size:11px; color:#202124; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .gserp-body { padding:8px 10px; }
+  .gserp-count { font-size:10px; color:#70757a; margin-bottom:7px; }
+  .gpack { border:1px solid #dfe1e5; border-radius:6px; margin-bottom:7px; overflow:hidden; }
+  .gpack-header { background:#f8f9fa; padding:4px 8px; font-size:10px; font-weight:600; color:#202124; border-bottom:1px solid #eee; display:flex; align-items:center; gap:4px; }
+  .gpack-item { padding:5px 8px; border-bottom:1px solid #f5f5f5; display:flex; align-items:center; gap:6px; }
+  .gpack-item:last-child { border-bottom:none; }
+  .gpack-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .gpack-name { font-size:11px; font-weight:600; color:#202124; }
+  .gpack-stars { font-size:10px; color:#fbbc04; }
+  .gpack-badge { font-size:10px; padding:1px 5px; border-radius:3px; font-weight:600; margin-left:auto; flex-shrink:0; }
+  .gserp-result { padding:5px 0; border-bottom:1px solid #f5f5f5; }
+  .gserp-result:last-child { border-bottom:none; }
+  .gserp-url { font-size:10px; color:#202124; margin-bottom:1px; }
+  .gserp-title { font-size:12px; color:#1a0dab; font-weight:500; margin-bottom:1px; }
+  .gserp-snip { font-size:10px; color:#4d5156; line-height:1.4; }
+  .gserp-result.ev-highlight { background:rgba(74,155,42,0.07); border-radius:4px; padding:5px 5px; margin:0 -5px; border:1px solid rgba(74,155,42,0.25); }
+  .gserp-result.ev-amber     { background:rgba(217,140,58,0.07); border-radius:4px; padding:5px 5px; margin:0 -5px; border:1px solid rgba(217,140,58,0.2); }
+  .ev-notfound { background:var(--red-bg); color:var(--red-text); font-size:11px; font-weight:600; padding:7px 10px; border-radius:5px; margin-top:4px; text-align:center; }
+
+  /* Google AIO */
+  .gaio-wrap { background:#fff; padding:10px; }
+  .gaio-box { background:#EEF3FF; border:1px solid #C5D5F6; border-radius:6px; padding:8px 10px; }
+  .gaio-label { font-size:10px; font-weight:700; color:#1a73e8; display:flex; align-items:center; gap:4px; margin-bottom:5px; }
+  .gaio-query { font-size:10px; color:#5f6368; background:#f8f9fa; border:1px solid #eee; border-radius:3px; padding:3px 7px; margin-bottom:6px; }
+  .gaio-text { font-size:11px; color:#202124; line-height:1.65; }
+  .gaio-sources { display:flex; gap:5px; margin-top:6px; flex-wrap:wrap; }
+  .gaio-source { font-size:9px; background:#fff; border:1px solid #ddd; border-radius:3px; padding:2px 5px; color:#1a73e8; }
+
+  /* ChatGPT */
+  .cgpt { background:#212121; border-radius:8px; overflow:hidden; }
+  .cgpt-bar { background:#171717; padding:7px 10px; display:flex; align-items:center; gap:6px; border-bottom:1px solid rgba(255,255,255,0.08); }
+  .cgpt-dots { display:flex; gap:4px; }
+  .cgpt-dot2 { width:7px; height:7px; border-radius:50%; }
+  .cgpt-bar-title { font-size:10px; color:rgba(255,255,255,0.4); flex:1; text-align:center; }
+  .cgpt-body { padding:10px 12px; display:flex; flex-direction:column; gap:8px; }
+  .cgpt-user { align-self:flex-end; background:#2f2f2f; color:#ececf1; font-size:11px; padding:6px 10px; border-radius:12px 12px 2px 12px; max-width:85%; line-height:1.5; }
+  .cgpt-ai { display:flex; gap:7px; align-items:flex-start; }
+  .cgpt-avatar { width:20px; height:20px; background:#10a37f; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:9px; color:#fff; font-weight:700; }
+  .cgpt-text { color:#ececf1; font-size:11px; line-height:1.65; flex:1; }
+  .ev-dots { display:flex; gap:3px; align-items:center; padding:2px 0; }
+  .ev-dot-a { width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,0.35); animation:evDot 1.2s infinite; }
+  .ev-dot-a:nth-child(2){animation-delay:0.2s}.ev-dot-a:nth-child(3){animation-delay:0.4s}
+  .ev-dot-b { width:5px; height:5px; border-radius:50%; background:rgba(0,0,0,0.25); animation:evDot 1.2s infinite; }
+  .ev-dot-b:nth-child(2){animation-delay:0.2s}.ev-dot-b:nth-child(3){animation-delay:0.4s}
+  @keyframes evDot{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-4px)}}
+
+  /* Claude */
+  .cld { background:#fdf8f4; border-radius:8px; overflow:hidden; border:1px solid #e8ddd4; }
+  .cld-bar { background:#f5ede4; padding:7px 10px; display:flex; align-items:center; gap:7px; border-bottom:1px solid #e8ddd4; }
+  .cld-icon { width:14px; height:14px; background:#cc785c; border-radius:3px; flex-shrink:0; }
+  .cld-bar-title { font-size:10px; color:#9a7060; flex:1; font-weight:500; }
+  .cld-body { padding:10px 12px; display:flex; flex-direction:column; gap:8px; }
+  .cld-user { align-self:flex-end; background:#ede5db; color:#3d2b1f; font-size:11px; padding:6px 10px; border-radius:12px 12px 2px 12px; max-width:85%; line-height:1.5; }
+  .cld-ai { display:flex; gap:7px; align-items:flex-start; }
+  .cld-avatar { width:20px; height:20px; background:#cc785c; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:9px; color:#fff; font-weight:700; }
+  .cld-text { color:#2d1f17; font-size:11px; line-height:1.65; background:#fff; border:1px solid #e8ddd4; border-radius:2px 10px 10px 10px; padding:6px 9px; flex:1; }
+
+  /* Bing */
+  .bing-wrap { background:#fff; }
+  .bing-bar { background:#fff; padding:7px 10px; border-bottom:1px solid #e5e5e5; display:flex; align-items:center; gap:8px; }
+  .bing-logo { font-size:16px; font-weight:700; color:#00809d; font-style:italic; }
+  .bing-input { flex:1; background:#f3f3f3; border:1px solid #ddd; border-radius:3px; padding:3px 10px; font-size:11px; color:#333; }
+  .bing-body { padding:8px 10px; }
+  .bing-copilot { background:#f0f7ff; border-left:3px solid #0078d4; padding:7px 9px; border-radius:0 5px 5px 0; margin-bottom:7px; }
+  .bing-cop-label { font-size:10px; font-weight:700; color:#0078d4; margin-bottom:3px; display:flex; align-items:center; gap:4px; }
+  .bing-cop-text { font-size:11px; color:#333; line-height:1.55; }
+  .bing-result { padding:4px 0; border-bottom:1px solid #f0f0f0; }
+  .bing-result:last-child { border-bottom:none; }
+  .bing-r-url { font-size:10px; color:#006621; }
+  .bing-r-title { font-size:12px; color:#001577; font-weight:500; }
+  .bing-r-snip { font-size:10px; color:#545454; line-height:1.4; }
+
+  /* Voice */
+  .voice-wrap { background:linear-gradient(135deg,#1a1a2e 0%,#0f3460 100%); padding:14px; display:flex; gap:12px; align-items:flex-start; }
+  .voice-phone { width:56px; height:90px; border:2px solid rgba(255,255,255,0.25); border-radius:9px; background:rgba(255,255,255,0.05); display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0; gap:5px; }
+  .voice-screen-inner { width:38px; height:56px; background:#0a2540; border-radius:5px; display:flex; align-items:center; justify-content:center; }
+  .voice-mic-btn { width:16px; height:16px; border-radius:50%; background:#e94560; display:flex; align-items:center; justify-content:center; font-size:8px; animation:vPulse 2s infinite; }
+  @keyframes vPulse{0%,100%{box-shadow:0 0 0 0 rgba(233,69,96,0.5)}50%{box-shadow:0 0 0 7px rgba(233,69,96,0)}}
+  .voice-wave { display:flex; gap:2px; align-items:center; }
+  .voice-wbar { width:3px; border-radius:2px; background:rgba(255,255,255,0.55); animation:vWave 1s infinite; }
+  .voice-wbar:nth-child(1){height:6px}.voice-wbar:nth-child(2){height:11px;animation-delay:0.1s}.voice-wbar:nth-child(3){height:8px;animation-delay:0.2s}.voice-wbar:nth-child(4){height:13px;animation-delay:0.3s}.voice-wbar:nth-child(5){height:7px;animation-delay:0.4s}
+  @keyframes vWave{0%,100%{transform:scaleY(0.5)}50%{transform:scaleY(1)}}
+  .voice-content { flex:1; display:flex; flex-direction:column; gap:8px; }
+  .voice-query-bubble { background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.18); border-radius:7px; padding:6px 9px; font-size:10px; color:rgba(255,255,255,0.7); line-height:1.5; }
+  .voice-answer-bubble { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:7px; padding:6px 9px; font-size:11px; color:#fff; line-height:1.55; }
+  .voice-google-badge { display:inline-flex; align-items:center; gap:3px; font-size:10px; margin-bottom:3px; }
+  .voice-g-dot { width:6px; height:6px; border-radius:50%; }
+
   /* ── Responsive ── */
   @media (max-width:720px) {
+    .evidence-grid { grid-template-columns:1fr; }
+  }
     header, .tab-nav { padding:0 1rem; }
     .main { padding:1rem 1rem 3rem; }
     .search-row, .sc-input-row { grid-template-columns:1fr 1fr; }
@@ -459,6 +573,12 @@
 
     <!-- 6 Category cards -->
     <div class="seo-cat-grid" id="seo-cat-grid"></div>
+
+    <!-- Live Evidence -->
+    <div id="seo-evidence-section" style="display:none;margin-bottom:1rem">
+      <div class="ev-section-header"><span>🔍</span> Live Evidence — How you appear across search engines and AI</div>
+      <div class="evidence-grid" id="evidence-grid"></div>
+    </div>
 
     <!-- Report + Pitch -->
     <div class="seo-actions-card">
@@ -800,6 +920,7 @@ async function analyzeSEO() {
   document.getElementById('seo-loading').style.display='block';
   document.getElementById('seo-report-output').style.display='none';
   document.getElementById('seo-pitch-output').style.display='none';
+  document.getElementById('seo-evidence-section').style.display='none';
   try {
     const resp=await fetch(`${BACKEND}/api/seo-scorecard`,{method:'POST',headers:{'Content-Type':'application/json','x-anthropic-key':a},body:JSON.stringify({
       businessName,
@@ -811,6 +932,8 @@ async function analyzeSEO() {
     const data=await resp.json(); if(data.error)throw new Error(data.error);
     currentSEO={...data,businessName,website:document.getElementById('seo-website').value.trim(),businessType:document.getElementById('seo-type').value,city:document.getElementById('seo-city').value.trim(),state:document.getElementById('seo-state').value.trim()};
     renderSEO(data);
+    renderEvidence(currentSEO);
+    generateAIEvidence(currentSEO);
     document.getElementById('seo-loading').style.display='none';
     document.getElementById('seo-results').style.display='block';
   } catch(err){document.getElementById('seo-loading').style.display='none';alert('Error: '+err.message);}
@@ -897,6 +1020,231 @@ function copyContent(bodyId,btnId) {
     const btn=document.getElementById(btnId), orig=btn.textContent;
     btn.textContent='Copied!'; setTimeout(()=>btn.textContent=orig,1500);
   });
+}
+
+/* ═══════════════════════════
+   SEO EVIDENCE SECTION
+═══════════════════════════ */
+function evStatusLabel(s) { return s==='appearing'?'✓ Appearing':s==='partial'?'~ Partially':'✕ Not Found'; }
+function evStatus(score, hi=65, lo=40) { return score>=hi?'appearing':score>=lo?'partial':'not-appearing'; }
+
+function buildGoogleMockup(name, type, city, status) {
+  const biz = name.toLowerCase().replace(/\s+/g,'-');
+  const packItems = status==='appearing' ? `
+    <div class="gpack-item"><div class="gpack-dot" style="background:#4a9b2a"></div><div><div class="gpack-name" style="color:#1a6600">${name}</div><div class="gpack-stars">★★★★☆</div></div><span class="gpack-badge" style="background:#eaf3de;color:#27500a">Top 3</span></div>
+    <div class="gpack-item"><div class="gpack-dot" style="background:#ccc"></div><div><div class="gpack-name">Premier ${type} Co</div><div class="gpack-stars">★★★★★</div></div></div>
+    <div class="gpack-item"><div class="gpack-dot" style="background:#ccc"></div><div><div class="gpack-name">City ${type} Group</div><div class="gpack-stars">★★★★☆</div></div></div>`
+  : status==='partial' ? `
+    <div class="gpack-item"><div class="gpack-dot" style="background:#ccc"></div><div><div class="gpack-name">Premier ${type} Co</div><div class="gpack-stars">★★★★★</div></div></div>
+    <div class="gpack-item"><div class="gpack-dot" style="background:#ccc"></div><div><div class="gpack-name">City ${type} Group</div><div class="gpack-stars">★★★★☆</div></div></div>
+    <div class="gpack-item"><div class="gpack-dot" style="background:#d98c3a"></div><div><div class="gpack-name" style="color:#633806">${name}</div><div class="gpack-stars" style="color:#d98c3a">★★★☆☆</div></div><span class="gpack-badge" style="background:#faeeda;color:#633806">Low</span></div>`
+  : `
+    <div class="gpack-item"><div class="gpack-dot" style="background:#ccc"></div><div><div class="gpack-name">Premier ${type} Co</div><div class="gpack-stars">★★★★★</div></div></div>
+    <div class="gpack-item"><div class="gpack-dot" style="background:#ccc"></div><div><div class="gpack-name">City ${type} Group</div><div class="gpack-stars">★★★★☆</div></div></div>
+    <div class="gpack-item"><div class="gpack-dot" style="background:#ccc"></div><div><div class="gpack-name">Elite ${type} Services</div><div class="gpack-stars">★★★★☆</div></div></div>`;
+  const organic = status==='appearing'
+    ? `<div class="gserp-result ev-highlight"><div class="gserp-url">🌐 ${biz}.com ▾</div><div class="gserp-title">${name} — Best ${type} in ${city}</div><div class="gserp-snip">Highly rated ${type} serving ${city}. Services, reviews, and online booking available.</div></div>`
+    : status==='partial'
+    ? `<div class="gserp-result ev-amber"><div class="gserp-url">🌐 ${biz}.com ▾</div><div class="gserp-title">${name} — ${type} Services</div><div class="gserp-snip">Local ${type} in ${city}. Contact us for more information.</div></div>`
+    : `<div class="ev-notfound">⚠ ${name} — Not found in top 10 results</div>`;
+  return `<div class="gserp"><div class="gserp-bar"><div class="gserp-logo"><span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span></div><div class="gserp-input">${name} ${city}</div></div><div class="gserp-body"><div class="gserp-count">About 43,800 results (0.38 sec)</div><div class="gpack"><div class="gpack-header">📍 Local businesses · ${city}</div>${packItems}</div>${organic}<div class="gserp-result"><div class="gserp-url">yelp.com ▾</div><div class="gserp-title">Best ${type} in ${city} — Yelp</div><div class="gserp-snip">Find top-rated ${type} options in ${city}. Reviews and photos.</div></div></div></div>`;
+}
+
+function buildAIOMockup(name, type, city, status, score) {
+  const q = `best ${type} in ${city}`;
+  const text = status==='appearing'
+    ? `Based on local reviews and web presence, <strong style="color:#1a6600">${name}</strong> is among the top-rated ${type} options in ${city}, with strong customer ratings and an established online profile.`
+    : status==='partial'
+    ? `Several well-reviewed ${type} options serve ${city}. <strong style="color:#633806">${name}</strong> has some online presence but limited visibility in AI-generated summaries compared to top competitors.`
+    : `Popular ${type} options in ${city} include Premier ${type} Co and City ${type} Group, which have strong review profiles and consistent online citations. <em style="color:#791f1f">${name} was not surfaced</em> in this overview.`;
+  return `<div class="gaio-wrap"><div class="gaio-box"><div class="gaio-label">✨ AI Overview <span style="font-weight:400;color:#5f6368;font-size:9px">— Google Search</span></div><div class="gaio-query">🔍 ${q}</div><div class="gaio-text">${text}</div><div class="gaio-sources"><span class="gaio-source">google.com</span><span class="gaio-source">yelp.com</span><span class="gaio-source">maps.google.com</span></div></div></div>`;
+}
+
+function buildBingMockup(name, type, city, status, score) {
+  const copText = status==='appearing'
+    ? `${name} is a highly recommended ${type} in ${city} with strong reviews and an active web presence.`
+    : status==='partial'
+    ? `${city} has several ${type} options. ${name} appears in some results but has limited Bing indexing and citation signals.`
+    : `Top ${type} options in ${city} based on Bing data are Premier ${type} Co and City ${type} Group. ${name} was not found in Copilot results.`;
+  const organic = status!=='not-appearing'
+    ? `<div class="bing-result ${status==='partial'?'ev-amber':'ev-highlight'}" style="${status==='partial'?'background:rgba(217,140,58,0.06);border-left:2px solid #d98c3a;padding-left:5px':'background:rgba(74,155,42,0.06);border-left:2px solid #4a9b2a;padding-left:5px'}"><div class="bing-r-url">${name.toLowerCase().replace(/\s+/g,'-')}.com</div><div class="bing-r-title">${name} — ${type} in ${city}</div><div class="bing-r-snip">Local ${type} serving ${city}.</div></div>`
+    : `<div class="ev-notfound" style="margin-top:4px">⚠ ${name} — Not indexed in Bing top results</div>`;
+  return `<div class="bing-wrap"><div class="bing-bar"><div class="bing-logo">Bing</div><div class="bing-input">${name} ${city}</div></div><div class="bing-body"><div class="bing-copilot"><div class="bing-cop-label">🤖 Copilot answer</div><div class="bing-cop-text">${copText}</div></div>${organic}<div class="bing-result"><div class="bing-r-url">yelp.com</div><div class="bing-r-title">Best ${type} in ${city} — Yelp</div></div></div></div>`;
+}
+
+function buildVoiceMockup(name, type, city, status) {
+  const query = `Hey Google, find best ${type} near me in ${city}`;
+  const answer = status==='appearing'
+    ? `I found ${name} near you in ${city}. They're rated 4.4 stars and are open now. Want me to get directions?`
+    : status==='partial'
+    ? `Here are some ${type} options in ${city}. ${name} is listed, though other businesses have more reviews. Want more details?`
+    : `The top ${type} near you in ${city} is Premier ${type} Co, rated 4.8 stars. I couldn't find ${name} in voice search results.`;
+  const dotColors = status==='appearing'?['#4285F4','#EA4335','#FBBC05','#34A853']:status==='partial'?['#FBBC05','#FBBC05','#FBBC05','#FBBC05']:['#EA4335','#EA4335','#EA4335','#EA4335'];
+  return `<div class="voice-wrap"><div class="voice-phone"><div class="voice-screen-inner"><div class="voice-mic-btn">🎤</div></div><div class="voice-wave">${[6,11,8,13,7].map(h=>`<div class="voice-wbar" style="height:${h}px"></div>`).join('')}</div></div><div class="voice-content"><div class="voice-query-bubble"><span style="font-size:9px;opacity:0.6">You said: </span><br>${query}</div><div class="voice-answer-bubble"><div class="voice-google-badge"><div class="voice-g-dot" style="background:${dotColors[0]}"></div><div class="voice-g-dot" style="background:${dotColors[1]}"></div><div class="voice-g-dot" style="background:${dotColors[2]}"></div><div class="voice-g-dot" style="background:${dotColors[3]}"></div><span style="font-size:10px;opacity:0.7;margin-left:3px">Google</span></div>${answer}</div></div></div>`;
+}
+
+function evSummary(platform, status, name, type, city) {
+  const lose = `Every day without visibility, potential customers choose a competitor instead.`;
+  const msgs = {
+    google: {
+      appearing:    `${name} appears in Google's local 3-pack — capturing high-intent searches for ${type} in ${city}.`,
+      partial:      `${name} ranks below the top 3 on Google Maps. Most clicks go to the top 3 — you're missing the majority of local traffic.`,
+      'not-appearing': `${name} is invisible on Google for "${type} ${city}" searches. ${lose}`
+    },
+    aio: {
+      appearing:    `Google's AI Overview mentions ${name} — positioning you as a trusted authority before users even click.`,
+      partial:      `${name} gets minimal mention in Google's AI summaries. Competitors with better GEO scores appear first.`,
+      'not-appearing': `${name} does not appear in Google's AI Overview. Users asking AI get sent to competitors. ${lose}`
+    },
+    bing: {
+      appearing:    `${name} shows up in Bing Copilot answers — reaching the 30%+ of search users on Microsoft browsers.`,
+      partial:      `${name} has limited Bing presence. Bing Copilot recommends competitors with stronger technical SEO.`,
+      'not-appearing': `${name} is absent from Bing and Copilot. ${lose}`
+    },
+    voice: {
+      appearing:    `Voice search surfaces ${name} when customers say "find best ${type} near me" — critical for mobile and smart speaker users.`,
+      partial:      `${name} appears inconsistently in voice results. Incomplete GMB data limits voice search eligibility.`,
+      'not-appearing': `Voice assistants don't recommend ${name}. Without GMB optimization, you're invisible to "near me" voice queries. ${lose}`
+    }
+  };
+  return (msgs[platform] || {})[status] || '';
+}
+
+function renderEvidence(seo) {
+  const { businessName: name, businessType: type, city, state, categories } = seo;
+  const cityName = city || 'your city';
+  const cats = categories || [];
+  const catScore = n => (cats.find(c => c.name === n) || {}).score || 0;
+  const localScore  = catScore('Local SEO');
+  const techScore   = catScore('Technical SEO');
+  const onPageScore = catScore('On-Page SEO');
+  const aioScore    = catScore('AIO — AI Optimization');
+  const geoScore    = catScore('GEO — Generative Engine Optimization');
+  const aeoScore    = catScore('AEO — Answer Engine Optimization');
+  const bingScore   = Math.round((techScore + onPageScore) / 2);
+
+  const gSt   = evStatus(localScore);
+  const aioSt = evStatus(geoScore);
+  const aiSt  = evStatus(aioScore);
+  const bSt   = evStatus(bingScore);
+  const vSt   = evStatus(Math.round((localScore + aeoScore) / 2));
+
+  const aiQuery = encodeURIComponent(`What is the best ${type} in ${cityName}?`);
+
+  document.getElementById('evidence-grid').innerHTML = `
+    <div class="ev-card">
+      <div class="ev-platform-row">
+        <div class="ev-platform-name"><span class="ev-platform-icon" style="background:linear-gradient(135deg,#4285F4,#34A853)">G</span>Google Search + Maps</div>
+        <span class="ev-status ${gSt}">${evStatusLabel(gSt)}</span>
+      </div>
+      <div class="ev-mockup">${buildGoogleMockup(name, type, cityName, gSt)}</div>
+      <div class="ev-summary">${evSummary('google', gSt, name, type, cityName)}</div>
+      <a href="https://www.google.com/search?q=${encodeURIComponent(name+' '+cityName)}" target="_blank" class="ev-link">Search on Google ↗</a>
+    </div>
+
+    <div class="ev-card">
+      <div class="ev-platform-row">
+        <div class="ev-platform-name"><span class="ev-platform-icon" style="background:#1a73e8">✨</span>Google AI Overview</div>
+        <span class="ev-status ${aioSt}">${evStatusLabel(aioSt)}</span>
+      </div>
+      <div class="ev-mockup">${buildAIOMockup(name, type, cityName, aioSt, geoScore)}</div>
+      <div class="ev-summary">${evSummary('aio', aioSt, name, type, cityName)}</div>
+      <a href="https://www.google.com/search?q=${aiQuery}" target="_blank" class="ev-link">Check on Google ↗</a>
+    </div>
+
+    <div class="ev-card" id="ev-chatgpt-card">
+      <div class="ev-platform-row">
+        <div class="ev-platform-name"><span class="ev-platform-icon" style="background:#10a37f">G</span>ChatGPT</div>
+        <span class="ev-status ${aiSt}" id="ev-chatgpt-status">${evStatusLabel(aiSt)}</span>
+      </div>
+      <div class="ev-mockup">
+        <div class="cgpt">
+          <div class="cgpt-bar"><div class="cgpt-dots"><div class="cgpt-dot2" style="background:#ff5f57"></div><div class="cgpt-dot2" style="background:#febc2e"></div><div class="cgpt-dot2" style="background:#28c840"></div></div><span class="cgpt-bar-title">ChatGPT</span></div>
+          <div class="cgpt-body">
+            <div class="cgpt-user">What is the best ${type} in ${cityName}?</div>
+            <div class="cgpt-ai"><div class="cgpt-avatar">G</div><div class="cgpt-text" id="ev-chatgpt-text"><div class="ev-dots"><div class="ev-dot-a"></div><div class="ev-dot-a"></div><div class="ev-dot-a"></div></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="ev-summary" id="ev-chatgpt-summary" style="color:var(--text3);font-style:italic">Generating AI response...</div>
+      <a href="https://chatgpt.com/?q=${aiQuery}" target="_blank" class="ev-link">Ask ChatGPT ↗</a>
+    </div>
+
+    <div class="ev-card" id="ev-claude-card">
+      <div class="ev-platform-row">
+        <div class="ev-platform-name"><span class="ev-platform-icon" style="background:#cc785c">C</span>Claude AI</div>
+        <span class="ev-status ${aiSt}" id="ev-claude-status">${evStatusLabel(aiSt)}</span>
+      </div>
+      <div class="ev-mockup">
+        <div class="cld">
+          <div class="cld-bar"><div class="cld-icon"></div><span class="cld-bar-title">Claude</span></div>
+          <div class="cld-body">
+            <div class="cld-user">What is the best ${type} in ${cityName}?</div>
+            <div class="cld-ai"><div class="cld-avatar">C</div><div class="cld-text" id="ev-claude-text"><div class="ev-dots"><div class="ev-dot-b"></div><div class="ev-dot-b"></div><div class="ev-dot-b"></div></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="ev-summary" id="ev-claude-summary" style="color:var(--text3);font-style:italic">Generating AI response...</div>
+      <a href="https://claude.ai/new?q=${aiQuery}" target="_blank" class="ev-link">Ask Claude ↗</a>
+    </div>
+
+    <div class="ev-card">
+      <div class="ev-platform-row">
+        <div class="ev-platform-name"><span class="ev-platform-icon" style="background:#0078d4">B</span>Bing / Copilot</div>
+        <span class="ev-status ${bSt}">${evStatusLabel(bSt)}</span>
+      </div>
+      <div class="ev-mockup">${buildBingMockup(name, type, cityName, bSt, bingScore)}</div>
+      <div class="ev-summary">${evSummary('bing', bSt, name, type, cityName)}</div>
+      <a href="https://www.bing.com/search?q=${encodeURIComponent(name+' '+cityName)}" target="_blank" class="ev-link">Search on Bing ↗</a>
+    </div>
+
+    <div class="ev-card">
+      <div class="ev-platform-row">
+        <div class="ev-platform-name"><span class="ev-platform-icon" style="background:#e94560">🎤</span>Voice Search</div>
+        <span class="ev-status ${vSt}">${evStatusLabel(vSt)}</span>
+      </div>
+      <div class="ev-mockup">${buildVoiceMockup(name, type, cityName, vSt)}</div>
+      <div class="ev-summary">${evSummary('voice', vSt, name, type, cityName)}</div>
+    </div>`;
+
+  document.getElementById('seo-evidence-section').style.display = 'block';
+}
+
+async function generateAIEvidence(seo) {
+  const a = localStorage.getItem('lg_anthropic'); if (!a || !seo) return;
+  const cats = seo.categories || [];
+  const aioScore = (cats.find(c => c.name === 'AIO — AI Optimization') || {}).score || 0;
+  try {
+    const resp = await fetch(`${BACKEND}/api/seo-evidence`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-anthropic-key': a },
+      body: JSON.stringify({ businessName: seo.businessName, businessType: seo.businessType, city: seo.city, state: seo.state, aioScore })
+    });
+    const data = await resp.json();
+    if (data.chatgpt) {
+      document.getElementById('ev-chatgpt-text').textContent = data.chatgpt;
+      const cgptSum = aioScore >= 65
+        ? `ChatGPT recommends ${seo.businessName} when users ask for the best ${seo.businessType} in ${seo.city || 'your area'}.`
+        : aioScore >= 40
+        ? `ChatGPT mentions ${seo.businessName} but not as a top pick — competitors with stronger AIO scores rank higher in AI answers.`
+        : `ChatGPT doesn't mention ${seo.businessName}. Customers asking AI for ${seo.businessType} recommendations are directed to competitors.`;
+      document.getElementById('ev-chatgpt-summary').textContent = cgptSum;
+      document.getElementById('ev-chatgpt-summary').style.cssText = '';
+    }
+    if (data.claude) {
+      document.getElementById('ev-claude-text').textContent = data.claude;
+      const clSum = aioScore >= 65
+        ? `Claude AI includes ${seo.businessName} in its recommendations, giving you visibility with AI-first users.`
+        : aioScore >= 40
+        ? `Claude AI gives ${seo.businessName} limited mentions. Stronger structured data and content authority would improve AI visibility.`
+        : `Claude AI does not surface ${seo.businessName}. Without AIO optimization, you're invisible to the growing share of users who research via AI.`;
+      document.getElementById('ev-claude-summary').textContent = clSum;
+      document.getElementById('ev-claude-summary').style.cssText = '';
+    }
+  } catch(err) {
+    document.getElementById('ev-chatgpt-text').textContent = 'Could not load AI response.';
+    document.getElementById('ev-claude-text').textContent = 'Could not load AI response.';
+  }
 }
 
 /* ── Init ── */
