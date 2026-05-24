@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Lead Gen System</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f7f7f5;
+    --bg3: #f0efea;
+    --text: #1a1a1a;
+    --text2: #666660;
+    --text3: #999994;
+    --border: rgba(0,0,0,0.1);
+    --border2: rgba(0,0,0,0.18);
+    --radius: 10px;
+    --radius-lg: 14px;
+    --green-bg: #EAF3DE; --green-text: #27500A;
+    --amber-bg: #FAEEDA; --amber-text: #633806;
+    --red-bg: #FCEBEB; --red-text: #791F1F;
+    --blue-bg: #E6F1FB; --blue-text: #0C447C;
+  }
+
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg2); color: var(--text); min-height: 100vh; }
+
+  header { background: var(--bg); border-bottom: 0.5px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
+  .logo span { color: var(--text2); font-weight: 400; }
+  .header-badge { font-size: 11px; background: var(--green-bg); color: var(--green-text); padding: 3px 10px; border-radius: 20px; }
+
+  .main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .step-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.25rem; }
+  .step-label { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--text); color: #fff; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-title { font-size: 14px; font-weight: 600; }
+  .step-sub { font-size: 12px; color: var(--text2); margin-top: 1px; }
+
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+  .field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px; }
+  .field label { font-size: 11px; color: var(--text2); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
+  select, input { font-size: 14px; font-family: inherit; padding: 9px 12px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg); color: var(--text); width: 100%; outline: none; }
+  select:focus, input:focus { border-color: var(--text); box-shadow: 0 0 0 2px rgba(0,0,0,0.08); }
+
+  .btn { padding: 9px 18px; font-size: 13px; font-family: inherit; border: 0.5px solid var(--border2); border-radius: var(--radius); background: none; cursor: pointer; color: var(--text); display: inline-flex; align-items: center; gap: 6px; font-weight: 500; transition: background .15s; white-space: nowrap; }
+  .btn:hover { background: var(--bg2); }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--text); color: #fff; border-color: var(--text); }
+  .btn-primary:hover { background: #333; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+  .btn-ghost { border-color: transparent; }
+  .btn-ghost:hover { background: var(--bg3); border-color: var(--border); }
+
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+  .metric { background: var(--bg2); border-radius: var(--radius); padding: 1rem; }
+  .metric-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+  .metric-val { font-size: 22px; font-weight: 600; }
+
+  .leads-list { display: flex; flex-direction: column; gap: 10px; }
+  .lead-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; transition: border-color .15s; }
+  .lead-card:hover { border-color: var(--border2); }
+  .lead-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+  .lead-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .lead-meta { font-size: 12px; color: var(--text2); display: flex; gap: 12px; flex-wrap: wrap; }
+  .lead-meta a { color: var(--text2); text-decoration: none; }
+  .lead-meta a:hover { color: var(--text); }
+
+  .score-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; flex-shrink: 0; }
+  .hot { background: var(--green-bg); color: var(--green-text); }
+  .warm { background: var(--amber-bg); color: var(--amber-text); }
+  .cold { background: var(--red-bg); color: var(--red-text); }
+
+  .pain-tag { font-size: 12px; color: var(--text2); background: var(--bg2); padding: 6px 10px; border-radius: 8px; margin: 8px 0; line-height: 1.5; }
+  .lead-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; flex-wrap: wrap; gap: 8px; }
+  .lead-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tag { font-size: 11px; background: var(--bg2); color: var(--text2); padding: 3px 8px; border-radius: 6px; }
+  .tag-green { background: var(--green-bg); color: var(--green-text); }
+  .tag-red { background: var(--red-bg); color: var(--red-text); }
+
+  .email-panel { background: var(--bg2); border-radius: var(--radius); padding: 1.25rem; margin-top: 12px; display: none; }
+  .email-panel.open { display: block; }
+  .email-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .email-label { font-size: 11px; color: var(--text2); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
+  .email-body { font-size: 13px; line-height: 1.75; color: var(--text); white-space: pre-wrap; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem; min-height: 60px; }
+  .email-actions { display: flex; gap: 8px; margin-top: 8px; }
+
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin .65s linear infinite; vertical-align: middle; }
+  .spinner-dark { border-color: rgba(0,0,0,0.12); border-top-color: var(--text); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-state { text-align: center; padding: 3rem 1rem; color: var(--text2); font-size: 14px; }
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text2); font-size: 13px; }
+
+  .export-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .export-bar-left { font-size: 13px; color: var(--text2); }
+
+  .setup-banner { background: var(--blue-bg); border: 0.5px solid rgba(24,95,165,0.2); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.25rem; font-size: 13px; color: var(--blue-text); line-height: 1.6; }
+  .setup-banner strong { font-weight: 600; }
+
+  .config-panel { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.25rem; display: none; }
+  .config-panel.open { display: block; }
+  .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .config-note { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+  @media (max-width: 600px) {
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .config-grid { grid-template-columns: 1fr; }
+    header { padding: 1rem; }
+    .main { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">LeadGen AI <span>— Real-time business prospecting</span></div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span class="header-badge" id="api-status">● Connecting...</span>
+    <button class="btn btn-sm btn-ghost" onclick="toggleConfig()">⚙ Settings</button>
+  </div>
+</header>
+
+<div class="main">
+
+  <div class="setup-banner" id="setup-banner">
+    <strong>First time setup:</strong> Click "Settings" above and paste your API keys. You need a Google Places key, Hunter.io key, and Anthropic key. All stored locally in your browser — never sent anywhere except the API calls.
+  </div>
+
+  <div class="config-panel" id="config-panel">
+    <div class="step-label" style="margin-bottom:0.5rem">
+      <div class="step-num">⚙</div>
+      <div><div class="step-title">API Keys</div><div class="step-sub">Stored in your browser only. Never shared.</div></div>
+    </div>
+    <div class="config-grid">
+      <div class="field">
+        <label>Google Places API Key</label>
+        <input type="password" id="cfg-google" placeholder="AIza...">
+        <div class="config-note">console.cloud.google.com → Enable Places API</div>
+      </div>
+      <div class="field">
+        <label>Hunter.io API Key</label>
+        <input type="password" id="cfg-hunter" placeholder="your-hunter-key">
+        <div class="config-note">hunter.io → Dashboard → API</div>
+      </div>
+      <div class="field">
+        <label>Anthropic API Key</label>
+        <input type="password" id="cfg-anthropic" placeholder="sk-ant-...">
+        <div class="config-note">console.anthropic.com → API Keys</div>
+      </div>
+      <div class="field" style="justify-content:flex-end">
+        <label style="opacity:0">save</label>
+        <button class="btn btn-primary" onclick="saveKeys()">Save keys</button>
+      </div>
+    </div>
+    <div id="keys-saved" style="font-size:12px;color:var(--green-text);margin-top:8px;display:none">Keys saved successfully.</div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-label">
+      <div class="step-num">1</div>
+      <div><div class="step-title">Pick your niche + city</div><div class="step-sub">Pulls real businesses from Google Maps, finds emails via Hunter.io, scores with AI</div></div>
+    </div>
+    <div class="controls">
+      <div class="field">
+        <label>Niche</label>
+        <select id="niche">
+          <option value="med spa">Med Spa</option>
+          <option value="dental clinic">Dental Clinic</option>
+          <option value="restaurant">Restaurant</option>
+          <option value="chiropractic clinic">Chiropractic Clinic</option>
+          <option value="real estate agency">Real Estate Agency</option>
+          <option value="law firm">Law Firm</option>
+          <option value="gym fitness studio">Gym / Fitness Studio</option>
+          <option value="auto dealership">Auto Dealership</option>
+          <option value="roofing company">Roofing Company</option>
+          <option value="plumbing company">Plumbing Company</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>US City</label>
+        <select id="city">
+          <option>Los Angeles, CA</option>
+          <option>New York, NY</option>
+          <option>Houston, TX</option>
+          <option>Chicago, IL</option>
+          <option>Phoenix, AZ</option>
+          <option>Miami, FL</option>
+          <option>Dallas, TX</option>
+          <option>San Diego, CA</option>
+          <option>Austin, TX</option>
+          <option>Atlanta, GA</option>
+          <option>Seattle, WA</option>
+          <option>Denver, CO</option>
+          <option>Las Vegas, NV</option>
+          <option>Nashville, TN</option>
+          <option>Boston, MA</option>
+        </select>
+      </div>
+      <div class="field" style="flex:0;min-width:0">
+        <label style="opacity:0">go</label>
+        <button class="btn btn-primary" id="gen-btn" onclick="generateLeads()">
+          ✦ Generate leads
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="results-section" style="display:none">
+
+    <div class="metrics">
+      <div class="metric"><div class="metric-label">Total leads</div><div class="metric-val" id="m-total">0</div></div>
+      <div class="metric"><div class="metric-label">With email</div><div class="metric-val" style="color:var(--green-text)" id="m-email">0</div></div>
+      <div class="metric"><div class="metric-label">Hot leads (8+)</div><div class="metric-val" style="color:var(--green-text)" id="m-hot">0</div></div>
+      <div class="metric"><div class="metric-label">Avg score</div><div class="metric-val" id="m-avg">0</div></div>
+    </div>
+
+    <div class="step-card">
+      <div class="export-bar">
+        <div class="step-label" style="margin-bottom:0">
+          <div class="step-num">2</div>
+          <div><div class="step-title">Qualified prospects</div><div class="step-sub">Sorted by lead score — click "Write email" on any lead</div></div>
+        </div>
+        <button class="btn btn-sm" onclick="exportCSV()">↓ Export CSV</button>
+      </div>
+      <div id="leads-container"></div>
+    </div>
+
+  </div>
+
+  <div id="loading-section" style="display:none">
+    <div class="loading-state">
+      <span class="spinner spinner-dark"></span>
+      <div style="margin-top:12px" id="loading-msg">Searching Google Maps...</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px">This takes 10–20 seconds</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let currentLeads = [];
+let currentNiche = '';
+let currentCity = '';
+
+const BACKEND = window.location.origin;
+
+function loadKeys() {
+  document.getElementById('cfg-google').value = localStorage.getItem('lg_google') || '';
+  document.getElementById('cfg-hunter').value = localStorage.getItem('lg_hunter') || '';
+  document.getElementById('cfg-anthropic').value = localStorage.getItem('lg_anthropic') || '';
+  updateStatus();
+}
+
+function saveKeys() {
+  localStorage.setItem('lg_google', document.getElementById('cfg-google').value.trim());
+  localStorage.setItem('lg_hunter', document.getElementById('cfg-hunter').value.trim());
+  localStorage.setItem('lg_anthropic', document.getElementById('cfg-anthropic').value.trim());
+  document.getElementById('keys-saved').style.display = 'block';
+  setTimeout(() => document.getElementById('keys-saved').style.display = 'none', 2000);
+  updateStatus();
+  if (localStorage.getItem('lg_google') && localStorage.getItem('lg_hunter') && localStorage.getItem('lg_anthropic')) {
+    document.getElementById('setup-banner').style.display = 'none';
+  }
+}
+
+function updateStatus() {
+  const g = localStorage.getItem('lg_google');
+  const h = localStorage.getItem('lg_hunter');
+  const a = localStorage.getItem('lg_anthropic');
+  const el = document.getElementById('api-status');
+  if (g && h && a) { el.textContent = '● Ready'; el.style.background = '#EAF3DE'; el.style.color = '#27500A'; }
+  else { el.textContent = '● Setup needed'; el.style.background = '#FCEBEB'; el.style.color = '#791F1F'; }
+}
+
+function toggleConfig() {
+  const p = document.getElementById('config-panel');
+  p.classList.toggle('open');
+}
+
+function scoreClass(s) { return s >= 8 ? 'hot' : s >= 5 ? 'warm' : 'cold'; }
+function scoreLabel(s) { return s >= 8 ? '🔥 Hot' : s >= 5 ? '↑ Warm' : '❄ Cold'; }
+
+function renderLeads(leads) {
+  const container = document.getElementById('leads-container');
+  if (!leads.length) { container.innerHTML = '<div class="empty-state">No leads found. Try a different niche or city.</div>'; return; }
+
+  container.innerHTML = leads.map((l, i) => `
+    <div class="lead-card" id="card-${i}">
+      <div class="lead-top">
+        <div style="flex:1;min-width:0">
+          <div class="lead-name">${l.name}</div>
+          <div class="lead-meta">
+            ${l.phone ? `<span>📞 ${l.phone}</span>` : ''}
+            ${l.website ? `<span>🌐 <a href="${l.website}" target="_blank">${l.domain || l.website}</a></span>` : '<span style="color:#791F1F">⚠ No website</span>'}
+            ${l.email ? `<span>✉ ${l.email}</span>` : `<span><a href="https://hunter.io/search/${l.domain || ''}" target="_blank" style="color:var(--text2)">Find email on Hunter.io ↗</a></span>`}
+          </div>
+        </div>
+        <div class="score-pill ${scoreClass(l.score)}">${scoreLabel(l.score)} · ${l.score}/10</div>
+      </div>
+      <div class="pain-tag">⚡ ${l.pain}</div>
+      <div class="lead-footer">
+        <div class="lead-tags">
+          ${l.rating ? `<span class="tag">⭐ ${l.rating} (${l.reviews} reviews)</span>` : '<span class="tag tag-red">No rating</span>'}
+          ${l.email ? '<span class="tag tag-green">Email found</span>' : '<span class="tag tag-red">No email</span>'}
+          <span class="tag">${currentNiche}</span>
+        </div>
+        <button class="btn btn-sm btn-primary" onclick="writeEmail(${i})">✉ Write email</button>
+      </div>
+      <div class="email-panel" id="ep-${i}">
+        <div class="email-toolbar">
+          <span class="email-label">Personalized cold email</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm" onclick="copyEmail(${i})">Copy</button>
+            <button class="btn btn-sm btn-ghost" onclick="closeEmail(${i})">✕</button>
+          </div>
+        </div>
+        <div class="email-body" id="eb-${i}">Generating email...</div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('m-total').textContent = leads.length;
+  document.getElementById('m-email').textContent = leads.filter(l => l.email).length;
+  document.getElementById('m-hot').textContent = leads.filter(l => l.score >= 8).length;
+  const avg = leads.reduce((a, b) => a + b.score, 0) / leads.length;
+  document.getElementById('m-avg').textContent = avg.toFixed(1);
+}
+
+async function generateLeads() {
+  const google = localStorage.getItem('lg_google');
+  const hunter = localStorage.getItem('lg_hunter');
+  const anthropic = localStorage.getItem('lg_anthropic');
+
+  if (!google || !hunter || !anthropic) {
+    document.getElementById('config-panel').classList.add('open');
+    alert('Please add your API keys in Settings first.');
+    return;
+  }
+
+  currentNiche = document.getElementById('niche').value;
+  currentCity = document.getElementById('city').value;
+
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generating...';
+  document.getElementById('results-section').style.display = 'none';
+  document.getElementById('loading-section').style.display = 'block';
+
+  const msgs = ['Searching Google Maps...', 'Pulling business details...', 'Finding emails via Hunter.io...', 'Scoring leads with AI...'];
+  let mi = 0;
+  const msgEl = document.getElementById('loading-msg');
+  const msgInt = setInterval(() => { if (mi < msgs.length - 1) msgEl.textContent = msgs[++mi]; }, 4000);
+
+  try {
+    const resp = await fetch(`${BACKEND}/api/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-google-key': google,
+        'x-hunter-key': hunter,
+        'x-anthropic-key': anthropic
+      },
+      body: JSON.stringify({ niche: currentNiche, city: currentCity })
+    });
+
+    const data = await resp.json();
+    clearInterval(msgInt);
+
+    if (data.error) throw new Error(data.error);
+
+    currentLeads = data.leads;
+    renderLeads(currentLeads);
+    document.getElementById('loading-section').style.display = 'none';
+    document.getElementById('results-section').style.display = 'block';
+
+  } catch (err) {
+    clearInterval(msgInt);
+    document.getElementById('loading-section').style.display = 'none';
+    document.getElementById('results-section').style.display = 'block';
+    document.getElementById('leads-container').innerHTML = `<div class="empty-state">Error: ${err.message}<br><br>Check your API keys in Settings and try again.</div>`;
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '✦ Regenerate';
+}
+
+async function writeEmail(idx) {
+  const lead = currentLeads[idx];
+  const panel = document.getElementById(`ep-${idx}`);
+  const body = document.getElementById(`eb-${idx}`);
+  const anthropic = localStorage.getItem('lg_anthropic');
+
+  panel.classList.add('open');
+  body.textContent = 'Writing your personalized email...';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  try {
+    const resp = await fetch(`${BACKEND}/api/email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-anthropic-key': anthropic
+      },
+      body: JSON.stringify({ lead, niche: currentNiche, city: currentCity })
+    });
+    const data = await resp.json();
+    body.textContent = data.email || 'Could not generate email.';
+  } catch {
+    body.textContent = 'Error generating email. Please try again.';
+  }
+}
+
+function closeEmail(idx) {
+  document.getElementById(`ep-${idx}`).classList.remove('open');
+}
+
+function copyEmail(idx) {
+  const text = document.getElementById(`eb-${idx}`).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector(`#ep-${idx} .btn`);
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+function exportCSV() {
+  const headers = ['Name', 'Phone', 'Website', 'Email', 'Rating', 'Reviews', 'Score', 'Pain Point', 'City', 'Niche'];
+  const rows = currentLeads.map(l => [
+    l.name, l.phone || '', l.website || '', l.email || '',
+    l.rating || '', l.reviews || '', l.score, l.pain,
+    currentCity, currentNiche
+  ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
+
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `leads-${currentNiche}-${currentCity}.csv`.replace(/\s/g, '-');
+  a.click(); URL.revokeObjectURL(url);
+}
+
+loadKeys();
+if (localStorage.getItem('lg_google') && localStorage.getItem('lg_hunter') && localStorage.getItem('lg_anthropic')) {
+  document.getElementById('setup-banner').style.display = 'none';
+}
+</script>
+</body>
+</html>
