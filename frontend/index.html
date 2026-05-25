@@ -293,6 +293,32 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 .timeline-num { font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; }
 .timeline-milestone { font-size:12px; margin-top:4px; line-height:1.4; }
 
+/* AI Video Service Section */
+.video-service-banner { background:linear-gradient(135deg,#0d1b2a 0%,#1a237e 50%,#1b5e20 100%); border-radius:var(--radius-lg); padding:1.1rem 1.2rem; margin-bottom:10px; }
+.video-service-title { font-size:15px; font-weight:900; color:#fff; letter-spacing:-0.3px; display:flex; align-items:center; gap:8px; }
+.veo3-badge { background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); border-radius:4px; padding:2px 8px; font-size:10px; font-weight:700; color:#90caf9; letter-spacing:0.5px; text-transform:uppercase; }
+.video-hook { font-size:13px; color:rgba(255,255,255,0.85); margin-top:8px; line-height:1.5; font-style:italic; }
+.video-why-box { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:var(--radius); padding:0.75rem 1rem; margin-top:8px; font-size:12px; color:rgba(255,255,255,0.8); line-height:1.55; }
+.video-why-label { font-size:10px; font-weight:700; color:#90caf9; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+.cost-compare-table { width:100%; border-collapse:collapse; margin:10px 0; font-size:12px; }
+.cost-compare-table th { background:rgba(0,0,0,0.3); color:rgba(255,255,255,0.6); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; padding:6px 10px; text-align:left; }
+.cost-compare-table td { padding:7px 10px; border-top:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.82); vertical-align:middle; }
+.cost-compare-table tr.our-row td { background:rgba(46,125,50,0.25); color:#a5d6a7; font-weight:700; }
+.cost-compare-table tr.our-row td:first-child { border-radius:4px 0 0 4px; }
+.cost-compare-table tr.our-row td:last-child { border-radius:0 4px 4px 0; }
+.video-pkg-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1rem; }
+.video-pkg { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem; }
+.video-pkg.featured { border-color:#1565c0; border-width:2px; }
+.video-pkg-name { font-size:12px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; }
+.video-pkg-price { font-size:20px; font-weight:900; color:var(--text); margin:4px 0 1px; letter-spacing:-0.5px; }
+.video-pkg-addon { font-size:11px; color:var(--text2); margin-bottom:7px; }
+.video-pkg-includes { list-style:none; }
+.video-pkg-includes li { font-size:12px; padding:3px 0; display:flex; align-items:flex-start; gap:5px; line-height:1.35; }
+.video-pkg-includes li::before { content:"▶"; color:#1565c0; font-size:9px; margin-top:2px; flex-shrink:0; }
+.video-roi-cta { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:0.85rem 1rem; margin-bottom:1rem; }
+.video-roi-text { font-size:13px; line-height:1.5; color:var(--text); margin-bottom:8px; }
+.video-cta-text { font-size:13px; font-weight:700; color:#1565c0; }
+
 /* Competitor Cards */
 .comp-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
 .comp-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.9rem; }
@@ -1572,6 +1598,49 @@ function renderPitch(idx, d) {
       </div>`;
     });
     html += `</div>`;
+  }
+
+  if (d.videoService) {
+    const vs = d.videoService;
+    html += `<div class="pitch-section-label">AI Video Service</div>
+    <div class="video-service-banner">
+      <div class="video-service-title">🎬 AI Video Production <span class="veo3-badge">Powered by Google Veo 3</span></div>
+      ${vs.hook ? `<div class="video-hook">"${esc(vs.hook)}"</div>` : ''}
+      ${vs.whyVideo ? `<div class="video-why-box"><div class="video-why-label">Why Video Right Now</div>${esc(vs.whyVideo)}</div>` : ''}
+      ${vs.whyVeo3 ? `<div class="video-why-box" style="margin-top:6px"><div class="video-why-label">Why Google Veo 3</div>${esc(vs.whyVeo3)}</div>` : ''}
+      ${vs.costComparison?.length ? `
+      <table class="cost-compare-table">
+        <thead><tr><th>Provider</th><th>Per Video</th><th>4 Videos/mo</th><th>Turnaround</th></tr></thead>
+        <tbody>
+          ${vs.costComparison.map((row,i) => `<tr class="${i===2?'our-row':''}">
+            <td>${esc(row.label||'')}</td>
+            <td>${esc(row.perVideo||'')}</td>
+            <td>${esc(row.monthly4Videos||'')}</td>
+            <td>${esc(row.turnaround||'')}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>` : ''}
+    </div>`;
+
+    if (vs.videoPackages?.length) {
+      html += `<div class="pitch-section-label">Video Packages</div><div class="video-pkg-grid">`;
+      vs.videoPackages.forEach((pkg, i) => {
+        html += `<div class="video-pkg ${i===1?'featured':''}">
+          <div class="video-pkg-name">${esc(pkg.name||'')}</div>
+          <div class="video-pkg-price">${esc(pkg.price||'')}</div>
+          <div class="video-pkg-addon">Add-on: ${esc(pkg.addOnPrice||'')}</div>
+          <ul class="video-pkg-includes">${(pkg.includes||[]).map(inc=>`<li>${esc(inc)}</li>`).join('')}</ul>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+
+    if (vs.roi || vs.cta) {
+      html += `<div class="video-roi-cta">
+        ${vs.roi ? `<div class="video-roi-text">${esc(vs.roi)}</div>` : ''}
+        ${vs.cta ? `<div class="video-cta-text">🎯 ${esc(vs.cta)}</div>` : ''}
+      </div>`;
+    }
   }
 
   if (d.roi) {
