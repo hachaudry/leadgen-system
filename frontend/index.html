@@ -122,11 +122,15 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 /* Revenue loss badge */
 .loss-badge { color:var(--red-text); font-weight:700; font-size:12px; }
 
-/* Opportunity score */
-.opp-score { display:inline-flex; align-items:center; justify-content:center; width:30px; height:20px; border-radius:4px; font-size:11px; font-weight:700; }
-.opp-high { background:var(--red-bg); color:var(--red-text); }
-.opp-med { background:var(--amber-bg); color:var(--amber-text); }
-.opp-low { background:var(--green-bg); color:var(--green-text); }
+/* Lead Score badge */
+.lead-score-badge { display:inline-flex; align-items:center; gap:5px; border-radius:6px; padding:3px 8px; font-size:12px; font-weight:700; }
+.ls-hot  { background:var(--red-bg);   color:var(--red-text);   }
+.ls-warm { background:var(--amber-bg); color:var(--amber-text); }
+.ls-cool { background:var(--green-bg); color:var(--green-text); }
+.ls-dot  { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.ls-hot  .ls-dot { background:var(--red-text); }
+.ls-warm .ls-dot { background:var(--amber-text); }
+.ls-cool .ls-dot { background:var(--green-text); }
 
 /* Time badge */
 .time-badge { font-size:11px; color:var(--text2); white-space:nowrap; }
@@ -148,13 +152,14 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 
 /* ── Snapshot Panel ── */
 .snap-panel { padding:1.25rem 1.5rem 1.5rem; background:#f0f4ff; border-top:3px solid #1565c0; }
-.snap-top { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:1rem; }
+.snap-top { display:grid; grid-template-columns:220px 190px 1fr; gap:12px; margin-bottom:1rem; align-items:stretch; }
 .snap-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem; }
 .snap-card-title { font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:0.75rem; }
-.snap-row { display:flex; justify-content:space-between; align-items:flex-start; padding:4px 0; border-bottom:1px solid var(--border); font-size:12.5px; gap:8px; }
+.snap-row { display:flex; justify-content:space-between; align-items:baseline; padding:5px 0; border-bottom:1px solid var(--border); font-size:12.5px; gap:8px; }
 .snap-row:last-child { border-bottom:none; }
-.snap-key { color:var(--text2); flex-shrink:0; }
-.snap-val { font-weight:500; text-align:right; word-break:break-all; min-width:0; }
+.snap-key { color:var(--text2); flex-shrink:0; min-width:52px; }
+.snap-val { font-weight:500; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px; }
+.snap-val.wrap { white-space:normal; word-break:break-word; overflow-wrap:anywhere; }
 .snap-val a { color:var(--blue); text-decoration:none; font-size:11px; }
 
 /* Revenue Loss Box */
@@ -564,7 +569,7 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
             <th>Reviews</th>
             <th>GMB</th>
             <th>Rev Loss/Mo</th>
-            <th>Opp Score</th>
+            <th>Lead Score</th>
             <th>Best Time</th>
             <th>Status</th>
             <th>Action</th>
@@ -922,30 +927,29 @@ function renderTableBody() {
     const status = getStatus(lead.name);
     const statusClass = getStatusClass(status);
 
-    const opp = lead.oppScore;
-    const oppClass = opp >= 7 ? 'opp-high' : opp >= 4 ? 'opp-med' : 'opp-low';
+    const score = lead.score || 5;
+    const lsClass = score >= 7 ? 'ls-hot' : score >= 4 ? 'ls-warm' : 'ls-cool';
+    const lsLabel = score >= 7 ? 'Hot' : score >= 4 ? 'Warm' : 'Low';
 
     const gmbStatus = lead.website ? 'Claimed' : (lead.rating ? 'Unclaimed' : 'Missing');
     const gmbClass = gmbStatus === 'Claimed' ? 'gmb-verified' : gmbStatus === 'Unclaimed' ? 'gmb-unclaimed' : 'gmb-missing';
-
-    const scoreColor = lead.score >= 7 ? '#c62828' : lead.score >= 4 ? '#b45309' : '#2e7d32';
 
     const row = document.createElement('tr');
     row.className = isExpanded ? 'expanded' : '';
     row.onclick = () => togglePanel(idx);
     row.innerHTML = `
       <td><div class="biz-name" title="${esc(lead.name)}">${esc(lead.name)}</div></td>
-      <td>${lead.website ? `<a class="biz-link" href="${esc(lead.website)}" target="_blank" onclick="e=>{e.stopPropagation()}" rel="noreferrer">${shortUrl(lead.website)}</a>` : '<span class="no-web">No Website</span>'}</td>
+      <td>${lead.website ? `<a class="biz-link" href="${esc(lead.website)}" target="_blank" onclick="event.stopPropagation()" rel="noreferrer">${shortUrl(lead.website)}</a>` : '<span class="no-web">No Website</span>'}</td>
       <td style="font-size:11px;white-space:nowrap">${esc(lead.phone || '—')}</td>
       <td style="font-size:11px">${lead.email ? `<span title="${esc(lead.email)}">${esc(lead.email.split('@')[0])}@…</span>` : '<span style="color:var(--text3)">—</span>'}</td>
       <td><span class="rating-stars">★</span> ${lead.rating || '—'}</td>
       <td class="reviews-cnt">${lead.reviews || 0}</td>
       <td><span class="gmb-badge ${gmbClass}">${gmbStatus}</span></td>
       <td><span class="loss-badge">$${lead.revenueLoss.toLocaleString()}</span></td>
-      <td><span class="opp-score ${oppClass}">${opp}</span></td>
+      <td><span class="lead-score-badge ${lsClass}"><span class="ls-dot"></span>${score}/10 ${lsLabel}</span></td>
       <td><span class="time-badge">🕐 ${ct.days || '—'}<br><small>${ct.time || ''}</small></span></td>
       <td><span class="status-pill ${statusClass}">${status}</span></td>
-      <td><button class="view-btn ${isExpanded ? 'active' : ''}" onclick="event.stopPropagation();togglePanel(${idx})">${isExpanded ? 'Close' : 'View'}</button></td>
+      <td><button class="view-btn ${isExpanded ? 'active' : ''}" onclick="event.stopPropagation();togglePanel(${idx})">${isExpanded ? 'Close ▲' : 'View ▼'}</button></td>
     `;
     tbody.appendChild(row);
 
@@ -1054,10 +1058,11 @@ function buildSnapPanel(idx, lead) {
     <!-- Prospect Details -->
     <div class="snap-card">
       <div class="snap-card-title">Prospect Details</div>
-      <div class="snap-row"><span class="snap-key">Rating</span><span class="snap-val">★ ${lead.rating || '—'} · ${lead.reviews || 0} reviews</span></div>
+      <div class="snap-row"><span class="snap-key">Rating</span><span class="snap-val">★ ${lead.rating || '—'} &nbsp;(${lead.reviews || 0})</span></div>
       <div class="snap-row"><span class="snap-key">Phone</span><span class="snap-val">${esc(lead.phone || '—')}</span></div>
-      <div class="snap-row"><span class="snap-key">Email</span><span class="snap-val" style="font-size:11px">${esc(lead.email || '—')}</span></div>
+      <div class="snap-row"><span class="snap-key">Email</span><span class="snap-val wrap" style="font-size:11px">${esc(lead.email || '—')}</span></div>
       <div class="snap-row"><span class="snap-key">Website</span><span class="snap-val">${lead.website ? `<a href="${esc(lead.website)}" target="_blank" rel="noreferrer">${shortUrl(lead.website)}</a>` : '<span class="no-web">None</span>'}</span></div>
+      <div class="snap-row"><span class="snap-key">Score</span><span class="snap-val"><span class="lead-score-badge ${lead.score>=7?'ls-hot':lead.score>=4?'ls-warm':'ls-cool'}" style="font-size:11px;padding:2px 6px"><span class="ls-dot"></span>${lead.score||5}/10 ${lead.score>=7?'Hot':lead.score>=4?'Warm':'Low'}</span></span></div>
       <div class="snap-row"><span class="snap-key">Status</span><span class="snap-val"><span class="status-pill ${getStatusClass(status)}">${status}</span></span></div>
     </div>
   </div>
@@ -1230,9 +1235,10 @@ async function runReport(idx, type, btn) {
 // ── Render Report ──────────────────────────────────────────────────────────
 function renderReport(idx, type, data, el) {
   let html = '';
+  const lead = filteredLeads[idx];
 
   if (type === 'competitors') {
-    html = renderCompetitors(data);
+    html = renderCompetitors(data, lead);
   } else if (type === 'seo') {
     html = renderSeoReport(data, idx);
   } else if (type === 'social') {
@@ -1364,12 +1370,38 @@ function renderGenericReport(type, d) {
   return html;
 }
 
-function renderCompetitors(data) {
+function renderCompetitors(data, lead) {
   const comps = data.competitors || [];
   if (!comps.length) return '<p style="color:var(--text2);font-size:13px">No competitors found nearby.</p>';
   const rankClass = r => r==='Market Leader'?'rank-leader':r==='Rising Threat'?'rank-rising':r==='Similar Level'?'rank-similar':'rank-weaker';
+
+  // Build prospect's own card for comparison
+  const prospectCard = lead ? `
+  <div style="margin-bottom:1rem;">
+    <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px;">Your Prospect (Baseline)</div>
+    <div class="comp-card" style="border:2px solid #1565c0;background:#f0f4ff;">
+      <div class="comp-header">
+        <div class="comp-name" style="color:#1565c0">${esc(lead.name)}</div>
+        <span class="comp-rank" style="background:#e3f2fd;color:#0d47a1">← This Prospect</span>
+      </div>
+      <div class="comp-stats">
+        <span>★ ${lead.rating||'—'}</span>
+        <span>${lead.reviews||0} reviews</span>
+        <span style="color:var(--red-text);font-weight:600">$${lead.revenueLoss.toLocaleString()} loss/mo</span>
+      </div>
+      <div class="comp-bars">
+        <div class="comp-bar-row"><span class="comp-bar-label">SEO</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${lead.website?35:10}%;background:#1565c0"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">${lead.website?35:10}</span></div>
+        <div class="comp-bar-row"><span class="comp-bar-label">Social</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${Math.min(40,lead.reviews||0)/1}%;background:#1565c0"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">~</span></div>
+        <div class="comp-bar-row"><span class="comp-bar-label">Website</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${lead.website?40:5}%;background:#1565c0"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">${lead.website?40:5}</span></div>
+      </div>
+      <div class="comp-gap" style="color:var(--blue-text)">Run a Local SEO or Website report above to get precise scores vs. these competitors.</div>
+    </div>
+  </div>` : '';
+
   return `
   <h3 style="font-size:14px;font-weight:700;margin-bottom:1rem;">⚔️ Competitor Analysis</h3>
+  ${prospectCard}
+  <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px;">Nearby Competitors</div>
   <div class="comp-grid">
     ${comps.map(c => `<div class="comp-card">
       <div class="comp-header">
@@ -1386,7 +1418,7 @@ function renderCompetitors(data) {
         <div class="comp-bar-row"><span class="comp-bar-label">Social</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${c.socialEstimate||0}%"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">${c.socialEstimate||0}</span></div>
         <div class="comp-bar-row"><span class="comp-bar-label">Website</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${c.websiteQuality||0}%"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">${c.websiteQuality||0}</span></div>
       </div>
-      ${c.website ? `<div style="font-size:10px;color:var(--blue)"><a href="${esc(c.website)}" target="_blank" rel="noreferrer">${shortUrl(c.website)}</a></div>` : ''}
+      ${c.website ? `<div style="font-size:10px;color:var(--blue);margin-bottom:4px"><a href="${esc(c.website)}" target="_blank" rel="noreferrer">${shortUrl(c.website)}</a></div>` : ''}
       <div class="comp-gap">${esc(c.gap||'')}</div>
     </div>`).join('')}
   </div>`;
