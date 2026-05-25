@@ -177,6 +177,83 @@ Return ONLY valid JSON:
     {"rank":5,"problem":"<fifth gap>","costMin":<number>,"costMax":<number>}
   ],
   "nextBestStep": "Your single best next step: <action>. Here is why this will get you <result> in <timeframe> — <specific reason>."
+}`,
+
+'seo': (lead, niche, city) => `You are a senior SEO strategist writing a keyword and search ranking audit for a sales presentation.
+
+Business: ${lead.name}
+Type: ${niche}
+City: ${city}
+Website: ${lead.website || 'none — no website detected'}
+Rating: ${lead.rating || 'unknown'} (${lead.reviews || 0} reviews)
+
+Audit their organic search performance and SEO health. Be specific and sales-oriented.
+
+Return ONLY valid JSON:
+{
+  "overallScore": <0-100>,
+  "opportunityScore": <0-100>,
+  "recommendedService": "<service to pitch>",
+  "salesAngle": "<1 sentence hook referencing their specific SEO gap>",
+  "salesSummary": "<2-3 sentences why this prospect is worth targeting for SEO>",
+  "subscores": [
+    {"name":"Google Rankings","score":<0-100>,"status":"<Critical Gap|Needs Improvement|Average|Strong>","detail":"<specific finding about where they rank for key searches>"},
+    {"name":"Keyword Targeting","score":<0-100>,"status":"<...>","detail":"<what keywords they should rank for vs. what they actually appear for>"},
+    {"name":"On-Page SEO","score":<0-100>,"status":"<...>","detail":"<title tags, meta descriptions, heading structure>"},
+    {"name":"Technical SEO","score":<0-100>,"status":"<...>","detail":"<site speed, mobile, schema, crawlability>"},
+    {"name":"Backlink Authority","score":<0-100>,"status":"<...>","detail":"<link profile strength vs. local competitors>"},
+    {"name":"Local Search Visibility","score":<0-100>,"status":"<...>","detail":"<local pack, maps, geo-targeted keywords>"}
+  ],
+  "keyFindings": [
+    "<specific finding 1 — e.g. they rank page 3 for their main service keyword>",
+    "<finding 2>",
+    "<finding 3>",
+    "<finding 4>"
+  ],
+  "painPoints": [
+    {"rank":1,"problem":"<biggest SEO gap>","costMin":<number>,"costMax":<number>},
+    {"rank":2,"problem":"<second gap>","costMin":<number>,"costMax":<number>},
+    {"rank":3,"problem":"<third gap>","costMin":<number>,"costMax":<number>}
+  ],
+  "nextBestStep": "Your single best next step: <action>. Here is why this will get you <result> in <timeframe> — <specific reason referencing their keyword gap vs top competitor>."
+}`,
+
+'social': (lead, niche, city) => `You are a senior social media strategist writing a platform audit for a sales presentation.
+
+Business: ${lead.name}
+Type: ${niche}
+City: ${city}
+Website: ${lead.website || 'none'}
+Rating: ${lead.rating || 'unknown'} (${lead.reviews || 0} reviews)
+
+Audit their social media presence across all major platforms. Be specific and sales-oriented.
+
+Return ONLY valid JSON:
+{
+  "overallScore": <0-100>,
+  "opportunityScore": <0-100>,
+  "recommendedService": "<service to pitch>",
+  "salesAngle": "<1 sentence hook about their social media gap>",
+  "salesSummary": "<2-3 sentences why targeting this prospect for social media management>",
+  "subscores": [
+    {"name":"Instagram Presence","score":<0-100>,"status":"<Critical Gap|Needs Improvement|Average|Strong>","detail":"<specific finding — estimated followers, post frequency, engagement>"},
+    {"name":"Facebook Presence","score":<0-100>,"status":"<...>","detail":"<page likes, post activity, reviews>"},
+    {"name":"Google Business Posts","score":<0-100>,"status":"<...>","detail":"<GMB post frequency and content quality>"},
+    {"name":"Content Quality","score":<0-100>,"status":"<...>","detail":"<visual quality, copy, calls to action>"},
+    {"name":"Posting Consistency","score":<0-100>,"status":"<...>","detail":"<estimated frequency vs. competitors>"},
+    {"name":"Engagement Rate","score":<0-100>,"status":"<...>","detail":"<likes, comments, shares vs. industry average>"}
+  ],
+  "platformSummary": [
+    {"platform":"Instagram","status":"Active|Inactive|Not Found","followers":"<estimate>","posts":"<estimate>","opportunity":"<one sentence>"},
+    {"platform":"Facebook","status":"Active|Inactive|Not Found","followers":"<estimate>","posts":"<estimate>","opportunity":"<one sentence>"},
+    {"platform":"TikTok","status":"Active|Inactive|Not Found","followers":"<estimate>","posts":"<estimate>","opportunity":"<one sentence>"}
+  ],
+  "painPoints": [
+    {"rank":1,"problem":"<biggest social media gap>","costMin":<number>,"costMax":<number>},
+    {"rank":2,"problem":"<second gap>","costMin":<number>,"costMax":<number>},
+    {"rank":3,"problem":"<third gap>","costMin":<number>,"costMax":<number>}
+  ],
+  "nextBestStep": "Your single best next step: <action>. Here is why this will get you <result> in <timeframe> — <specific reason>."
 }`
 };
 

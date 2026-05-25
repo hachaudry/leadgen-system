@@ -152,21 +152,27 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 
 /* ── Snapshot Panel ── */
 .snap-panel { padding:1.25rem 1.5rem 1.5rem; background:#f0f4ff; border-top:3px solid #1565c0; }
-.snap-top { display:grid; grid-template-columns:220px 190px 1fr; gap:12px; margin-bottom:1rem; align-items:stretch; }
+.snap-top { display:flex; gap:12px; margin-bottom:1rem; align-items:stretch; min-height:150px; }
+.snap-top > .loss-box { width:215px; flex-shrink:0; }
+.snap-top > .contact-box { width:175px; flex-shrink:0; }
+.snap-top > .snap-details { width:230px; flex-shrink:0; }
+.snap-top > .snap-pain { flex:1; min-width:0; }
 .snap-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem; }
 .snap-card-title { font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:0.75rem; }
 .snap-row { display:flex; justify-content:space-between; align-items:baseline; padding:5px 0; border-bottom:1px solid var(--border); font-size:12.5px; gap:8px; }
 .snap-row:last-child { border-bottom:none; }
 .snap-key { color:var(--text2); flex-shrink:0; min-width:52px; }
-.snap-val { font-weight:500; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px; }
+.snap-val { font-weight:500; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px; }
 .snap-val.wrap { white-space:normal; word-break:break-word; overflow-wrap:anywhere; }
 .snap-val a { color:var(--blue); text-decoration:none; font-size:11px; }
 
 /* Revenue Loss Box */
-.loss-box { background:linear-gradient(135deg,#b71c1c,#c62828); color:#fff; border-radius:var(--radius-lg); padding:1rem 1.1rem; height:100%; display:flex; flex-direction:column; justify-content:center; }
-.loss-box-label { font-size:11px; font-weight:600; opacity:0.8; text-transform:uppercase; letter-spacing:0.4px; }
-.loss-box-amount { font-size:32px; font-weight:900; letter-spacing:-1px; margin:4px 0 2px; }
-.loss-box-sub { font-size:12px; opacity:0.85; }
+.loss-box { background:linear-gradient(135deg,#b71c1c,#c62828); color:#fff; border-radius:var(--radius-lg); padding:1rem 1.1rem; height:100%; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box; }
+.loss-box-label { font-size:10px; font-weight:700; opacity:0.75; text-transform:uppercase; letter-spacing:0.5px; }
+.loss-box-amount { font-size:34px; font-weight:900; letter-spacing:-1.5px; margin:5px 0 3px; line-height:1; }
+.loss-box-sub { font-size:11px; opacity:0.8; margin-bottom:10px; }
+.loss-box-score { display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.25); border-radius:6px; padding:3px 8px; font-size:12px; font-weight:700; width:fit-content; }
+.loss-box-score-dot { width:7px; height:7px; border-radius:50%; background:#fff; }
 
 /* Contact Time Box */
 .contact-box { background:var(--blue-bg); border:1px solid rgba(21,101,192,0.2); border-radius:var(--radius-lg); padding:1rem; height:100%; display:flex; flex-direction:column; justify-content:center; }
@@ -310,8 +316,8 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 .platform-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:0.75rem; text-align:center; }
 .platform-name { font-size:12px; font-weight:700; margin-bottom:4px; }
 .platform-status { font-size:11px; font-weight:600; padding:2px 8px; border-radius:10px; margin-bottom:4px; display:inline-block; }
-.platform-running { background:var(--red-bg); color:var(--red-text); }
-.platform-not { background:var(--green-bg); color:var(--green-text); }
+.platform-running { background:var(--green-bg); color:var(--green-text); }
+.platform-not { background:var(--red-bg); color:var(--red-text); }
 .platform-meta { font-size:11px; color:var(--text2); }
 
 /* 360 Categories */
@@ -1038,14 +1044,18 @@ function buildSnapPanel(idx, lead) {
   el.innerHTML = `
 <div class="snap-panel">
 
-  <!-- Top 3-column grid -->
+  <!-- Top row: 4 flex columns -->
   <div class="snap-top">
 
-    <!-- Revenue Loss -->
+    <!-- Revenue Loss + Lead Score -->
     <div class="loss-box">
       <div class="loss-box-label">📉 Est. Monthly Revenue Loss</div>
       <div class="loss-box-amount">$${lead.revenueLoss.toLocaleString()}</div>
       <div class="loss-box-sub">Based on rating, reviews & digital gaps</div>
+      <div class="loss-box-score">
+        <div class="loss-box-score-dot"></div>
+        Lead Score: ${lead.score||5}/10 ${lead.score>=7?'🔥 Hot':lead.score>=4?'Warm':'Low'}
+      </div>
     </div>
 
     <!-- Best Time -->
@@ -1056,28 +1066,27 @@ function buildSnapPanel(idx, lead) {
     </div>
 
     <!-- Prospect Details -->
-    <div class="snap-card">
+    <div class="snap-card snap-details">
       <div class="snap-card-title">Prospect Details</div>
-      <div class="snap-row"><span class="snap-key">Rating</span><span class="snap-val">★ ${lead.rating || '—'} &nbsp;(${lead.reviews || 0})</span></div>
+      <div class="snap-row"><span class="snap-key">Rating</span><span class="snap-val">★ ${lead.rating || '—'} (${lead.reviews || 0})</span></div>
       <div class="snap-row"><span class="snap-key">Phone</span><span class="snap-val">${esc(lead.phone || '—')}</span></div>
       <div class="snap-row"><span class="snap-key">Email</span><span class="snap-val wrap" style="font-size:11px">${esc(lead.email || '—')}</span></div>
       <div class="snap-row"><span class="snap-key">Website</span><span class="snap-val">${lead.website ? `<a href="${esc(lead.website)}" target="_blank" rel="noreferrer">${shortUrl(lead.website)}</a>` : '<span class="no-web">None</span>'}</span></div>
-      <div class="snap-row"><span class="snap-key">Score</span><span class="snap-val"><span class="lead-score-badge ${lead.score>=7?'ls-hot':lead.score>=4?'ls-warm':'ls-cool'}" style="font-size:11px;padding:2px 6px"><span class="ls-dot"></span>${lead.score||5}/10 ${lead.score>=7?'Hot':lead.score>=4?'Warm':'Low'}</span></span></div>
       <div class="snap-row"><span class="snap-key">Status</span><span class="snap-val"><span class="status-pill ${getStatusClass(status)}">${status}</span></span></div>
     </div>
-  </div>
 
-  <!-- Pain Points (full width) -->
-  <div class="snap-card" style="margin-bottom:1rem">
-    <div class="snap-card-title">Pain Point Prioritizer — Revenue Impact</div>
-    <ul class="pain-list">
-      ${painPoints.map(p => `
-      <li class="pain-item">
-        <div class="pain-rank">${p.rank}</div>
-        <div class="pain-text">${esc(p.problem)}</div>
-        <div class="pain-cost">$${p.costMin.toLocaleString()}–$${p.costMax.toLocaleString()}/mo</div>
-      </li>`).join('')}
-    </ul>
+    <!-- Pain Points — fills remaining width -->
+    <div class="snap-card snap-pain">
+      <div class="snap-card-title">Pain Point Prioritizer — Revenue Impact</div>
+      <ul class="pain-list">
+        ${painPoints.map(p => `
+        <li class="pain-item">
+          <div class="pain-rank">${p.rank}</div>
+          <div class="pain-text">${esc(p.problem)}</div>
+          <div class="pain-cost">$${p.costMin.toLocaleString()}–$${p.costMax.toLocaleString()}/mo</div>
+        </li>`).join('')}
+      </ul>
+    </div>
   </div>
 
   <!-- AI Insight (full width) -->
@@ -1197,22 +1206,6 @@ async function runReport(idx, type, btn) {
           prospectName:lead.name, prospectRating:lead.rating, prospectReviews:lead.reviews })
       });
       data = await resp.json();
-    } else if (type === 'seo') {
-      const resp = await fetch(`${BASE_URL}/api/seo-scorecard`, {
-        method:'POST',
-        headers:{'Content-Type':'application/json','x-anthropic-key':keys.anthropic},
-        body: JSON.stringify({ businessName:lead.name, niche:currentNiche, city:currentCity,
-          website:lead.website, rating:lead.rating, reviews:lead.reviews })
-      });
-      data = await resp.json();
-    } else if (type === 'social') {
-      const resp = await fetch(`${BASE_URL}/api/scorecard`, {
-        method:'POST',
-        headers:{'Content-Type':'application/json','x-anthropic-key':keys.anthropic},
-        body: JSON.stringify({ businessName:lead.name, niche:currentNiche, city:currentCity,
-          website:lead.website, rating:lead.rating, reviews:lead.reviews })
-      });
-      data = await resp.json();
     } else {
       const resp = await fetch(`${BASE_URL}/api/report`, {
         method:'POST',
@@ -1240,10 +1233,10 @@ function renderReport(idx, type, data, el) {
   if (type === 'competitors') {
     html = renderCompetitors(data, lead);
   } else if (type === 'seo') {
-    html = renderSeoReport(data, idx);
+    html = renderSeoReport(data);
   } else if (type === 'social') {
     html = renderSocialReport(data);
-  } else if (type === 'local-seo' || type === 'website' || type === 'ads' || type === '360') {
+  } else {
     html = renderGenericReport(type, data);
   }
 
@@ -1251,13 +1244,14 @@ function renderReport(idx, type, data, el) {
   animateScores(el);
 }
 
-function renderGenericReport(type, d) {
-  const titles = {'local-seo':'📍 Local SEO / GMB Report','website':'🌐 Website Audit','ads':'📣 Ads Opportunity Report','360':'🎯 360° Digital Marketing Audit'};
+function renderGenericReport(type, d, titleOverride) {
+  const titles = {'local-seo':'📍 Local SEO / GMB Report','seo':'🔍 SEO Analysis Report','social':'📱 Social Media Report','website':'🌐 Website Audit','ads':'📣 Ads Opportunity Report','360':'🎯 360° Digital Marketing Audit'};
+  const title = titleOverride || titles[type] || type;
   const scoreColor = d.overallScore >= 60 ? '#2e7d32' : d.overallScore >= 40 ? '#b45309' : '#c62828';
   const oppColor = d.opportunityScore >= 70 ? '#c62828' : d.opportunityScore >= 40 ? '#b45309' : '#2e7d32';
 
   let html = `
-  <h3 style="font-size:14px;font-weight:700;margin-bottom:1rem;">${titles[type] || type}</h3>
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:1rem;">${title}</h3>
   <div class="score-card">
     <div class="score-ring">
       <svg width="72" height="72" viewBox="0 0 72 72">
@@ -1319,7 +1313,7 @@ function renderGenericReport(type, d) {
       const running = info.status === 'Running';
       html += `<div class="platform-card">
         <div class="platform-name">${p.charAt(0).toUpperCase()+p.slice(1)} Ads</div>
-        <span class="platform-status ${running ? 'platform-running' : 'platform-not'}">${running ? '⚠ Running' : '✓ Not Running'}</span>
+        <span class="platform-status ${running ? 'platform-running' : 'platform-not'}">${running ? '✓ Running' : '⚠ Not Running'}</span>
         <div class="platform-meta">Competitor: ${esc(info.competitorSpend||'')}<br>Missed: ${esc(info.missedRevenue||'')}</div>
       </div>`;
     });
@@ -1424,129 +1418,47 @@ function renderCompetitors(data, lead) {
   </div>`;
 }
 
-function renderSeoReport(data, idx) {
-  const score = data.overallScore || data.aioScore || 50;
-  const scoreColor = score >= 60 ? '#2e7d32' : score >= 40 ? '#b45309' : '#c62828';
-  let html = `
-  <h3 style="font-size:14px;font-weight:700;margin-bottom:1rem;">🔍 SEO Analysis Report</h3>
-  <div class="score-card">
-    <div class="score-ring">
-      <svg width="72" height="72" viewBox="0 0 72 72">
-        <circle class="bg" cx="36" cy="36" r="30"/>
-        <circle class="fg" cx="36" cy="36" r="30" stroke="${scoreColor}"
-          stroke-dasharray="${2*Math.PI*30}"
-          stroke-dashoffset="${2*Math.PI*30*(1-score/100)}"
-          data-score="${score}"/>
-      </svg>
-      <div class="val" style="color:${scoreColor}">${score}</div>
-    </div>
-    <div class="score-meta">
-      <h3>${esc(data.salesAngle || data.overallAnalysis || 'SEO Audit Results')}</h3>
-      <div class="sub">${esc(data.salesSummary || data.keyInsight || '')}</div>
-    </div>
-  </div>`;
+function renderSeoReport(data) {
+  // Uses same format as renderGenericReport but adds keyFindings section
+  let html = renderGenericReport('seo', data, '🔍 SEO Analysis Report');
 
-  // Subscores
-  const subs = data.subscores || data.categories || [];
-  if (subs.length) {
-    html += `<div class="subscores">`;
-    subs.forEach(s => {
-      const sc = s.score || s.value || 0;
-      const c = sc >= 60 ? '#2e7d32' : sc >= 40 ? '#b45309' : '#c62828';
-      html += `<div class="subscore-row">
-        <div class="subscore-name">${esc(s.name||s.category||'')}</div>
-        <div class="subscore-bar-wrap"><div class="subscore-bar" style="width:${sc}%;background:${c}"></div></div>
-        <div class="subscore-score" style="color:${c}">${sc}</div>
-        <div class="subscore-status ${sc>=60?'status-strong':sc>=40?'status-average':'status-critical'}">${esc(s.status||s.label||'')}</div>
-      </div>`;
-    });
-    html += `</div>`;
-  }
-
-  // LLM Mockups
-  if (data.chatgptResponse || data.claudeResponse) {
-    html += `<div class="section-title" style="margin-top:1rem">AI Platform Visibility</div>
-    <div class="llm-grid" style="grid-template-columns:1fr 1fr">`;
-    if (data.chatgptResponse) {
-      html += `<div class="llm-card llm-chatgpt">
-        <div class="llm-header"><div class="llm-dot"></div>ChatGPT</div>
-        <div class="llm-body">${esc(data.chatgptResponse)}</div>
-      </div>`;
-    }
-    if (data.claudeResponse) {
-      html += `<div class="llm-card llm-claude">
-        <div class="llm-header"><div class="llm-dot"></div>Claude AI</div>
-        <div class="llm-body">${esc(data.claudeResponse)}</div>
-      </div>`;
-    }
-    html += `</div>`;
-  }
-
-  // Pain/Next step
-  const pps = data.painPoints || [];
-  if (pps.length) {
-    html += `<div class="section-title" style="margin-top:1rem">Pain Points</div><ul class="pain-list">`;
-    pps.forEach(p => {
-      html += `<li class="pain-item">
-        <div class="pain-rank">${p.rank||'!'}</div>
-        <div class="pain-text">${esc(p.problem||p.issue||'')}</div>
-        <div class="pain-cost">$${(p.costMin||0).toLocaleString()}–$${(p.costMax||0).toLocaleString()}/mo</div>
-      </li>`;
-    });
-    html += `</ul>`;
-  }
-  if (data.nextBestStep) {
-    html += `<div class="nbs-box"><div class="nbs-label">Next Best Step</div><div class="nbs-text">${esc(data.nextBestStep)}</div></div>`;
+  // Extra: Key Findings grid
+  if (data.keyFindings && data.keyFindings.length) {
+    const findingsHtml = `<div class="section-title" style="margin-top:1rem">Key Findings</div>
+    <div class="findings-grid">${data.keyFindings.map(f => `<div class="finding-box">${esc(f)}</div>`).join('')}</div>`;
+    // Insert before next best step
+    const nbsPos = html.lastIndexOf('<div class="nbs-box">');
+    html = nbsPos > -1
+      ? html.slice(0, nbsPos) + findingsHtml + html.slice(nbsPos)
+      : html + findingsHtml;
   }
   return html;
 }
 
 function renderSocialReport(data) {
-  const score = data.overallScore || 50;
-  const scoreColor = score >= 60 ? '#2e7d32' : score >= 40 ? '#b45309' : '#c62828';
-  let html = `
-  <h3 style="font-size:14px;font-weight:700;margin-bottom:1rem;">📱 Social Media Report</h3>
-  <div class="score-card">
-    <div class="score-ring">
-      <svg width="72" height="72" viewBox="0 0 72 72">
-        <circle class="bg" cx="36" cy="36" r="30"/>
-        <circle class="fg" cx="36" cy="36" r="30" stroke="${scoreColor}"
-          stroke-dasharray="${2*Math.PI*30}"
-          stroke-dashoffset="${2*Math.PI*30*(1-score/100)}"
-          data-score="${score}"/>
-      </svg>
-      <div class="val" style="color:${scoreColor}">${score}</div>
-    </div>
-    <div class="score-meta">
-      <h3>${esc(data.salesAngle || data.overallAnalysis || 'Social Media Audit')}</h3>
-      <div class="sub">${esc(data.salesSummary || data.keyInsight || '')}</div>
-    </div>
-  </div>`;
-  const subs = data.subscores || data.platforms || data.categories || [];
-  if (Array.isArray(subs) && subs.length) {
-    html += `<div class="subscores">`;
-    subs.forEach(s => {
-      const sc = s.score || s.value || 0;
-      const c = sc >= 60 ? '#2e7d32' : sc >= 40 ? '#b45309' : '#c62828';
-      html += `<div class="subscore-row">
-        <div class="subscore-name">${esc(s.name||s.platform||'')}</div>
-        <div class="subscore-bar-wrap"><div class="subscore-bar" style="width:${sc}%;background:${c}"></div></div>
-        <div class="subscore-score" style="color:${c}">${sc}</div>
-        <div class="subscore-status ${sc>=60?'status-strong':sc>=40?'status-average':'status-critical'}">${esc(s.status||s.label||'')}</div>
-      </div>`;
-    });
-    html += `</div>`;
-  }
-  const pps = data.painPoints || [];
-  if (pps.length) {
-    html += `<ul class="pain-list">`;
-    pps.forEach(p => {
-      html += `<li class="pain-item"><div class="pain-rank">${p.rank||'!'}</div><div class="pain-text">${esc(p.problem||'')}</div><div class="pain-cost">$${(p.costMin||0).toLocaleString()}–$${(p.costMax||0).toLocaleString()}/mo</div></li>`;
-    });
-    html += `</ul>`;
-  }
-  if (data.nextBestStep) {
-    html += `<div class="nbs-box"><div class="nbs-label">Next Best Step</div><div class="nbs-text">${esc(data.nextBestStep)}</div></div>`;
+  // Uses same format as renderGenericReport but adds platform summary cards
+  let html = renderGenericReport('social', data, '📱 Social Media Report');
+
+  // Extra: Platform summary cards
+  if (data.platformSummary && data.platformSummary.length) {
+    const icons = { Instagram:'📸', Facebook:'👥', TikTok:'🎵' };
+    const statusStyle = s => s === 'Active'
+      ? 'background:var(--green-bg);color:var(--green-text)'
+      : 'background:var(--red-bg);color:var(--red-text)';
+    const cardsHtml = `<div class="section-title" style="margin-top:1rem">Platform Breakdown</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem">
+      ${data.platformSummary.map(p => `<div class="snap-card" style="padding:0.85rem">
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px">${icons[p.platform]||'📱'} ${esc(p.platform)}</div>
+        <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;${statusStyle(p.status)}">${esc(p.status)}</span>
+        <div style="font-size:11px;color:var(--text2);margin-top:6px">~${esc(p.followers)} followers</div>
+        <div style="font-size:11px;color:var(--text2)">~${esc(p.posts)} posts</div>
+        <div style="font-size:11px;margin-top:5px;color:var(--text);line-height:1.4">${esc(p.opportunity)}</div>
+      </div>`).join('')}
+    </div>`;
+    const nbsPos = html.lastIndexOf('<div class="nbs-box">');
+    html = nbsPos > -1
+      ? html.slice(0, nbsPos) + cardsHtml + html.slice(nbsPos)
+      : html + cardsHtml;
   }
   return html;
 }
