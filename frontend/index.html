@@ -581,6 +581,39 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 .empty-state { text-align:center; padding:3rem 2rem; color:var(--text2); }
 .empty-state h3 { font-size:16px; font-weight:700; margin-bottom:8px; color:var(--text); }
 .empty-state p { font-size:13px; }
+
+/* ── Manual Prospect Entry ── */
+.add-prospect-btn { background:none; color:#1565c0; border:2px solid #1565c0; border-radius:var(--radius); padding:8px 16px; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; height:37px; font-family:inherit; transition:all .15s; }
+.add-prospect-btn:hover { background:#e3f2fd; }
+.manual-entry-panel { display:none; background:var(--bg); border:1px solid rgba(21,101,192,0.25); border-top:3px solid #1565c0; border-radius:var(--radius-lg); padding:1.25rem; margin-bottom:1.25rem; box-shadow:var(--shadow); }
+.manual-entry-panel.open { display:block; animation:slideDown 0.22s ease; }
+@keyframes slideDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+.me-title { font-size:14px; font-weight:700; color:var(--text); margin-bottom:1rem; display:flex; align-items:center; justify-content:space-between; }
+.me-row { display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+.me-field { display:flex; flex-direction:column; flex:1; min-width:140px; }
+.me-field.narrow { flex:0 0 100px; min-width:80px; }
+.me-label { font-size:11px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:5px; }
+.me-input { border:1px solid var(--border2); border-radius:var(--radius); padding:8px 10px; font-size:13px; font-family:inherit; background:var(--bg); color:var(--text); width:100%; box-sizing:border-box; }
+.me-input:focus { outline:none; border-color:#1565c0; box-shadow:0 0 0 3px rgba(21,101,192,0.12); }
+.me-error { color:var(--red-text); font-size:12px; font-weight:600; margin-bottom:10px; padding:8px 12px; background:var(--red-bg); border-radius:var(--radius); display:none; }
+.me-error.visible { display:block; }
+.me-actions { display:flex; gap:8px; align-items:center; margin-top:6px; flex-wrap:wrap; }
+.me-submit-btn { background:#1565c0; color:#fff; border:none; border-radius:var(--radius); padding:9px 24px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+.me-submit-btn:hover { background:#0d47a1; }
+.me-submit-btn:disabled { background:#999; cursor:not-allowed; }
+.me-cancel-btn { background:none; border:1px solid var(--border2); border-radius:var(--radius); padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; color:var(--text2); }
+.me-cancel-btn:hover { background:var(--bg3); }
+.me-status { font-size:12px; color:var(--text2); font-style:italic; }
+/* Inbound Lead badge */
+.inbound-badge { display:inline-block; background:#16a34a; color:#fff; font-size:9px; font-weight:700; padding:2px 7px; border-radius:8px; margin-left:5px; vertical-align:middle; letter-spacing:0.3px; white-space:nowrap; }
+/* Quick Add Bar */
+.quick-add-bar { display:flex; gap:8px; align-items:center; margin-bottom:10px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:9px 14px; box-shadow:var(--shadow); }
+.quick-add-label { font-size:11px; font-weight:700; color:var(--text2); white-space:nowrap; flex-shrink:0; }
+.quick-add-input { flex:1; border:1px solid var(--border2); border-radius:var(--radius); padding:7px 12px; font-size:12.5px; font-family:inherit; background:var(--bg); color:var(--text); min-width:0; }
+.quick-add-input:focus { outline:none; border-color:#1565c0; }
+.quick-add-btn { background:#16a34a; color:#fff; border:none; border-radius:var(--radius); padding:7px 16px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; flex-shrink:0; }
+.quick-add-btn:hover { background:#15803d; }
+.quick-add-btn:disabled { background:#999; cursor:not-allowed; }
 </style>
 </head>
 <body>
@@ -714,8 +747,54 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
       </div>
       <div class="market-field">
         <div class="field-label">&nbsp;</div>
-        <button class="find-btn" id="find-btn" onclick="findProspects()">Find Prospects</button>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="find-btn" id="find-btn" onclick="findProspects()">Find Prospects</button>
+          <button class="add-prospect-btn" onclick="toggleManualEntry()">+ Add Manually</button>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Manual Entry Panel -->
+  <div id="manual-entry-panel" class="manual-entry-panel">
+    <div class="me-title">
+      <span>✏️ Add Prospect Manually</span>
+      <button class="me-cancel-btn" onclick="toggleManualEntry()">✕ Close</button>
+    </div>
+    <div class="me-error" id="me-error"></div>
+    <div class="me-row">
+      <div class="me-field">
+        <div class="me-label">Business Name</div>
+        <input class="me-input" id="me-name" type="text" placeholder="e.g. Joe's Plumbing Co.">
+      </div>
+      <div class="me-field">
+        <div class="me-label">Website URL</div>
+        <input class="me-input" id="me-url" type="url" placeholder="https://example.com">
+      </div>
+    </div>
+    <div class="me-row">
+      <div class="me-field">
+        <div class="me-label">Niche / Industry</div>
+        <select class="me-input" id="me-niche">
+          <option value="">— Select or leave blank —</option>
+          <option>Restaurant</option><option>Med Spa</option><option>Dental Clinic</option>
+          <option>Gym</option><option>Law Firm</option><option>Real Estate Agency</option>
+          <option>Roofing Company</option><option>Plumbing Company</option>
+          <option>Hair Salon</option><option>Chiropractor</option>
+        </select>
+      </div>
+      <div class="me-field">
+        <div class="me-label">City</div>
+        <input class="me-input" id="me-city" type="text" placeholder="e.g. Houston">
+      </div>
+      <div class="me-field narrow">
+        <div class="me-label">State</div>
+        <input class="me-input" id="me-state" type="text" placeholder="e.g. TX" maxlength="2">
+      </div>
+    </div>
+    <div class="me-actions">
+      <button class="me-submit-btn" id="me-submit-btn" onclick="submitManualEntry()">Add Prospect →</button>
+      <span class="me-status" id="me-status"></span>
     </div>
   </div>
 
@@ -727,6 +806,15 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
       <div class="sum-item"><div class="sum-dot" style="background:#f97316"></div><span id="sum-noweb">0 no website</span></div>
       <div class="sum-item"><div class="sum-dot" style="background:#a78bfa"></div><span id="sum-lowrating">0 low rating</span></div>
     </div>
+    <!-- Quick-Add Inbound Lead Bar -->
+    <div class="quick-add-bar">
+      <span class="quick-add-label">⚡ Quick Add</span>
+      <input class="quick-add-input" id="quick-add-input" type="text"
+        placeholder="Paste website URL or business name to instantly add inbound lead"
+        onkeydown="if(event.key==='Enter')quickAddLead()">
+      <button class="quick-add-btn" id="quick-add-btn" onclick="quickAddLead()">+ Add Lead</button>
+    </div>
+
     <div id="filter-bar">
       <span class="chip" data-filter="has-website" onclick="toggleFilter(this)">Has Website</span>
       <span class="chip" data-filter="no-website" onclick="toggleFilter(this)">No Website</span>
@@ -1152,7 +1240,7 @@ function renderTableBody() {
     row.className = isExpanded ? 'expanded' : '';
     row.onclick = () => togglePanel(idx);
     row.innerHTML = `
-      <td><div class="biz-name" title="${esc(lead.name)}">${esc(lead.name)}</div></td>
+      <td><div class="biz-name" title="${esc(lead.name)}">${esc(lead.name)}${lead.source === 'Inbound' ? '<span class="inbound-badge">Inbound</span>' : ''}</div></td>
       <td style="overflow:hidden"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${lead.website ? `<a class="biz-link" href="${esc(lead.website)}" target="_blank" onclick="event.stopPropagation()" rel="noreferrer">${shortUrl(lead.website)}</a>` : '<span class="no-web">No Website</span>'}</div></td>
       <td style="font-size:11px;white-space:nowrap;overflow:visible">${esc(lead.phone || '—')}</td>
       <td style="font-size:11px;overflow:hidden"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${lead.email ? `<span title="${esc(lead.email)}">${esc(lead.email.split('@')[0])}@…</span>` : '<span style="color:var(--text3)">—</span>'}</div></td>
@@ -2520,6 +2608,283 @@ function clearOutreachData() {
   omFilter = 'All';
   omSearch = '';
   renderOutreachManager();
+}
+
+// ── Manual Prospect Entry ───────────────────────────────────────────────────
+function toggleManualEntry() {
+  const panel = document.getElementById('manual-entry-panel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) {
+    // Pre-fill niche/city from current market selections
+    const meNiche = document.getElementById('me-niche');
+    const meCity  = document.getElementById('me-city');
+    if (currentNiche && meNiche) meNiche.value = currentNiche;
+    if (currentCity  && meCity)  meCity.value  = currentCity;
+    // Clear any previous error/status
+    document.getElementById('me-error').classList.remove('visible');
+    document.getElementById('me-status').textContent = '';
+    // Scroll panel into view
+    setTimeout(() => panel.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+  }
+}
+
+async function submitManualEntry() {
+  const nameEl   = document.getElementById('me-name');
+  const urlEl    = document.getElementById('me-url');
+  const nicheEl  = document.getElementById('me-niche');
+  const cityEl   = document.getElementById('me-city');
+  const stateEl  = document.getElementById('me-state');
+  const errEl    = document.getElementById('me-error');
+  const statusEl = document.getElementById('me-status');
+  const btn      = document.getElementById('me-submit-btn');
+
+  const name  = nameEl.value.trim();
+  const url   = urlEl.value.trim();
+  const niche = nicheEl.value || currentNiche;
+  const city  = cityEl.value.trim() || currentCity;
+  const state = stateEl.value.trim();
+
+  // Validation
+  if (!name && !url) {
+    errEl.textContent = 'Please enter at least a business name or website URL.';
+    errEl.classList.add('visible');
+    return;
+  }
+  errEl.classList.remove('visible');
+
+  btn.disabled = true;
+  btn.textContent = 'Adding...';
+  statusEl.textContent = '';
+
+  const keys = getKeys();
+
+  try {
+    // Step 1: Extract details via Claude if we have an Anthropic key
+    let extracted = {};
+    if (keys.anthropic && (url || name)) {
+      statusEl.textContent = '🤖 Extracting details...';
+      try {
+        const resp = await fetch(`${BASE_URL}/api/extract`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-anthropic-key': keys.anthropic },
+          body: JSON.stringify({ url, name, niche, city })
+        });
+        if (resp.ok) extracted = await resp.json();
+      } catch (e) { /* extraction failed silently — proceed with raw input */ }
+    }
+
+    // Build lead: manual input takes priority over extracted
+    const leadName    = name || extracted.name || 'Inbound Lead';
+    const leadWebsite = url  || extracted.website || null;
+    let domain = '';
+    if (leadWebsite) {
+      try { domain = new URL(leadWebsite.startsWith('http') ? leadWebsite : 'https://' + leadWebsite).hostname.replace('www.', ''); }
+      catch {}
+    }
+
+    // Step 2: Find email via Hunter.io (direct browser call — Hunter supports CORS)
+    let email = '';
+    if (domain && keys.hunter) {
+      statusEl.textContent = '📧 Finding email via Hunter.io...';
+      try {
+        const hResp = await fetch(
+          `https://api.hunter.io/v2/domain-search?domain=${encodeURIComponent(domain)}&limit=1&api_key=${encodeURIComponent(keys.hunter)}`
+        );
+        if (hResp.ok) {
+          const hData = await hResp.json();
+          const first = hData?.data?.emails?.[0];
+          if (first) email = first.value;
+        }
+      } catch (e) { /* Hunter failed silently */ }
+    }
+
+    // Step 3: Build lead object
+    const entryNiche = niche || 'Restaurant';
+    const lead = {
+      name:        leadName,
+      website:     leadWebsite,
+      phone:       extracted.phone || null,
+      email:       email || null,
+      rating:      null,
+      reviews:     0,
+      address:     extracted.address || (city ? `${city}${state ? ', ' + state : ''}` : ''),
+      lat:         null,
+      lng:         null,
+      source:      'Inbound',
+      score:       7     // inbound leads default to Warm/Hot
+    };
+    lead.revenueLoss = calcRevenueLoss(lead, entryNiche);
+    lead.oppScore    = oppScore(lead.revenueLoss, entryNiche);
+
+    // Step 4: Ensure global context is set
+    if (!currentNiche) currentNiche = entryNiche;
+    if (!currentCity)  currentCity  = city || 'Unknown';
+
+    // Prepend to leads array
+    leads.unshift(lead);
+
+    // Mark as Contacted
+    const statuses = JSON.parse(localStorage.getItem('lg_status') || '{}');
+    statuses[lead.name] = 'Contacted';
+    localStorage.setItem('lg_status', JSON.stringify(statuses));
+
+    saveLeadsToStorage();
+    saveStats('prospects', 1);
+
+    // Show prospects section
+    document.getElementById('prospects-section').style.display = 'block';
+    document.getElementById('summary-bar').style.display = 'flex';
+    document.getElementById('filter-bar').style.display = 'flex';
+    updateSummary();
+
+    // Render table (sorted by score; inbound at 7 will usually be near top)
+    filteredLeads = [...leads];
+    filteredLeads.sort((a, b) => b.score - a.score);
+    renderTableBody();
+
+    // Close panel and open snapshot
+    toggleManualEntry();
+
+    setTimeout(() => {
+      const newIdx = filteredLeads.findIndex(l => l === lead);
+      if (newIdx !== -1) {
+        expandedIdx = newIdx;
+        renderTableBody();
+        setTimeout(() => {
+          const snapEl = document.getElementById(`snap-${newIdx}`);
+          if (snapEl) snapEl.closest('tr')?.previousElementSibling?.scrollIntoView({ behavior:'smooth', block:'start' });
+        }, 100);
+      }
+    }, 250);
+
+    // Reset form
+    nameEl.value = '';
+    urlEl.value  = '';
+    statusEl.textContent = '✓ Lead added!';
+
+  } catch (e) {
+    statusEl.textContent = '⚠ Error: ' + e.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Add Prospect →';
+  }
+}
+
+async function quickAddLead() {
+  const input = document.getElementById('quick-add-input');
+  const btn   = document.getElementById('quick-add-btn');
+  const val   = input.value.trim();
+  if (!val) return;
+
+  // Determine if it's a URL or a business name
+  let url = '', name = '';
+  const looksLikeUrl = val.startsWith('http') || (/\.[a-z]{2,}$/i.test(val) && !val.includes(' '));
+  if (looksLikeUrl) {
+    url = val.startsWith('http') ? val : 'https://' + val;
+  } else {
+    name = val;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Adding...';
+
+  const keys = getKeys();
+
+  try {
+    // Extract via Claude
+    let extracted = {};
+    if (keys.anthropic) {
+      try {
+        const resp = await fetch(`${BASE_URL}/api/extract`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-anthropic-key': keys.anthropic },
+          body: JSON.stringify({ url, name, niche: currentNiche, city: currentCity })
+        });
+        if (resp.ok) extracted = await resp.json();
+      } catch {}
+    }
+
+    const leadName    = name || extracted.name || url || 'Inbound Lead';
+    const leadWebsite = url  || extracted.website || null;
+    let domain = '';
+    if (leadWebsite) {
+      try { domain = new URL(leadWebsite.startsWith('http') ? leadWebsite : 'https://' + leadWebsite).hostname.replace('www.', ''); }
+      catch {}
+    }
+
+    // Hunter.io email lookup
+    let email = '';
+    if (domain && keys.hunter) {
+      try {
+        const hResp = await fetch(
+          `https://api.hunter.io/v2/domain-search?domain=${encodeURIComponent(domain)}&limit=1&api_key=${encodeURIComponent(keys.hunter)}`
+        );
+        if (hResp.ok) {
+          const hData = await hResp.json();
+          const first = hData?.data?.emails?.[0];
+          if (first) email = first.value;
+        }
+      } catch {}
+    }
+
+    const entryNiche = currentNiche || 'Restaurant';
+    const lead = {
+      name:        leadName,
+      website:     leadWebsite,
+      phone:       extracted.phone || null,
+      email:       email || null,
+      rating:      null,
+      reviews:     0,
+      address:     extracted.address || currentCity || '',
+      lat:         null,
+      lng:         null,
+      source:      'Inbound',
+      score:       7
+    };
+    lead.revenueLoss = calcRevenueLoss(lead, entryNiche);
+    lead.oppScore    = oppScore(lead.revenueLoss, entryNiche);
+
+    if (!currentNiche) currentNiche = entryNiche;
+
+    leads.unshift(lead);
+
+    const statuses = JSON.parse(localStorage.getItem('lg_status') || '{}');
+    statuses[lead.name] = 'Contacted';
+    localStorage.setItem('lg_status', JSON.stringify(statuses));
+
+    saveLeadsToStorage();
+    saveStats('prospects', 1);
+
+    document.getElementById('prospects-section').style.display = 'block';
+    document.getElementById('summary-bar').style.display = 'flex';
+    document.getElementById('filter-bar').style.display = 'flex';
+    updateSummary();
+
+    filteredLeads = [...leads];
+    filteredLeads.sort((a, b) => b.score - a.score);
+    renderTableBody();
+
+    input.value = '';
+
+    // Open snapshot for the new lead
+    setTimeout(() => {
+      const newIdx = filteredLeads.findIndex(l => l === lead);
+      if (newIdx !== -1) {
+        expandedIdx = newIdx;
+        renderTableBody();
+        setTimeout(() => {
+          const snapEl = document.getElementById(`snap-${newIdx}`);
+          if (snapEl) snapEl.closest('tr')?.previousElementSibling?.scrollIntoView({ behavior:'smooth', block:'start' });
+        }, 100);
+      }
+    }, 150);
+
+  } catch (e) {
+    alert('Error adding lead: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '+ Add Lead';
+  }
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────
