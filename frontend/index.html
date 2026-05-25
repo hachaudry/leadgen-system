@@ -614,6 +614,27 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 .quick-add-btn { background:#16a34a; color:#fff; border:none; border-radius:var(--radius); padding:7px 16px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; flex-shrink:0; }
 .quick-add-btn:hover { background:#15803d; }
 .quick-add-btn:disabled { background:#999; cursor:not-allowed; }
+/* Required asterisk */
+.me-req { color:var(--red); margin-left:2px; font-weight:700; }
+/* Field-level validation highlight */
+.me-input.field-error { border-color:var(--red) !important; box-shadow:0 0 0 3px rgba(198,40,40,0.12) !important; }
+/* Helper / hint text below a field */
+.me-helper { font-size:11px; color:var(--text3); margin-top:4px; line-height:1.4; }
+/* Quick-add inline location panel */
+.qa-loc-panel { display:none; background:#f0f7ff; border:1px solid rgba(21,101,192,0.22); border-top:none; border-radius:0 0 var(--radius-lg) var(--radius-lg); padding:12px 14px 14px; margin-top:-10px; margin-bottom:10px; }
+.qa-loc-panel.open { display:block; animation:slideDown 0.2s ease; }
+.qa-loc-hint { font-size:11.5px; color:#1565c0; font-weight:600; margin-bottom:10px; }
+.qa-loc-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+.qa-loc-field { display:flex; flex-direction:column; flex:1; min-width:120px; }
+.qa-loc-label { font-size:10.5px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:4px; }
+.qa-loc-input { border:1px solid var(--border2); border-radius:var(--radius); padding:7px 10px; font-size:12.5px; font-family:inherit; background:var(--bg); color:var(--text); width:100%; }
+.qa-loc-input:focus { outline:none; border-color:#1565c0; box-shadow:0 0 0 3px rgba(21,101,192,0.12); }
+.qa-loc-input.field-error { border-color:var(--red) !important; box-shadow:0 0 0 3px rgba(198,40,40,0.12) !important; }
+.qa-confirm-btn { background:#1565c0; color:#fff; border:none; border-radius:var(--radius); padding:8px 20px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.qa-confirm-btn:hover { background:#0d47a1; }
+.qa-confirm-btn:disabled { background:#999; cursor:not-allowed; }
+.qa-cancel-link { background:none; border:none; font-size:12px; color:var(--text3); cursor:pointer; font-family:inherit; text-decoration:underline; padding:0; }
+.qa-cancel-link:hover { color:var(--text2); }
 </style>
 </head>
 <body>
@@ -762,16 +783,18 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
       <button class="me-cancel-btn" onclick="toggleManualEntry()">✕ Close</button>
     </div>
     <div class="me-error" id="me-error"></div>
+    <!-- Row 1: Name + URL (at least one required) -->
     <div class="me-row">
       <div class="me-field">
-        <div class="me-label">Business Name</div>
+        <div class="me-label">Business Name <span class="me-req">*</span><span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0"> or URL</span></div>
         <input class="me-input" id="me-name" type="text" placeholder="e.g. Joe's Plumbing Co.">
       </div>
       <div class="me-field">
-        <div class="me-label">Website URL</div>
+        <div class="me-label">Website URL <span class="me-req">*</span><span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0"> or Name</span></div>
         <input class="me-input" id="me-url" type="url" placeholder="https://example.com">
       </div>
     </div>
+    <!-- Row 2: Niche + City* + State* -->
     <div class="me-row">
       <div class="me-field">
         <div class="me-label">Niche / Industry</div>
@@ -784,16 +807,26 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
         </select>
       </div>
       <div class="me-field">
-        <div class="me-label">City</div>
-        <input class="me-input" id="me-city" type="text" placeholder="e.g. Houston">
+        <div class="me-label">City <span class="me-req">*</span></div>
+        <input class="me-input" id="me-city" type="text" placeholder="e.g. Los Angeles"
+          title="Used to find your prospect on Google Maps and compare against local competitors">
+        <div class="me-helper">📍 Used for Google Maps lookup &amp; local competitor radius</div>
       </div>
-      <div class="me-field narrow">
-        <div class="me-label">State</div>
-        <input class="me-input" id="me-state" type="text" placeholder="e.g. TX" maxlength="2">
+      <div class="me-field" style="flex:0 0 190px;min-width:150px">
+        <div class="me-label">State <span class="me-req">*</span></div>
+        <select class="me-input" id="me-state"><option value="">— State —</option></select>
+      </div>
+    </div>
+    <!-- Row 3: Sub-area (optional) -->
+    <div class="me-row">
+      <div class="me-field">
+        <div class="me-label">Sub-area / Neighborhood <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></div>
+        <input class="me-input" id="me-subarea" type="text" placeholder="e.g. Beverly Hills, Downtown, Silver Lake">
+        <div class="me-helper">Adding a neighborhood improves competitor radius accuracy</div>
       </div>
     </div>
     <div class="me-actions">
-      <button class="me-submit-btn" id="me-submit-btn" onclick="submitManualEntry()">Add Prospect →</button>
+      <button class="me-submit-btn" id="me-submit-btn" onclick="submitManualEntry()">Add to Pipeline →</button>
       <span class="me-status" id="me-status"></span>
     </div>
   </div>
@@ -805,6 +838,31 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
       placeholder="Paste website URL or business name to instantly add inbound lead"
       onkeydown="if(event.key==='Enter')quickAddLead()">
     <button class="quick-add-btn" id="quick-add-btn" onclick="quickAddLead()">+ Add Lead</button>
+  </div>
+  <!-- Inline location step — slides down after URL/name entered -->
+  <div id="qa-loc-panel" class="qa-loc-panel">
+    <div class="qa-loc-hint">📍 Location is needed for GMB lookup and competitor analysis within your area.</div>
+    <div class="qa-loc-row">
+      <div class="qa-loc-field">
+        <div class="qa-loc-label">City <span class="me-req">*</span></div>
+        <input class="qa-loc-input" id="qa-city" type="text" placeholder="e.g. Los Angeles"
+          onkeydown="if(event.key==='Enter')quickConfirmAdd()">
+      </div>
+      <div class="qa-loc-field" style="flex:0 0 190px;min-width:150px">
+        <div class="qa-loc-label">State <span class="me-req">*</span></div>
+        <select class="qa-loc-input" id="qa-state"><option value="">— State —</option></select>
+      </div>
+      <div class="qa-loc-field">
+        <div class="qa-loc-label">Sub-area / Neighborhood <span style="font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></div>
+        <input class="qa-loc-input" id="qa-subarea" type="text" placeholder="e.g. Beverly Hills, Downtown"
+          onkeydown="if(event.key==='Enter')quickConfirmAdd()">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="qa-confirm-btn" id="qa-confirm-btn" onclick="quickConfirmAdd()">✓ Confirm and Add</button>
+      <button class="qa-cancel-link" onclick="quickCancelAdd()">Cancel</button>
+      <span id="qa-status" style="font-size:12px;color:var(--text2);font-style:italic"></span>
+    </div>
   </div>
 
   <!-- Section 2: Prospects -->
@@ -983,11 +1041,35 @@ const BASE_URL = window.location.hostname === 'localhost' || window.location.hos
   ? 'http://localhost:3000'
   : '';
 
+// ── US States list (for manual-entry and quick-add selects) ───────────────
+const US_STATES = [
+  ['AL','Alabama'],['AK','Alaska'],['AZ','Arizona'],['AR','Arkansas'],['CA','California'],
+  ['CO','Colorado'],['CT','Connecticut'],['DE','Delaware'],['FL','Florida'],['GA','Georgia'],
+  ['HI','Hawaii'],['ID','Idaho'],['IL','Illinois'],['IN','Indiana'],['IA','Iowa'],
+  ['KS','Kansas'],['KY','Kentucky'],['LA','Louisiana'],['ME','Maine'],['MD','Maryland'],
+  ['MA','Massachusetts'],['MI','Michigan'],['MN','Minnesota'],['MS','Mississippi'],['MO','Missouri'],
+  ['MT','Montana'],['NE','Nebraska'],['NV','Nevada'],['NH','New Hampshire'],['NJ','New Jersey'],
+  ['NM','New Mexico'],['NY','New York'],['NC','North Carolina'],['ND','North Dakota'],['OH','Ohio'],
+  ['OK','Oklahoma'],['OR','Oregon'],['PA','Pennsylvania'],['RI','Rhode Island'],['SC','South Carolina'],
+  ['SD','South Dakota'],['TN','Tennessee'],['TX','Texas'],['UT','Utah'],['VT','Vermont'],
+  ['VA','Virginia'],['WA','Washington'],['WV','West Virginia'],['WI','Wisconsin'],['WY','Wyoming']
+];
+const STATE_OPTS_HTML = '<option value="">— State —</option>' +
+  US_STATES.map(([a,n]) => `<option value="${a}">${a} — ${n}</option>`).join('');
+
+function initStateSelects() {
+  ['me-state','qa-state'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = STATE_OPTS_HTML;
+  });
+}
+
 // ── State ─────────────────────────────────────────────────────────────────
 let leads = [];
 let filteredLeads = [];
 let currentNiche = '';
 let currentCity = '';
+let currentState = '';
 let expandedIdx = -1;
 let activeFilters = new Set();
 let reportCache = {};
@@ -1124,7 +1206,8 @@ async function findProspects() {
   }
 
   currentNiche = niche;
-  currentCity = subarea || city;
+  currentCity  = subarea || city;
+  currentState = document.getElementById('sel-state').value || '';
   const searchLocation = subarea ? `${subarea}, ${city}` : city;
   reportCache = {}; pitchCache = {}; videoPitchCache = {};
 
@@ -2647,48 +2730,77 @@ function toggleManualEntry() {
   const panel = document.getElementById('manual-entry-panel');
   panel.classList.toggle('open');
   if (panel.classList.contains('open')) {
-    // Pre-fill niche/city from current market selections
-    const meNiche = document.getElementById('me-niche');
-    const meCity  = document.getElementById('me-city');
+    // Pre-fill niche/city/state from current market selections
+    const meNiche   = document.getElementById('me-niche');
+    const meCity    = document.getElementById('me-city');
+    const meState   = document.getElementById('me-state');
+    const meSubarea = document.getElementById('me-subarea');
     if (currentNiche && meNiche) meNiche.value = currentNiche;
     if (currentCity  && meCity)  meCity.value  = currentCity;
-    // Clear any previous error/status
+    if (currentState && meState) meState.value = currentState;
+    // Clear any previous error/status and field highlights
     document.getElementById('me-error').classList.remove('visible');
     document.getElementById('me-status').textContent = '';
+    ['me-name','me-url','me-city','me-state'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('field-error');
+    });
     // Scroll panel into view
     setTimeout(() => panel.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
   }
 }
 
 async function submitManualEntry() {
-  const nameEl   = document.getElementById('me-name');
-  const urlEl    = document.getElementById('me-url');
-  const nicheEl  = document.getElementById('me-niche');
-  const cityEl   = document.getElementById('me-city');
-  const stateEl  = document.getElementById('me-state');
-  const errEl    = document.getElementById('me-error');
-  const statusEl = document.getElementById('me-status');
-  const btn      = document.getElementById('me-submit-btn');
+  const nameEl    = document.getElementById('me-name');
+  const urlEl     = document.getElementById('me-url');
+  const nicheEl   = document.getElementById('me-niche');
+  const cityEl    = document.getElementById('me-city');
+  const stateEl   = document.getElementById('me-state');
+  const subareaEl = document.getElementById('me-subarea');
+  const errEl     = document.getElementById('me-error');
+  const statusEl  = document.getElementById('me-status');
+  const btn       = document.getElementById('me-submit-btn');
 
-  const name  = nameEl.value.trim();
-  const url   = urlEl.value.trim();
-  const niche = nicheEl.value || currentNiche;
-  const city  = cityEl.value.trim() || currentCity;
-  const state = stateEl.value.trim();
+  const name    = nameEl.value.trim();
+  const url     = urlEl.value.trim();
+  const niche   = nicheEl.value || currentNiche;
+  const city    = cityEl.value.trim();
+  const state   = stateEl.value.trim();
+  const subarea = subareaEl ? subareaEl.value.trim() : '';
+
+  // Clear previous field errors
+  [nameEl, urlEl, cityEl, stateEl].forEach(el => el && el.classList.remove('field-error'));
+  errEl.classList.remove('visible');
 
   // Validation
+  let errors = [];
   if (!name && !url) {
-    errEl.textContent = 'Please enter at least a business name or website URL.';
+    errors.push('Please enter at least a Business Name or Website URL.');
+    nameEl.classList.add('field-error');
+    urlEl.classList.add('field-error');
+  }
+  if (!city) {
+    errors.push('City is required for GMB data and competitor analysis.');
+    cityEl.classList.add('field-error');
+  }
+  if (!state) {
+    errors.push('State is required for GMB data and competitor analysis.');
+    stateEl.classList.add('field-error');
+  }
+  if (errors.length) {
+    errEl.textContent = errors.length === 1
+      ? errors[0]
+      : 'City and State are required for GMB data and competitor analysis. Please add location details.';
     errEl.classList.add('visible');
     return;
   }
-  errEl.classList.remove('visible');
 
   btn.disabled = true;
   btn.textContent = 'Adding...';
   statusEl.textContent = '';
 
   const keys = getKeys();
+  const locationStr = subarea ? `${subarea}, ${city}, ${state}` : `${city}, ${state}`;
 
   try {
     // Step 1: Extract details via Claude if we have an Anthropic key
@@ -2699,7 +2811,7 @@ async function submitManualEntry() {
         const resp = await fetch(`${BASE_URL}/api/extract`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-anthropic-key': keys.anthropic },
-          body: JSON.stringify({ url, name, niche, city })
+          body: JSON.stringify({ url, name, niche, city: locationStr })
         });
         if (resp.ok) extracted = await resp.json();
       } catch (e) { /* extraction failed silently — proceed with raw input */ }
@@ -2739,18 +2851,22 @@ async function submitManualEntry() {
       email:       email || null,
       rating:      null,
       reviews:     0,
-      address:     extracted.address || (city ? `${city}${state ? ', ' + state : ''}` : ''),
+      address:     extracted.address || locationStr,
+      city:        city,
+      state:       state,
+      subarea:     subarea || null,
       lat:         null,
       lng:         null,
       source:      'Inbound',
-      score:       7     // inbound leads default to Warm/Hot
+      score:       7
     };
     lead.revenueLoss = calcRevenueLoss(lead, entryNiche);
     lead.oppScore    = oppScore(lead.revenueLoss, entryNiche);
 
     // Step 4: Ensure global context is set
     if (!currentNiche) currentNiche = entryNiche;
-    if (!currentCity)  currentCity  = city || 'Unknown';
+    if (!currentCity)  currentCity  = subarea || city;
+    if (!currentState) currentState = state;
 
     // Prepend to leads array
     leads.unshift(lead);
@@ -2769,7 +2885,7 @@ async function submitManualEntry() {
     document.getElementById('filter-bar').style.display = 'flex';
     updateSummary();
 
-    // Render table (sorted by score; inbound at 7 will usually be near top)
+    // Render table
     filteredLeads = [...leads];
     filteredLeads.sort((a, b) => b.score - a.score);
     renderTableBody();
@@ -2789,48 +2905,100 @@ async function submitManualEntry() {
       }
     }, 250);
 
-    // Reset form
+    // Reset form fields
     nameEl.value = '';
     urlEl.value  = '';
+    if (subareaEl) subareaEl.value = '';
     statusEl.textContent = '✓ Lead added!';
 
   } catch (e) {
     statusEl.textContent = '⚠ Error: ' + e.message;
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Add Prospect →';
+    btn.textContent = 'Add to Pipeline →';
   }
 }
 
-async function quickAddLead() {
-  const input = document.getElementById('quick-add-input');
-  const btn   = document.getElementById('quick-add-btn');
-  const val   = input.value.trim();
-  if (!val) return;
+// Step 1: validate input, show location panel
+function quickAddLead() {
+  const input   = document.getElementById('quick-add-input');
+  const locPanel = document.getElementById('qa-loc-panel');
+  const val     = input.value.trim();
+  if (!val) { input.focus(); return; }
 
-  // Determine if it's a URL or a business name
-  let url = '', name = '';
-  const looksLikeUrl = val.startsWith('http') || (/\.[a-z]{2,}$/i.test(val) && !val.includes(' '));
-  if (looksLikeUrl) {
-    url = val.startsWith('http') ? val : 'https://' + val;
-  } else {
-    name = val;
+  // Pre-fill city/state from current search context if available
+  const qaCity  = document.getElementById('qa-city');
+  const qaState = document.getElementById('qa-state');
+  if (qaCity  && currentCity  && !qaCity.value)  qaCity.value  = currentCity;
+  if (qaState && currentState && !qaState.value) qaState.value = currentState;
+
+  // Clear previous errors
+  if (qaCity)  qaCity.classList.remove('field-error');
+  if (qaState) qaState.classList.remove('field-error');
+  document.getElementById('qa-status').textContent = '';
+
+  // Adjust bar border-radius to connect visually with panel
+  const bar = document.getElementById('quick-add-bar');
+  if (bar) bar.style.borderRadius = 'var(--radius-lg) var(--radius-lg) 0 0';
+
+  locPanel.classList.add('open');
+  setTimeout(() => { if (qaCity && !qaCity.value) qaCity.focus(); }, 50);
+}
+
+// Step 2: validate location and execute the add
+async function quickConfirmAdd() {
+  const input    = document.getElementById('quick-add-input');
+  const qaCity   = document.getElementById('qa-city');
+  const qaState  = document.getElementById('qa-state');
+  const qaSub    = document.getElementById('qa-subarea');
+  const statusEl = document.getElementById('qa-status');
+  const confirmBtn = document.getElementById('qa-confirm-btn');
+
+  const val     = input.value.trim();
+  const city    = qaCity  ? qaCity.value.trim()  : '';
+  const state   = qaState ? qaState.value.trim() : '';
+  const subarea = qaSub   ? qaSub.value.trim()   : '';
+
+  // Clear errors
+  if (qaCity)  qaCity.classList.remove('field-error');
+  if (qaState) qaState.classList.remove('field-error');
+
+  // Validate
+  let valid = true;
+  if (!city)  { if (qaCity)  qaCity.classList.add('field-error');  valid = false; }
+  if (!state) { if (qaState) qaState.classList.add('field-error'); valid = false; }
+  if (!valid) {
+    statusEl.textContent = '⚠ City and State are required.';
+    return;
+  }
+  if (!val) {
+    quickCancelAdd();
+    return;
   }
 
-  btn.disabled = true;
-  btn.textContent = 'Adding...';
+  // Determine URL vs name
+  let url = '', name = '';
+  const looksLikeUrl = val.startsWith('http') || (/\.[a-z]{2,}$/i.test(val) && !val.includes(' '));
+  if (looksLikeUrl) { url  = val.startsWith('http') ? val : 'https://' + val; }
+  else              { name = val; }
+
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = 'Adding...';
+  statusEl.textContent = '';
 
   const keys = getKeys();
+  const locationStr = subarea ? `${subarea}, ${city}, ${state}` : `${city}, ${state}`;
 
   try {
     // Extract via Claude
     let extracted = {};
     if (keys.anthropic) {
+      statusEl.textContent = '🤖 Extracting details...';
       try {
         const resp = await fetch(`${BASE_URL}/api/extract`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-anthropic-key': keys.anthropic },
-          body: JSON.stringify({ url, name, niche: currentNiche, city: currentCity })
+          body: JSON.stringify({ url, name, niche: currentNiche, city: locationStr })
         });
         if (resp.ok) extracted = await resp.json();
       } catch {}
@@ -2847,6 +3015,7 @@ async function quickAddLead() {
     // Hunter.io email lookup
     let email = '';
     if (domain && keys.hunter) {
+      statusEl.textContent = '📧 Finding email...';
       try {
         const hResp = await fetch(
           `https://api.hunter.io/v2/domain-search?domain=${encodeURIComponent(domain)}&limit=1&api_key=${encodeURIComponent(keys.hunter)}`
@@ -2867,7 +3036,10 @@ async function quickAddLead() {
       email:       email || null,
       rating:      null,
       reviews:     0,
-      address:     extracted.address || currentCity || '',
+      address:     extracted.address || locationStr,
+      city:        city,
+      state:       state,
+      subarea:     subarea || null,
       lat:         null,
       lng:         null,
       source:      'Inbound',
@@ -2877,6 +3049,8 @@ async function quickAddLead() {
     lead.oppScore    = oppScore(lead.revenueLoss, entryNiche);
 
     if (!currentNiche) currentNiche = entryNiche;
+    if (!currentCity)  currentCity  = subarea || city;
+    if (!currentState) currentState = state;
 
     leads.unshift(lead);
 
@@ -2896,7 +3070,9 @@ async function quickAddLead() {
     filteredLeads.sort((a, b) => b.score - a.score);
     renderTableBody();
 
+    // Reset and hide location panel
     input.value = '';
+    quickCancelAdd();
 
     // Open snapshot for the new lead
     setTimeout(() => {
@@ -2912,14 +3088,27 @@ async function quickAddLead() {
     }, 150);
 
   } catch (e) {
-    alert('Error adding lead: ' + e.message);
+    statusEl.textContent = '⚠ Error: ' + e.message;
   } finally {
-    btn.disabled = false;
-    btn.textContent = '+ Add Lead';
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = '✓ Confirm and Add';
   }
 }
 
+function quickCancelAdd() {
+  const locPanel = document.getElementById('qa-loc-panel');
+  const bar      = document.getElementById('quick-add-bar');
+  locPanel.classList.remove('open');
+  if (bar) bar.style.borderRadius = '';
+  document.getElementById('qa-status').textContent = '';
+  const qaCity  = document.getElementById('qa-city');
+  const qaState = document.getElementById('qa-state');
+  if (qaCity)  qaCity.classList.remove('field-error');
+  if (qaState) qaState.classList.remove('field-error');
+}
+
 // ── Init ───────────────────────────────────────────────────────────────────
+initStateSelects();
 loadConfig();
 loadStats();
 </script>
