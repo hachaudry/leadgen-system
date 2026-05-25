@@ -218,7 +218,7 @@ Return ONLY valid JSON:
   "nextBestStep": "Your single best next step: <action>. Here is why this will get you <result> in <timeframe> — <specific reason referencing their keyword gap vs top competitor>."
 }`,
 
-'social': (lead, niche, city) => `You are a senior social media strategist writing a platform audit for a sales presentation.
+'social': (lead, niche, city) => `You are a senior social media strategist writing a full platform audit for a sales presentation.
 
 Business: ${lead.name}
 Type: ${niche}
@@ -226,7 +226,7 @@ City: ${city}
 Website: ${lead.website || 'none'}
 Rating: ${lead.rating || 'unknown'} (${lead.reviews || 0} reviews)
 
-Audit their social media presence across all major platforms. Be specific and sales-oriented.
+Audit their presence across ALL major social platforms. Be specific and sales-oriented. Most small local businesses score 20-45 overall.
 
 Return ONLY valid JSON:
 {
@@ -236,17 +236,20 @@ Return ONLY valid JSON:
   "salesAngle": "<1 sentence hook about their social media gap>",
   "salesSummary": "<2-3 sentences why targeting this prospect for social media management>",
   "subscores": [
-    {"name":"Instagram Presence","score":<0-100>,"status":"<Critical Gap|Needs Improvement|Average|Strong>","detail":"<specific finding — estimated followers, post frequency, engagement>"},
-    {"name":"Facebook Presence","score":<0-100>,"status":"<...>","detail":"<page likes, post activity, reviews>"},
-    {"name":"Google Business Posts","score":<0-100>,"status":"<...>","detail":"<GMB post frequency and content quality>"},
-    {"name":"Content Quality","score":<0-100>,"status":"<...>","detail":"<visual quality, copy, calls to action>"},
-    {"name":"Posting Consistency","score":<0-100>,"status":"<...>","detail":"<estimated frequency vs. competitors>"},
-    {"name":"Engagement Rate","score":<0-100>,"status":"<...>","detail":"<likes, comments, shares vs. industry average>"}
+    {"name":"Instagram","score":<0-100>,"status":"<Critical Gap|Needs Improvement|Average|Strong>","detail":"<estimated followers, post frequency, engagement rate>"},
+    {"name":"Facebook","score":<0-100>,"status":"<...>","detail":"<page likes, post activity, ad presence>"},
+    {"name":"X / Twitter","score":<0-100>,"status":"<...>","detail":"<account presence, tweet frequency, follower estimate>"},
+    {"name":"LinkedIn","score":<0-100>,"status":"<...>","detail":"<company page presence, employee count shown, posts>"},
+    {"name":"YouTube","score":<0-100>,"status":"<...>","detail":"<channel presence, estimated subscribers, video count and recency>"},
+    {"name":"TikTok","score":<0-100>,"status":"<...>","detail":"<account presence, estimated followers, video posting frequency>"}
   ],
   "platformSummary": [
-    {"platform":"Instagram","status":"Active|Inactive|Not Found","followers":"<estimate>","posts":"<estimate>","opportunity":"<one sentence>"},
-    {"platform":"Facebook","status":"Active|Inactive|Not Found","followers":"<estimate>","posts":"<estimate>","opportunity":"<one sentence>"},
-    {"platform":"TikTok","status":"Active|Inactive|Not Found","followers":"<estimate>","posts":"<estimate>","opportunity":"<one sentence>"}
+    {"platform":"Instagram","status":"Active|Inactive|Not Found","followers":"<estimate>","posts":"<estimate per month>","opportunity":"<one sentence specific opportunity>"},
+    {"platform":"Facebook","status":"Active|Inactive|Not Found","followers":"<estimate>","posts":"<estimate per month>","opportunity":"<one sentence>"},
+    {"platform":"X / Twitter","status":"Active|Inactive|Not Found","followers":"<estimate>","posts":"<estimate per month>","opportunity":"<one sentence>"},
+    {"platform":"LinkedIn","status":"Active|Inactive|Not Found","followers":"<estimate>","posts":"<estimate per month>","opportunity":"<one sentence>"},
+    {"platform":"YouTube","status":"Active|Inactive|Not Found","followers":"<estimate subscribers>","posts":"<estimated videos>","opportunity":"<one sentence>"},
+    {"platform":"TikTok","status":"Active|Inactive|Not Found","followers":"<estimate>","posts":"<estimate per month>","opportunity":"<one sentence>"}
   ],
   "painPoints": [
     {"rank":1,"problem":"<biggest social media gap>","costMin":<number>,"costMax":<number>},

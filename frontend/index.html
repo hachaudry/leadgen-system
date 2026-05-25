@@ -155,7 +155,7 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 .snap-top { display:flex; gap:12px; margin-bottom:1rem; align-items:stretch; min-height:150px; }
 .snap-top > .loss-box { width:215px; flex-shrink:0; }
 .snap-top > .contact-box { width:175px; flex-shrink:0; }
-.snap-top > .snap-details { width:230px; flex-shrink:0; }
+.snap-top > .snap-details { width:280px; flex-shrink:0; }
 .snap-top > .snap-pain { flex:1; min-width:0; }
 .snap-card { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem; }
 .snap-card-title { font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:0.75rem; }
@@ -1070,6 +1070,21 @@ function buildSnapPanel(idx, lead) {
   el.innerHTML = `
 <div class="snap-panel">
 
+  <!-- AI Sales Insight — always on top -->
+  <div class="insight-box" style="margin-bottom:1rem">
+    <div class="insight-label">🤖 AI Sales Insight</div>
+    <div class="insight-text">
+      <strong>${esc(lead.name)}</strong> is estimated to be losing
+      <strong style="color:var(--red-text)">$${lead.revenueLoss.toLocaleString()}/month</strong>
+      in digital revenue.
+      ${!lead.website ? 'They have <strong>no website</strong> — every Google search for their niche sends potential customers directly to competitors.' :
+        rating < 4.0 ? `Their <strong>${lead.rating}-star rating</strong> puts them below the trust threshold most buyers require before making contact.` :
+        reviews < 50 ? `With only <strong>${reviews} reviews</strong>, they lack the social proof to compete with top-ranked local alternatives.` :
+        'They have a decent presence but significant gaps in paid ads and conversion optimization.'}
+      Best entry point: <strong>${entryPoint}</strong>.
+    </div>
+  </div>
+
   <!-- Top row: 4 flex columns -->
   <div class="snap-top">
 
@@ -1112,21 +1127,6 @@ function buildSnapPanel(idx, lead) {
           <div class="pain-cost">$${p.costMin.toLocaleString()}–$${p.costMax.toLocaleString()}/mo</div>
         </li>`).join('')}
       </ul>
-    </div>
-  </div>
-
-  <!-- AI Insight (full width) -->
-  <div class="insight-box" style="margin-bottom:1.25rem">
-    <div class="insight-label">🤖 AI Sales Insight</div>
-    <div class="insight-text">
-      <strong>${esc(lead.name)}</strong> is estimated to be losing
-      <strong style="color:var(--red-text)">$${lead.revenueLoss.toLocaleString()}/month</strong>
-      in digital revenue.
-      ${!lead.website ? 'They have <strong>no website</strong> — every Google search for their niche sends potential customers directly to competitors.' :
-        rating < 4.0 ? `Their <strong>${lead.rating}-star rating</strong> puts them below the trust threshold most buyers require before making contact.` :
-        reviews < 50 ? `With only <strong>${reviews} reviews</strong>, they lack the social proof to compete with top-ranked local alternatives.` :
-        'They have a decent presence but significant gaps in paid ads and conversion optimization.'}
-      Best entry point: <strong>${entryPoint}</strong>.
     </div>
   </div>
 
@@ -1467,9 +1467,11 @@ function renderSocialReport(data) {
 
   // Extra: Platform summary cards
   if (data.platformSummary && data.platformSummary.length) {
-    const icons = { Instagram:'📸', Facebook:'👥', TikTok:'🎵' };
+    const icons = { Instagram:'📸', Facebook:'👥', TikTok:'🎵', 'X / Twitter':'🐦', LinkedIn:'💼', YouTube:'▶️' };
     const statusStyle = s => s === 'Active'
       ? 'background:var(--green-bg);color:var(--green-text)'
+      : s === 'Inactive'
+      ? 'background:var(--amber-bg);color:var(--amber-text)'
       : 'background:var(--red-bg);color:var(--red-text)';
     const cardsHtml = `<div class="section-title" style="margin-top:1rem">Platform Breakdown</div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem">
@@ -1477,7 +1479,7 @@ function renderSocialReport(data) {
         <div style="font-size:13px;font-weight:700;margin-bottom:6px">${icons[p.platform]||'📱'} ${esc(p.platform)}</div>
         <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;${statusStyle(p.status)}">${esc(p.status)}</span>
         <div style="font-size:11px;color:var(--text2);margin-top:6px">~${esc(p.followers)} followers</div>
-        <div style="font-size:11px;color:var(--text2)">~${esc(p.posts)} posts</div>
+        <div style="font-size:11px;color:var(--text2)">~${esc(p.posts)} posts/mo</div>
         <div style="font-size:11px;margin-top:5px;color:var(--text);line-height:1.4">${esc(p.opportunity)}</div>
       </div>`).join('')}
     </div>`;
