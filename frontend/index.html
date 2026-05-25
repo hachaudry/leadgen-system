@@ -1865,14 +1865,49 @@ function renderGenericReport(type, d, titleOverride) {
 
 function renderCompetitors(data, lead) {
   const comps = data.competitors || [];
-  if (!comps.length) return '<p style="color:var(--text2);font-size:13px">No competitors found nearby.</p>';
-  const rankClass = r => r==='Market Leader'?'rank-leader':r==='Rising Threat'?'rank-rising':r==='Similar Level'?'rank-similar':'rank-weaker';
+  const rNiche = data.niche || currentNiche || '';
+  const rCity  = data.city  || currentCity  || '';
+  const rState = data.state || currentState || '';
+  const rLoc   = [rCity, rState].filter(Boolean).join(', ') || 'your area';
 
-  // Build prospect's own card for comparison
+  // ── FIX 6: No-results fallback with manual search buttons ──
+  if (!comps.length) {
+    const mapsQ  = encodeURIComponent(`${rNiche} near ${rLoc}`);
+    const yelpQ  = `find_desc=${encodeURIComponent(rNiche)}&find_loc=${encodeURIComponent(rLoc)}`;
+    const googleQ = encodeURIComponent(`best ${rNiche} in ${rLoc}`);
+    return `
+    <div style="background:var(--amber-bg);border:1px solid rgba(180,83,9,0.2);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:1rem">
+      <div style="font-size:13px;font-weight:700;color:var(--amber-text);margin-bottom:6px">⚠ Could not find competitors automatically</div>
+      <div style="font-size:12.5px;color:var(--amber-text);margin-bottom:14px;line-height:1.5">
+        ${lead?.lat || lead?.lng ? 'No businesses found within the search radius.' : 'Coordinates could not be determined for this location.'} Try these manual searches:
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <a href="https://www.google.com/maps/search/${mapsQ}" target="_blank" rel="noreferrer"
+           style="display:inline-block;padding:7px 14px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;font-weight:600;color:#1565c0;text-decoration:none">
+          📍 Search on Google Maps ↗
+        </a>
+        <a href="https://www.yelp.com/search?${yelpQ}" target="_blank" rel="noreferrer"
+           style="display:inline-block;padding:7px 14px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;font-weight:600;color:#d32323;text-decoration:none">
+          🍽 Search on Yelp ↗
+        </a>
+        <a href="https://www.google.com/search?q=${googleQ}" target="_blank" rel="noreferrer"
+           style="display:inline-block;padding:7px 14px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;font-weight:600;color:var(--blue);text-decoration:none">
+          🔍 Search on Google ↗
+        </a>
+      </div>
+    </div>`;
+  }
+
+  const rankClass = r =>
+    r==='Market Leader'  ? 'rank-leader' :
+    r==='Rising Threat'  ? 'rank-rising' :
+    r==='Similar Level'  ? 'rank-similar' : 'rank-weaker';
+
+  // ── Prospect baseline card ──
   const prospectCard = lead ? `
-  <div style="margin-bottom:1rem;">
-    <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px;">Your Prospect (Baseline)</div>
-    <div class="comp-card" style="border:2px solid #1565c0;background:#f0f4ff;">
+  <div style="margin-bottom:1rem">
+    <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">Your Prospect (Baseline)</div>
+    <div class="comp-card" style="border:2px solid #1565c0;background:#f0f4ff">
       <div class="comp-header">
         <div class="comp-name" style="color:#1565c0">${esc(lead.name)}</div>
         <span class="comp-rank" style="background:#e3f2fd;color:#0d47a1">← This Prospect</span>
@@ -1884,22 +1919,22 @@ function renderCompetitors(data, lead) {
       </div>
       <div class="comp-bars">
         <div class="comp-bar-row"><span class="comp-bar-label">SEO</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${lead.website?35:10}%;background:#1565c0"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">${lead.website?35:10}</span></div>
-        <div class="comp-bar-row"><span class="comp-bar-label">Social</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${Math.min(40,lead.reviews||0)/1}%;background:#1565c0"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">~</span></div>
+        <div class="comp-bar-row"><span class="comp-bar-label">Social</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${Math.min(40,lead.reviews||0)}%;background:#1565c0"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">~</span></div>
         <div class="comp-bar-row"><span class="comp-bar-label">Website</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${lead.website?40:5}%;background:#1565c0"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">${lead.website?40:5}</span></div>
       </div>
       <div class="comp-gap" style="color:var(--blue-text)">Run a Local SEO or Website report above to get precise scores vs. these competitors.</div>
     </div>
   </div>` : '';
 
-  return `
-  <h3 style="font-size:14px;font-weight:700;margin-bottom:1rem;">⚔️ Competitor Analysis</h3>
-  ${prospectCard}
-  <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px;">Nearby Competitors</div>
-  <div class="comp-grid">
-    ${comps.map(c => `<div class="comp-card">
+  // ── Competitor cards ──
+  const compCards = comps.map(c => {
+    const mapsLink = `https://www.google.com/maps/search/${encodeURIComponent(c.name + ' ' + rCity)}`;
+    return `<div class="comp-card">
       <div class="comp-header">
-        <div class="comp-name">${esc(c.name)}</div>
-        <span class="comp-rank ${rankClass(c.rank)}">${esc(c.rank)}</span>
+        <div class="comp-name">
+          <a href="${mapsLink}" target="_blank" rel="noreferrer" style="color:inherit;text-decoration:none" title="View on Google Maps">${esc(c.name)} ↗</a>
+        </div>
+        <span class="comp-rank ${rankClass(c.rank)}">${esc(c.rank || 'Competitor')}</span>
       </div>
       <div class="comp-stats">
         <span>★ ${c.rating||'—'}</span>
@@ -1907,14 +1942,23 @@ function renderCompetitors(data, lead) {
         <span>${c.adSpend||'N/A'} ads</span>
       </div>
       <div class="comp-bars">
-        <div class="comp-bar-row"><span class="comp-bar-label">SEO</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${c.seoEstimate||0}%"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">${c.seoEstimate||0}</span></div>
-        <div class="comp-bar-row"><span class="comp-bar-label">Social</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${c.socialEstimate||0}%"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">${c.socialEstimate||0}</span></div>
-        <div class="comp-bar-row"><span class="comp-bar-label">Website</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${c.websiteQuality||0}%"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">${c.websiteQuality||0}</span></div>
+        <div class="comp-bar-row"><span class="comp-bar-label">SEO</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${Math.min(c.seoEstimate||0,100)}%"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">${c.seoEstimate||0}</span></div>
+        <div class="comp-bar-row"><span class="comp-bar-label">Social</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${Math.min(c.socialEstimate||0,100)}%"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">${c.socialEstimate||0}</span></div>
+        <div class="comp-bar-row"><span class="comp-bar-label">Website</span><div class="comp-bar-track"><div class="comp-bar-fill" style="width:${Math.min(c.websiteQuality||0,100)}%"></div></div><span style="font-size:10px;font-weight:600;margin-left:4px">${c.websiteQuality||0}</span></div>
       </div>
-      ${c.website ? `<div style="font-size:10px;color:var(--blue);margin-bottom:4px"><a href="${esc(c.website)}" target="_blank" rel="noreferrer">${shortUrl(c.website)}</a></div>` : ''}
+      <div style="display:flex;gap:8px;align-items:center;margin-top:4px;margin-bottom:4px;flex-wrap:wrap">
+        ${c.website ? `<a href="${esc(c.website)}" target="_blank" rel="noreferrer" style="font-size:10px;color:var(--blue)">${shortUrl(c.website)}</a>` : ''}
+        <a href="${mapsLink}" target="_blank" rel="noreferrer" style="font-size:10px;color:#1a73e8">📍 Maps</a>
+      </div>
       <div class="comp-gap">${esc(c.gap||'')}</div>
-    </div>`).join('')}
-  </div>`;
+    </div>`;
+  }).join('');
+
+  return `
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:1rem">⚔️ Competitor Analysis — ${esc(rNiche)} in ${esc(rLoc)}</h3>
+  ${prospectCard}
+  <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">Nearby Competitors</div>
+  <div class="comp-grid">${compCards}</div>`;
 }
 
 function renderPresenceCards(pd, lead, niche, city) {
@@ -2800,6 +2844,22 @@ function clearOutreachData() {
 }
 
 // ── Manual Prospect Entry ───────────────────────────────────────────────────
+// ── Geocoding helper — converts city+state text to lat/lng via Google Geocoding API ──
+async function geocodeCity(cityStr, stateStr, googleKey) {
+  if (!googleKey || !cityStr) return { lat: null, lng: null };
+  try {
+    const addr = encodeURIComponent([cityStr, stateStr].filter(Boolean).join(', '));
+    const resp = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${addr}&key=${googleKey}`);
+    if (!resp.ok) return { lat: null, lng: null };
+    const data = await resp.json();
+    if (data.results && data.results.length > 0) {
+      const loc = data.results[0].geometry.location;
+      return { lat: loc.lat, lng: loc.lng };
+    }
+  } catch (e) { /* geocoding failed silently */ }
+  return { lat: null, lng: null };
+}
+
 function toggleManualEntry() {
   const panel = document.getElementById('manual-entry-panel');
   panel.classList.toggle('open');
@@ -2936,6 +2996,14 @@ async function submitManualEntry() {
     };
     lead.revenueLoss = calcRevenueLoss(lead, entryNiche);
     lead.oppScore    = oppScore(lead.revenueLoss, entryNiche);
+
+    // Step 3b: Geocode city+state → coordinates for competitor radius search
+    if (keys.google && city) {
+      statusEl.textContent = '📍 Getting coordinates...';
+      const coords = await geocodeCity(subarea || city, state, keys.google);
+      lead.lat = coords.lat;
+      lead.lng = coords.lng;
+    }
 
     // Step 4: Ensure global context is set
     if (!currentNiche) currentNiche = entryNiche;
@@ -3121,6 +3189,14 @@ async function quickConfirmAdd() {
     };
     lead.revenueLoss = calcRevenueLoss(lead, entryNiche);
     lead.oppScore    = oppScore(lead.revenueLoss, entryNiche);
+
+    // Geocode city+state → coordinates for competitor radius search
+    if (keys.google && city) {
+      statusEl.textContent = '📍 Getting coordinates...';
+      const coords = await geocodeCity(subarea || city, state, keys.google);
+      lead.lat = coords.lat;
+      lead.lng = coords.lng;
+    }
 
     if (!currentNiche) currentNiche = entryNiche;
     if (!currentCity)  currentCity  = subarea || city;
