@@ -94,7 +94,7 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 /* ── Prospects Table ── */
 #prospects-section { display:none; }
 .table-wrap { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow); }
-.prospects-table { width:100%; border-collapse:collapse; font-size:12.5px; }
+.prospects-table { width:100%; border-collapse:collapse; font-size:12.5px; table-layout:fixed; }
 .prospects-table th { background:#f8f8f6; border-bottom:1px solid var(--border); padding:9px 10px; text-align:left; font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; white-space:nowrap; }
 .prospects-table td { padding:9px 10px; border-bottom:1px solid var(--border); vertical-align:middle; }
 .prospects-table tr:last-child td { border-bottom:none; }
@@ -195,7 +195,7 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 
 /* ── Report Buttons ── */
 .report-btn-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:1.25rem; }
-.rpt-btn { border:none; border-radius:var(--radius); padding:10px 8px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; text-align:center; transition:opacity .15s,transform .1s; }
+.rpt-btn { border:none; border-radius:var(--radius); padding:13px 8px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; text-align:center; transition:opacity .15s,transform .1s; letter-spacing:-0.1px; }
 .rpt-btn:hover { opacity:0.88; transform:translateY(-1px); }
 .rpt-btn:active { transform:translateY(0); }
 .rpt-btn.loading { opacity:0.6; cursor:wait; }
@@ -716,11 +716,25 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
     </div>
     <div class="table-wrap">
       <table class="prospects-table" id="prospects-table">
+        <colgroup>
+          <col style="width:18%"><!-- Business -->
+          <col style="width:11%"><!-- Website -->
+          <col style="width:10%"><!-- Phone -->
+          <col style="width:11%"><!-- Email -->
+          <col style="width:5%"> <!-- Rating -->
+          <col style="width:5%"> <!-- Reviews -->
+          <col style="width:6%"> <!-- GMB -->
+          <col style="width:8%"> <!-- Rev Loss -->
+          <col style="width:9%"> <!-- Lead Score -->
+          <col style="width:8%"> <!-- Best Time -->
+          <col style="width:7%"> <!-- Status -->
+          <col style="width:8%"> <!-- Action -->
+        </colgroup>
         <thead>
           <tr>
             <th>Business</th>
             <th>Website</th>
-            <th style="min-width:150px">Phone</th>
+            <th>Phone</th>
             <th>Email</th>
             <th>Rating</th>
             <th>Reviews</th>
@@ -1100,9 +1114,9 @@ function renderTableBody() {
     row.onclick = () => togglePanel(idx);
     row.innerHTML = `
       <td><div class="biz-name" title="${esc(lead.name)}">${esc(lead.name)}</div></td>
-      <td>${lead.website ? `<a class="biz-link" href="${esc(lead.website)}" target="_blank" onclick="event.stopPropagation()" rel="noreferrer">${shortUrl(lead.website)}</a>` : '<span class="no-web">No Website</span>'}</td>
-      <td style="font-size:11px;white-space:nowrap">${esc(lead.phone || '—')}</td>
-      <td style="font-size:11px">${lead.email ? `<span title="${esc(lead.email)}">${esc(lead.email.split('@')[0])}@…</span>` : '<span style="color:var(--text3)">—</span>'}</td>
+      <td style="overflow:hidden"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${lead.website ? `<a class="biz-link" href="${esc(lead.website)}" target="_blank" onclick="event.stopPropagation()" rel="noreferrer">${shortUrl(lead.website)}</a>` : '<span class="no-web">No Website</span>'}</div></td>
+      <td style="font-size:11px;white-space:nowrap;overflow:visible">${esc(lead.phone || '—')}</td>
+      <td style="font-size:11px;overflow:hidden"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${lead.email ? `<span title="${esc(lead.email)}">${esc(lead.email.split('@')[0])}@…</span>` : '<span style="color:var(--text3)">—</span>'}</div></td>
       <td><span class="rating-stars">★</span> ${lead.rating || '—'}</td>
       <td class="reviews-cnt">${lead.reviews || 0}</td>
       <td><span class="gmb-badge ${gmbClass}">${gmbStatus}</span></td>
@@ -1199,19 +1213,16 @@ function buildSnapPanel(idx, lead) {
   el.innerHTML = `
 <div class="snap-panel">
 
-  <!-- AI Sales Insight — always on top -->
-  <div class="insight-box" style="margin-bottom:1rem">
-    <div class="insight-label">🤖 AI Sales Insight</div>
-    <div class="insight-text">
-      <strong>${esc(lead.name)}</strong> is estimated to be losing
-      <strong style="color:var(--red-text)">$${lead.revenueLoss.toLocaleString()}/month</strong>
-      in digital revenue.
-      ${!lead.website ? 'They have <strong>no website</strong> — every Google search for their niche sends potential customers directly to competitors.' :
-        rating < 4.0 ? `Their <strong>${lead.rating}-star rating</strong> puts them below the trust threshold most buyers require before making contact.` :
-        reviews < 50 ? `With only <strong>${reviews} reviews</strong>, they lack the social proof to compete with top-ranked local alternatives.` :
-        'They have a decent presence but significant gaps in paid ads and conversion optimization.'}
-      Best entry point: <strong>${entryPoint}</strong>.
-    </div>
+  <!-- Analysis Report Buttons — TOP of panel -->
+  <div class="section-title" style="margin-bottom:10px">Run Analysis Reports</div>
+  <div class="report-btn-grid" style="margin-bottom:1.25rem">
+    <button class="rpt-btn rpt-localseo" onclick="runReport(${idx},'local-seo',this)">📍 Local SEO / GMB</button>
+    <button class="rpt-btn rpt-seo" onclick="runReport(${idx},'seo',this)">🔍 SEO Analysis</button>
+    <button class="rpt-btn rpt-social" onclick="runReport(${idx},'social',this)">📱 Social Media</button>
+    <button class="rpt-btn rpt-website" onclick="runReport(${idx},'website',this)">🌐 Website Audit</button>
+    <button class="rpt-btn rpt-ads" onclick="runReport(${idx},'ads',this)">📣 Ads Opportunity</button>
+    <button class="rpt-btn rpt-360" onclick="runReport(${idx},'360',this)">🎯 360° Full Audit</button>
+    <button class="rpt-btn rpt-competitors" onclick="runReport(${idx},'competitors',this)">⚔️ Competitors</button>
   </div>
 
   <!-- Top row: 4 flex columns -->
@@ -1219,27 +1230,27 @@ function buildSnapPanel(idx, lead) {
 
     <!-- Revenue Loss + Lead Score -->
     <div class="loss-box">
-      <div class="loss-box-label">📉 Est. Monthly Revenue Loss</div>
+      <div class="loss-box-label">📉 Lead Opportunity Score</div>
       <div class="loss-box-amount">$${lead.revenueLoss.toLocaleString()}</div>
-      <div class="loss-box-sub">Based on rating, reviews & digital gaps</div>
+      <div class="loss-box-sub">Est. monthly revenue loss</div>
       <div class="loss-box-score">
         <div class="loss-box-score-dot"></div>
         Lead Score: ${lead.score||5}/10 ${lead.score>=7?'🔥 Hot':lead.score>=4?'Warm':'Low'}
       </div>
     </div>
 
-    <!-- Best Time -->
+    <!-- First Impression / Best Time -->
     <div class="contact-box">
-      <div class="contact-box-label">🕐 Best Time to Contact</div>
-      <div class="contact-box-time">${ct.time || '9:00 AM–5:00 PM'}</div>
-      <div class="contact-box-days">${ct.days || 'Weekdays'}</div>
+      <div class="contact-box-label">⭐ First Impression Score</div>
+      <div class="contact-box-time">${lead.rating ? `${lead.rating}★` : 'No rating'}</div>
+      <div class="contact-box-days">${lead.reviews || 0} reviews · Best contact: ${ct.days || 'Weekdays'} ${ct.time || ''}</div>
     </div>
 
     <!-- Prospect Details -->
     <div class="snap-card snap-details">
       <div class="snap-card-title">Prospect Details</div>
       <div class="snap-row"><span class="snap-key">Rating</span><span class="snap-val">★ ${lead.rating || '—'} (${lead.reviews || 0})</span></div>
-      <div class="snap-row"><span class="snap-key">Phone</span><span class="snap-val" style="overflow:visible;white-space:nowrap;max-width:none;min-width:140px">${esc(lead.phone || '—')}</span></div>
+      <div class="snap-row"><span class="snap-key">Phone</span><span class="snap-val" style="overflow:visible;white-space:nowrap;max-width:none;min-width:140px;display:inline-block">${esc(lead.phone || '—')}</span></div>
       <div class="snap-row"><span class="snap-key">Email</span><span class="snap-val wrap" style="font-size:11px">${esc(lead.email || '—')}</span></div>
       <div class="snap-row"><span class="snap-key">Website</span><span class="snap-val">${lead.website ? `<a href="${esc(lead.website)}" target="_blank" rel="noreferrer">${shortUrl(lead.website)}</a>` : '<span class="no-web">None</span>'}</span></div>
       <div class="snap-row"><span class="snap-key">Status</span><span class="snap-val"><span class="status-pill ${getStatusClass(status)}">${status}</span></span></div>
@@ -1259,16 +1270,19 @@ function buildSnapPanel(idx, lead) {
     </div>
   </div>
 
-  <!-- Report Buttons -->
-  <div class="section-title">Run Analysis Reports</div>
-  <div class="report-btn-grid">
-    <button class="rpt-btn rpt-localseo" onclick="runReport(${idx},'local-seo',this)">📍 Local SEO / GMB</button>
-    <button class="rpt-btn rpt-seo" onclick="runReport(${idx},'seo',this)">🔍 SEO Analysis</button>
-    <button class="rpt-btn rpt-social" onclick="runReport(${idx},'social',this)">📱 Social Media</button>
-    <button class="rpt-btn rpt-website" onclick="runReport(${idx},'website',this)">🌐 Website Audit</button>
-    <button class="rpt-btn rpt-ads" onclick="runReport(${idx},'ads',this)">📣 Ads Opportunity</button>
-    <button class="rpt-btn rpt-360" onclick="runReport(${idx},'360',this)">🎯 360 Degree</button>
-    <button class="rpt-btn rpt-competitors" onclick="runReport(${idx},'competitors',this)">⚔️ Competitors</button>
+  <!-- AI Sales Insight — below snap-top -->
+  <div class="insight-box" style="margin-top:1rem;margin-bottom:1rem">
+    <div class="insight-label">🤖 AI Sales Insight</div>
+    <div class="insight-text">
+      <strong>${esc(lead.name)}</strong> is estimated to be losing
+      <strong style="color:var(--red-text)">$${lead.revenueLoss.toLocaleString()}/month</strong>
+      in digital revenue.
+      ${!lead.website ? 'They have <strong>no website</strong> — every Google search for their niche sends potential customers directly to competitors.' :
+        rating < 4.0 ? `Their <strong>${lead.rating}-star rating</strong> puts them below the trust threshold most buyers require before making contact.` :
+        reviews < 50 ? `With only <strong>${reviews} reviews</strong>, they lack the social proof to compete with top-ranked local alternatives.` :
+        'They have a decent presence but significant gaps in paid ads and conversion optimization.'}
+      Best entry point: <strong>${entryPoint}</strong>.
+    </div>
   </div>
 
   <!-- Report Output -->
@@ -1391,6 +1405,10 @@ function renderReport(idx, type, data, el) {
     html = renderSeoReport(data, lead);
   } else if (type === 'social') {
     html = renderSocialReport(data, lead);
+  } else if (type === '360') {
+    html = render360Report(data, lead);
+  } else if (type === 'website') {
+    html = renderWebsiteReport(data, lead);
   } else {
     html = renderGenericReport(type, data);
   }
@@ -1738,6 +1756,198 @@ function renderPresenceCards(pd, lead, niche, city) {
   <div class="presence-grid">
     ${serpCard}${aioCard}${chatgptCard}${gemCard}${claudeCard}${bingCard}
   </div>`;
+}
+
+// ── 360 Degree Report ──────────────────────────────────────────────────────
+function render360Report(data, lead) {
+  const d = data || {};
+  const scores = d.scores || {};
+  const overallScore = Number(scores.overall || d.overallScore || 0) || 0;
+  const oppScore    = Number(d.opportunityScore || overallScore) || 0;
+
+  const scoreColor = s => s >= 80 ? '#16a34a' : s >= 60 ? '#1565c0' : s >= 40 ? '#b45309' : '#c62828';
+  const scoreLabel = s => s >= 80 ? 'High Opportunity' : s >= 60 ? 'Good Opportunity' : s >= 40 ? 'Medium Opportunity' : 'Low Priority';
+  const scoreBadge = s => s >= 75 ? 'Excellent' : s >= 60 ? 'Strong' : s >= 40 ? 'Average' : s >= 25 ? 'Needs Improvement' : 'Critical Gap';
+  const badgeClass = s => s >= 75 ? 'status-strong' : s >= 60 ? 'status-average' : s >= 40 ? 'status-needs' : 'status-critical';
+
+  // Section 1: Opportunity Score card
+  let html = `
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:1rem">🎯 360° Digital Marketing Audit</h3>
+  <div class="score-card">
+    <div class="score-ring">
+      <svg width="72" height="72" viewBox="0 0 72 72">
+        <circle class="bg" cx="36" cy="36" r="30"/>
+        <circle class="fg" cx="36" cy="36" r="30"
+          stroke="${scoreColor(overallScore)}"
+          stroke-dasharray="${2*Math.PI*30}"
+          stroke-dashoffset="${2*Math.PI*30*(1-overallScore/100)}"
+          data-score="${overallScore}"/>
+      </svg>
+      <div class="val" style="color:${scoreColor(overallScore)}">${overallScore}</div>
+    </div>
+    <div class="score-meta">
+      <h3>${esc(d.bestSalesAngle || d.salesAngle || '360° Digital Audit')}</h3>
+      <div class="sub">${esc(d.salesSummary || '')}</div>
+      <span class="opp-pill" style="background:${scoreColor(overallScore)}1a;color:${scoreColor(overallScore)};border:1px solid ${scoreColor(overallScore)}30">
+        ${scoreLabel(overallScore)} · Opportunity Score: ${oppScore}/100
+      </span>
+      ${d.recommendedService ? `<div style="font-size:12px;color:var(--text2);margin-top:5px">Recommended: <strong>${esc(d.recommendedService)}</strong></div>` : ''}
+      ${d.revenueLoss ? `<div style="font-size:12px;color:var(--red-text);font-weight:700;margin-top:4px">📉 Est. Revenue Loss: $${Number(d.revenueLoss).toLocaleString()}/month</div>` : ''}
+    </div>
+  </div>`;
+
+  // Section 2: Complete Score Sheet Table
+  const details = d.scoreDetails || [];
+  if (details.length) {
+    const oppCol = o => o === 'High' ? '#c62828' : o === 'Medium' ? '#b45309' : '#2e7d32';
+    html += `<div class="section-title" style="margin-top:1rem">Complete Score Sheet</div>
+    <div style="overflow-x:auto;margin-bottom:1rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="background:#f8f8f6;border-bottom:1px solid var(--border)">
+            <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px">Category</th>
+            <th style="padding:8px 10px;text-align:center;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;width:55px">Score</th>
+            <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;width:125px">Status</th>
+            <th style="padding:8px 10px;text-align:center;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;width:70px">Sales Opp</th>
+            <th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px">Recommended Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${details.map(row => {
+            const sc = Number(row.score) || 0;
+            const col = scoreColor(sc);
+            return `<tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:7px 10px;font-weight:600;font-size:12px">${esc(row.category)}</td>
+              <td style="padding:7px 10px;text-align:center;font-weight:800;font-size:14px;color:${col}">${sc}</td>
+              <td style="padding:7px 10px"><span class="subscore-status ${badgeClass(sc)}">${scoreBadge(sc)}</span></td>
+              <td style="padding:7px 10px;text-align:center"><span style="font-size:10px;font-weight:700;color:${oppCol(row.salesOpportunity)}">${esc(row.salesOpportunity||'—')}</span></td>
+              <td style="padding:7px 10px;font-size:11px;color:var(--text2);line-height:1.4">${esc(row.recommendedAction||'')}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  }
+
+  // Section 3: Visual Score Summary — animated progress bars
+  const scoreFields = [
+    ['Local SEO', scores.localSEO], ['On-Page SEO', scores.onPageSEO],
+    ['Technical SEO', scores.technicalSEO], ['Social Media', scores.socialMedia],
+    ['Website', scores.website], ['Ads Opportunity', scores.adsOpportunity],
+    ['Competitor Gap', scores.competitorGap], ['AEO / GEO Readiness', scores.aeoGeoReadiness],
+    ['LLM / AI Visibility', scores.llmVisibility]
+  ].filter(([, v]) => v != null && v !== undefined);
+
+  if (scoreFields.length) {
+    html += `<div class="section-title" style="margin-top:1rem">Visual Score Summary</div>
+    <div class="subscores" style="margin-bottom:1rem">`;
+    scoreFields.forEach(([name, score]) => {
+      const s = Number(score) || 0;
+      const c = scoreColor(s);
+      html += `<div class="subscore-row">
+        <div class="subscore-name">${esc(name)}</div>
+        <div class="subscore-bar-wrap"><div class="subscore-bar" style="width:${s}%;background:${c}"></div></div>
+        <div class="subscore-score" style="color:${c}">${s}</div>
+        <div class="subscore-status ${badgeClass(s)}" style="width:120px;text-align:center">${scoreBadge(s)}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Section 4: 90-Day Roadmap
+  if (d.roadmap) {
+    const rmMonths = [
+      {key:'month1', label:'Month 1', color:'#1565c0', bg:'#e3f2fd'},
+      {key:'month2', label:'Month 2', color:'#6a1b9a', bg:'#f3e5f5'},
+      {key:'month3', label:'Month 3', color:'#2e7d32', bg:'#e8f5e9'}
+    ];
+    html += `<div class="section-title" style="margin-top:1rem">90-Day Transformation Roadmap</div>
+    <div class="roadmap-grid" style="margin-bottom:1rem">`;
+    rmMonths.forEach(({key, label, color, bg}) => {
+      const rm = d.roadmap[key] || {};
+      const result = rm.expectedResult || rm.expected || '';
+      html += `<div class="roadmap-month" style="border-top:3px solid ${color}">
+        <div class="roadmap-title" style="color:${color}">${label}: ${esc(rm.title||'')}</div>
+        <ul class="roadmap-tasks">${(rm.tasks||[]).map(t=>`<li>${esc(t)}</li>`).join('')}</ul>
+        ${result ? `<div class="roadmap-expected" style="background:${bg};color:${color}">${esc(result)}</div>` : ''}
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Section 5: Key Findings — 3 columns
+  if (d.criticalIssues || d.quickWins || d.growthOpportunities) {
+    html += `<div class="section-title" style="margin-top:1rem">Key Findings Summary</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:var(--red-text);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid #c62828">🔴 Critical Issues</div>
+        ${(d.criticalIssues||[]).map(i => `<div style="font-size:11.5px;line-height:1.45;padding:6px 8px;background:var(--red-bg);border-radius:var(--radius);margin-bottom:5px;color:var(--red-text)">${esc(i)}</div>`).join('')}
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;color:var(--amber-text);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid #b45309">⚡ Quick Wins</div>
+        ${(d.quickWins||[]).map(i => `<div style="font-size:11.5px;line-height:1.45;padding:6px 8px;background:var(--amber-bg);border-radius:var(--radius);margin-bottom:5px;color:var(--amber-text)">${esc(i)}</div>`).join('')}
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;color:var(--green-text);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;padding-bottom:5px;border-bottom:2px solid #2e7d32">📈 Growth Opportunities</div>
+        ${(d.growthOpportunities||[]).map(i => `<div style="font-size:11.5px;line-height:1.45;padding:6px 8px;background:var(--green-bg);border-radius:var(--radius);margin-bottom:5px;color:var(--green-text)">${esc(i)}</div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // Section 6: Next Best Step
+  if (d.nextBestStep) {
+    html += `<div class="nbs-box">
+      <div class="nbs-label">Your Single Best Next Step</div>
+      <div class="nbs-text">${esc(d.nextBestStep)}</div>
+    </div>`;
+  }
+
+  return html;
+}
+
+// ── Website Audit Report ────────────────────────────────────────────────────
+function renderWebsiteReport(data, lead) {
+  let html = renderGenericReport('website', data, '🌐 Website Audit');
+
+  if (data && data.blogData) {
+    const blog = data.blogData;
+    const isActive   = blog.status === 'Active';
+    const isOutdated = blog.status === 'Outdated';
+    const isMissing  = !isActive && !isOutdated;
+    const borderColor = isActive ? '#2e7d32' : isOutdated ? '#b45309' : '#c62828';
+    const bgColor     = isActive ? '#e8f5e9'  : isOutdated ? '#fef3c7'  : '#ffebee';
+    const badgeText   = isActive ? '✓ Active'  : isOutdated ? '~ Outdated' : '✗ Missing';
+    const badgeColor  = isActive ? '#2e7d32' : isOutdated ? '#b45309' : '#c62828';
+    const website = lead && lead.website ? lead.website.replace(/^https?:\/\//,'') : '';
+
+    const blogHtml = `
+    <div class="section-title" style="margin-top:1rem">Blog / Content Marketing</div>
+    <div style="background:var(--bg);border:2px solid ${borderColor}44;border-radius:var(--radius-lg);overflow:hidden;margin-bottom:1rem">
+      <div style="background:${bgColor};padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid ${borderColor}22">
+        <div style="font-size:13px;font-weight:700;color:${borderColor}">📝 Blog / Content Marketing</div>
+        <span style="background:${badgeColor};color:#fff;border-radius:10px;padding:2px 10px;font-size:10px;font-weight:700">${badgeText}</span>
+      </div>
+      <div style="padding:12px 14px">
+        ${isMissing ? `<div style="background:var(--red-bg);border:1px solid rgba(198,40,40,0.2);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px">
+          <div style="font-size:11px;font-weight:700;color:var(--red-text);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">🚨 Critical Gap</div>
+          <div style="font-size:12.5px;color:var(--red-text);line-height:1.5">No blog detected — this business is missing a major SEO and authority signal. Businesses with active blogs get <strong>55% more website visitors</strong> and rank for <strong>3x more keywords</strong>.</div>
+        </div>` : isOutdated ? `<div style="background:var(--amber-bg);border:1px solid rgba(180,83,9,0.2);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px">
+          <div style="font-size:11px;font-weight:700;color:var(--amber-text);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">⚠ Stale Content</div>
+          <div style="font-size:12.5px;color:var(--amber-text);line-height:1.5">Blog exists but content is stale — search engines deprioritize websites with inactive content. Last post: <strong>${esc(blog.lastPostEstimate||'6+ months ago')}</strong>.</div>
+        </div>` : `<div style="background:var(--green-bg);border:1px solid rgba(46,125,50,0.2);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px">
+          <div style="font-size:12.5px;color:var(--green-text);line-height:1.5">✓ Active blog detected. Content marketing is generating search traffic and building authority.</div>
+        </div>`}
+        ${blog.monthlyTrafficLost ? `<div style="font-size:12px;color:var(--red-text);font-weight:700;margin-bottom:8px">📉 Est. monthly traffic lost: ${esc(blog.monthlyTrafficLost)}</div>` : ''}
+        ${blog.quickWin ? `<div style="background:var(--blue-bg);border:1px solid rgba(21,101,192,0.2);border-radius:var(--radius);padding:8px 12px;margin-bottom:10px;font-size:12px;color:var(--blue-text)">💡 Quick Win: ${esc(blog.quickWin)}</div>` : ''}
+        ${website ? `<a href="https://www.google.com/search?q=site:${encodeURIComponent(website)}+blog" target="_blank" rel="noreferrer" style="display:inline-block;padding:6px 14px;border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;font-weight:600;color:var(--blue);text-decoration:none;background:var(--bg)">Check Blog on Google ↗</a>` : ''}
+      </div>
+    </div>`;
+
+    const nbsPos = html.lastIndexOf('<div class="nbs-box">');
+    html = nbsPos > -1 ? html.slice(0, nbsPos) + blogHtml + html.slice(nbsPos) : html + blogHtml;
+  }
+
+  return html;
 }
 
 function renderSeoReport(data, lead) {

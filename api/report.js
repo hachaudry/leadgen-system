@@ -84,6 +84,12 @@ Return ONLY valid JSON:
     {"name":"Trust Signals","score":<0-100>,"status":"<...>","detail":"<...>"},
     {"name":"Content Quality","score":<0-100>,"status":"<...>","detail":"<...>"}
   ],
+  "blogData": {
+    "status": "Active|Outdated|Missing",
+    "lastPostEstimate": "<e.g. '2 weeks ago' or '8 months ago' or 'None detected'>",
+    "monthlyTrafficLost": "<estimate e.g. '800–2,000 visitors/mo due to missing blog content'>",
+    "quickWin": "<specific quick win e.g. 'Start with 2 blog posts/month targeting local keywords like best ${niche} in ${city}'>"
+  },
   "annotations": [
     {"num":1,"issue":"<specific visible problem>"},
     {"num":2,"issue":"<specific visible problem>"},
@@ -136,47 +142,81 @@ Return ONLY valid JSON:
   "nextBestStep": "Your single best next step: <action>. Here is why this will get you <result> in <timeframe> — <specific reason>."
 }`,
 
-'360': (lead, niche, city) => `You are a senior digital marketing director writing a 360-degree audit for a client presentation.
+'360': (lead, niche, city) => `You are a senior digital marketing director writing a comprehensive 360-degree audit for a high-stakes client presentation.
 
 Business: ${lead.name}
 Type: ${niche}
 City: ${city}
 Website: ${lead.website || 'none'}
 Rating: ${lead.rating || 'unknown'} (${lead.reviews || 0} reviews)
-Pain: ${lead.pain || 'unknown'}
 
-Write a complete 360-degree digital marketing audit. Be specific and compelling.
+Write a complete 360-degree digital marketing audit. Be specific, compelling, and data-driven. Most small local businesses score 20-50 overall.
 
-Return ONLY valid JSON:
+Return ONLY valid JSON (no markdown, no commentary):
 {
-  "overallScore": <0-100>,
-  "opportunityScore": <0-100>,
-  "recommendedService": "<Full Digital Marketing Package description>",
-  "salesAngle": "<1 sentence hook>",
-  "salesSummary": "<2-3 sentences compelling reason to hire agency>",
-  "categories": [
-    {"name":"SEO Score","score":<0-100>,"status":"<Critical|Needs Work|Average|Strong|Excellent>","opportunity":"<High|Medium|Low>","action":"<recommended action>"},
-    {"name":"Social Media Score","score":<0-100>,"status":"<...>","opportunity":"<...>","action":"<...>"},
-    {"name":"Website Score","score":<0-100>,"status":"<...>","opportunity":"<...>","action":"<...>"},
-    {"name":"Local SEO / GMB Score","score":<0-100>,"status":"<...>","opportunity":"<...>","action":"<...>"},
-    {"name":"Ads Opportunity Score","score":<0-100>,"status":"<...>","opportunity":"<...>","action":"<...>"},
-    {"name":"Competitor Gap Score","score":<0-100>,"status":"<...>","opportunity":"<...>","action":"<...>"},
-    {"name":"AEO / GEO Readiness","score":<0-100>,"status":"<...>","opportunity":"<...>","action":"<...>"},
-    {"name":"Overall Digital Score","score":<0-100>,"status":"<...>","opportunity":"<...>","action":"<...>"}
-  ],
-  "roadmap": {
-    "month1": {"title":"Foundation","tasks":["<task>","<task>","<task>"],"expected":"<measurable result>"},
-    "month2": {"title":"Content & Social","tasks":["<task>","<task>","<task>"],"expected":"<measurable result>"},
-    "month3": {"title":"Growth & Scale","tasks":["<task>","<task>","<task>"],"expected":"<measurable result>"}
+  "opportunityScore": <number 0-100>,
+  "overallScore": <number 0-100>,
+  "revenueLoss": <number — estimated monthly dollar amount this business is losing due to digital gaps>,
+  "recommendedService": "<Full Digital Marketing Package — be specific about which services>",
+  "bestSalesAngle": "<1 sentence compelling hook to open the sales conversation>",
+  "salesSummary": "<2-3 sentences explaining why this business is worth targeting and what the agency can deliver>",
+  "scores": {
+    "localSEO": <number 0-100>,
+    "onPageSEO": <number 0-100>,
+    "technicalSEO": <number 0-100>,
+    "socialMedia": <number 0-100>,
+    "website": <number 0-100>,
+    "adsOpportunity": <number 0-100>,
+    "competitorGap": <number 0-100>,
+    "aeoGeoReadiness": <number 0-100>,
+    "llmVisibility": <number 0-100>,
+    "overall": <number 0-100>
   },
-  "painPoints": [
-    {"rank":1,"problem":"<biggest gap>","costMin":<number>,"costMax":<number>},
-    {"rank":2,"problem":"<second gap>","costMin":<number>,"costMax":<number>},
-    {"rank":3,"problem":"<third gap>","costMin":<number>,"costMax":<number>},
-    {"rank":4,"problem":"<fourth gap>","costMin":<number>,"costMax":<number>},
-    {"rank":5,"problem":"<fifth gap>","costMin":<number>,"costMax":<number>}
+  "scoreDetails": [
+    {"category":"Local SEO / GMB","score":<0-100>,"status":"<Critical Gap|Needs Improvement|Average|Strong>","salesOpportunity":"<High|Medium|Low>","recommendedAction":"<specific action>"},
+    {"category":"On-Page SEO","score":<0-100>,"status":"<Critical Gap|Needs Improvement|Average|Strong>","salesOpportunity":"<High|Medium|Low>","recommendedAction":"<specific action>"},
+    {"category":"Technical SEO","score":<0-100>,"status":"<Critical Gap|Needs Improvement|Average|Strong>","salesOpportunity":"<High|Medium|Low>","recommendedAction":"<specific action>"},
+    {"category":"Social Media","score":<0-100>,"status":"<Critical Gap|Needs Improvement|Average|Strong>","salesOpportunity":"<High|Medium|Low>","recommendedAction":"<specific action>"},
+    {"category":"Website","score":<0-100>,"status":"<Critical Gap|Needs Improvement|Average|Strong>","salesOpportunity":"<High|Medium|Low>","recommendedAction":"<specific action>"},
+    {"category":"Ads Opportunity","score":<0-100>,"status":"<Critical Gap|Needs Improvement|Average|Strong>","salesOpportunity":"<High|Medium|Low>","recommendedAction":"<specific action>"},
+    {"category":"Competitor Gap","score":<0-100>,"status":"<Critical Gap|Needs Improvement|Average|Strong>","salesOpportunity":"<High|Medium|Low>","recommendedAction":"<specific action>"},
+    {"category":"AEO / GEO Readiness","score":<0-100>,"status":"<Critical Gap|Needs Improvement|Average|Strong>","salesOpportunity":"<High|Medium|Low>","recommendedAction":"<specific action>"},
+    {"category":"LLM / AI Visibility","score":<0-100>,"status":"<Critical Gap|Needs Improvement|Average|Strong>","salesOpportunity":"<High|Medium|Low>","recommendedAction":"<specific action>"},
+    {"category":"Overall Digital Score","score":<0-100>,"status":"<Critical Gap|Needs Improvement|Average|Strong>","salesOpportunity":"<High|Medium|Low>","recommendedAction":"<specific action>"}
   ],
-  "nextBestStep": "Your single best next step: <action>. Here is why this will get you <result> in <timeframe> — <specific reason>."
+  "criticalIssues": [
+    "<most urgent problem costing money right now — be specific and dollar-quantified>",
+    "<second critical issue — specific and urgent>",
+    "<third critical issue — specific and urgent>"
+  ],
+  "quickWins": [
+    "<fix that can be done this week for fast visible results — be specific>",
+    "<second quick win — actionable this week>",
+    "<third quick win — actionable this week>"
+  ],
+  "growthOpportunities": [
+    "<long-term opportunity that compounds over 6-12 months — be specific>",
+    "<second growth opportunity — long-term>",
+    "<third growth opportunity — long-term>"
+  ],
+  "nextBestStep": "<one specific, compelling single action they should take immediately — explain why it will produce measurable results in a specific timeframe>",
+  "roadmap": {
+    "month1": {
+      "title": "Foundation",
+      "tasks": ["<specific task>","<specific task>","<specific task>","<specific task>"],
+      "expectedResult": "+20% local visibility"
+    },
+    "month2": {
+      "title": "Growth",
+      "tasks": ["<specific task>","<specific task>","<specific task>","<specific task>"],
+      "expectedResult": "+40% social engagement"
+    },
+    "month3": {
+      "title": "Domination",
+      "tasks": ["<specific task>","<specific task>","<specific task>","<specific task>"],
+      "expectedResult": "+60% total inquiries"
+    }
+  }
 }`,
 
 'seo': (lead, niche, city) => `You are a senior SEO strategist writing a keyword and search ranking audit for a sales presentation.
@@ -369,7 +409,7 @@ export default async function handler(req, res) {
   const promptFn = prompts[type];
   if (!promptFn) return res.status(400).json({ error: `Unknown report type: ${type}` });
 
-  const TOKEN_MAP = { 'social': 3200, 'seo': 2800, '360': 2600 };
+  const TOKEN_MAP = { 'social': 3200, 'seo': 2800, '360': 3800, 'website': 2400 };
   try {
     const raw = await claude(ANTHROPIC_KEY, promptFn(lead, niche || lead.businessType || '', city || lead.city || ''), TOKEN_MAP[type] || 2200);
     const data = parseJSON(raw);
