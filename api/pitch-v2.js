@@ -46,9 +46,9 @@ Create a comprehensive, structured sales pitch. Return ONLY valid JSON:
     {"name":"Reviews","yours":<0-100>,"average":74}
   ],
   "pricingTiers": [
-    {"name":"Starter","price":"$799/mo","tagline":"Get found online","includes":["GMB Optimization","Review Generation","Monthly Report"]},
-    {"name":"Growth","price":"$1,499/mo","tagline":"Dominate local search","includes":["Everything in Starter","Local SEO + Content","Social Media Management","Google Ads Setup"]},
-    {"name":"Premium","price":"$2,499/mo","tagline":"Full market domination","includes":["Everything in Growth","Meta Ads Campaign","Website Redesign","Weekly Strategy Calls","Competitor Monitoring"]}
+    {"name":"Starter","price":"$799/mo","tagline":"Get found online","includes":["GMB Full Optimization","Review Generation Campaign (20+ reviews/60 days)","Monthly Performance Report","1 AI Promo Video/month (30-sec, branded)"]},
+    {"name":"Growth","price":"$1,499/mo","tagline":"Dominate local search + video","includes":["Everything in Starter","Local SEO + Location-Specific Content","Social Media Management (3x posts/week)","Google Ads Setup + Management","2 AI Videos/month (Reels + YouTube Shorts, scripted & produced)"]},
+    {"name":"Premium","price":"$2,499/mo","tagline":"Full market domination","includes":["Everything in Growth","Meta Ads Campaign (Facebook + Instagram)","Website Landing Page Redesign","Weekly Strategy Calls","Real-Time Competitor Monitoring","4 AI Videos/month (Reels, YouTube Shorts, Google Business Posts — scripted, produced, scheduled)"]}
   ],
   "roi": {
     "currentState": "<specific problem description — e.g. losing $${loss.toLocaleString()}/mo, ranking page 3, 0 new leads from search>",
