@@ -2087,14 +2087,47 @@ function renderWebsiteReport(data, lead) {
 
   if (data && data.blogData) {
     const blog = data.blogData;
-    const isActive   = blog.status === 'Active';
-    const isOutdated = blog.status === 'Outdated';
-    const isMissing  = !isActive && !isOutdated;
-    const borderColor = isActive ? '#2e7d32' : isOutdated ? '#b45309' : '#c62828';
-    const bgColor     = isActive ? '#e8f5e9'  : isOutdated ? '#fef3c7'  : '#ffebee';
-    const badgeText   = isActive ? '✓ Active'  : isOutdated ? '~ Outdated' : '✗ Missing';
-    const badgeColor  = isActive ? '#2e7d32' : isOutdated ? '#b45309' : '#c62828';
-    const website = lead && lead.website ? lead.website.replace(/^https?:\/\//,'') : '';
+    const isActive        = blog.status === 'Active';
+    const isOutdated      = blog.status === 'Outdated';
+    const isLikelyPresent = blog.status === 'Likely Present';
+    const isMissing       = blog.status === 'Missing' || (!isActive && !isOutdated && !isLikelyPresent);
+
+    const borderColor = isActive ? '#2e7d32' : isOutdated ? '#b45309' : isLikelyPresent ? '#1565c0' : '#c62828';
+    const bgColor     = isActive ? '#e8f5e9'  : isOutdated ? '#fef3c7'  : isLikelyPresent ? '#e3f2fd'  : '#ffebee';
+    const badgeText   = isActive ? '✓ Active'  : isOutdated ? '~ Outdated' : isLikelyPresent ? '? Likely Present' : '✗ Missing';
+    const badgeColor  = isActive ? '#2e7d32' : isOutdated ? '#b45309' : isLikelyPresent ? '#1565c0' : '#c62828';
+
+    const website    = lead && lead.website ? lead.website.replace(/^https?:\/\//,'') : '';
+    const websiteFull = lead && lead.website ? (lead.website.startsWith('http') ? lead.website : 'https://' + lead.website) : '';
+    const blogPath   = blog.blogPath || '/blog';
+    const blogUrl    = websiteFull ? websiteFull.replace(/\/$/, '') + blogPath : '';
+    const bizName    = lead && lead.name ? lead.name : '';
+
+    const btnStyle = `display:inline-block;padding:6px 13px;border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;font-weight:600;color:var(--blue);text-decoration:none;background:var(--bg);white-space:nowrap`;
+
+    const verifyButtons = `
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
+        ${website ? `<a href="https://www.google.com/search?q=site:${encodeURIComponent(website)}+blog" target="_blank" rel="noreferrer" style="${btnStyle}">Check Blog on Google ↗</a>` : ''}
+        ${blogUrl  ? `<a href="${blogUrl}" target="_blank" rel="noreferrer" style="${btnStyle}">View Blog ↗</a>` : ''}
+        ${bizName  ? `<a href="https://www.google.com/search?q=${encodeURIComponent(bizName + ' blog')}" target="_blank" rel="noreferrer" style="${btnStyle}">Search Blog on Google ↗</a>` : ''}
+      </div>`;
+
+    const statusCard = isActive ? `
+      <div style="background:var(--green-bg);border:1px solid rgba(46,125,50,0.2);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px">
+        <div style="font-size:12.5px;color:var(--green-text);line-height:1.5">✓ Active blog detected. Content marketing is generating search traffic and building authority.</div>
+      </div>` : isOutdated ? `
+      <div style="background:var(--amber-bg);border:1px solid rgba(180,83,9,0.2);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--amber-text);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">⚠ Stale Content</div>
+        <div style="font-size:12.5px;color:var(--amber-text);line-height:1.5">Blog exists but content is stale — search engines deprioritize websites with inactive content. Last post: <strong>${esc(blog.lastPostEstimate||'6+ months ago')}</strong>.</div>
+      </div>` : isLikelyPresent ? `
+      <div style="background:#e3f2fd;border:1px solid rgba(21,101,192,0.2);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:#1565c0;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">ℹ Blog Presence Unconfirmed</div>
+        <div style="font-size:12.5px;color:#1565c0;line-height:1.5">Blog presence could not be fully verified — click <strong>Check Blog on Google</strong> to confirm. Professional service businesses almost always maintain a blog or resources section.</div>
+      </div>` : `
+      <div style="background:var(--red-bg);border:1px solid rgba(198,40,40,0.2);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--red-text);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">🚨 Critical Gap</div>
+        <div style="font-size:12.5px;color:var(--red-text);line-height:1.5">No blog detected — this business is missing a major SEO and authority signal. Businesses with active blogs get <strong>55% more website visitors</strong> and rank for <strong>3x more keywords</strong>.</div>
+      </div>`;
 
     const blogHtml = `
     <div class="section-title" style="margin-top:1rem">Blog / Content Marketing</div>
@@ -2104,18 +2137,10 @@ function renderWebsiteReport(data, lead) {
         <span style="background:${badgeColor};color:#fff;border-radius:10px;padding:2px 10px;font-size:10px;font-weight:700">${badgeText}</span>
       </div>
       <div style="padding:12px 14px">
-        ${isMissing ? `<div style="background:var(--red-bg);border:1px solid rgba(198,40,40,0.2);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px">
-          <div style="font-size:11px;font-weight:700;color:var(--red-text);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">🚨 Critical Gap</div>
-          <div style="font-size:12.5px;color:var(--red-text);line-height:1.5">No blog detected — this business is missing a major SEO and authority signal. Businesses with active blogs get <strong>55% more website visitors</strong> and rank for <strong>3x more keywords</strong>.</div>
-        </div>` : isOutdated ? `<div style="background:var(--amber-bg);border:1px solid rgba(180,83,9,0.2);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px">
-          <div style="font-size:11px;font-weight:700;color:var(--amber-text);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px">⚠ Stale Content</div>
-          <div style="font-size:12.5px;color:var(--amber-text);line-height:1.5">Blog exists but content is stale — search engines deprioritize websites with inactive content. Last post: <strong>${esc(blog.lastPostEstimate||'6+ months ago')}</strong>.</div>
-        </div>` : `<div style="background:var(--green-bg);border:1px solid rgba(46,125,50,0.2);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px">
-          <div style="font-size:12.5px;color:var(--green-text);line-height:1.5">✓ Active blog detected. Content marketing is generating search traffic and building authority.</div>
-        </div>`}
+        ${statusCard}
         ${blog.monthlyTrafficLost ? `<div style="font-size:12px;color:var(--red-text);font-weight:700;margin-bottom:8px">📉 Est. monthly traffic lost: ${esc(blog.monthlyTrafficLost)}</div>` : ''}
         ${blog.quickWin ? `<div style="background:var(--blue-bg);border:1px solid rgba(21,101,192,0.2);border-radius:var(--radius);padding:8px 12px;margin-bottom:10px;font-size:12px;color:var(--blue-text)">💡 Quick Win: ${esc(blog.quickWin)}</div>` : ''}
-        ${website ? `<a href="https://www.google.com/search?q=site:${encodeURIComponent(website)}+blog" target="_blank" rel="noreferrer" style="display:inline-block;padding:6px 14px;border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;font-weight:600;color:var(--blue);text-decoration:none;background:var(--bg)">Check Blog on Google ↗</a>` : ''}
+        ${verifyButtons}
       </div>
     </div>`;
 

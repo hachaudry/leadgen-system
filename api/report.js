@@ -58,15 +58,54 @@ Return ONLY valid JSON:
   "nextBestStep": "Your single best next step: <specific action>. Here is why this will get you <specific result> in <timeframe> — <reason referencing their specific gap vs top competitor>."
 }`,
 
-'website': (lead, niche, city) => `You are a senior website conversion specialist writing a client-facing audit.
+'website': (lead, niche, city) => {
+  // Extract clean domain for blog detection hints
+  let domain = '';
+  if (lead.website) {
+    try { domain = new URL(lead.website.startsWith('http') ? lead.website : 'https://' + lead.website).hostname.replace('www.', ''); } catch {}
+  }
+
+  // Determine blog likelihood from niche so Claude has a strong prior
+  const HIGH_BLOG = ['Law Firm','Dental Clinic','Med Spa','Real Estate Agency','Chiropractor','Roofing Company','Plumbing Company'];
+  const LOW_BLOG  = ['Restaurant','Hair Salon','Gym'];
+  const blogPrior = HIGH_BLOG.includes(niche) ? 'HIGH — professional service businesses almost always have a blog or resources section'
+                  : LOW_BLOG.includes(niche)  ? 'LOW — local hospitality/personal-care businesses sometimes lack a blog, but still check for /news or /updates'
+                  : 'MEDIUM — likely has some form of content section; lean toward Likely Present if uncertain';
+
+  return `You are a senior website conversion specialist writing a client-facing audit.
 
 Business: ${lead.name}
 Type: ${niche}
 City: ${city}
-Website: ${lead.website || 'none — no website detected'}
+Website: ${lead.website || 'none — no website detected'}${domain ? `\nDomain: ${domain}` : ''}
 Rating: ${lead.rating || 'unknown'} (${lead.reviews || 0} reviews)
 
 Audit their website (or lack thereof). Be specific and sales-oriented.
+
+━━━ BLOG DETECTION — READ CAREFULLY BEFORE SETTING blogData ━━━
+
+You must reason about blog presence using ALL of the following signals:
+
+SIGNAL 1 — URL PATTERNS: These paths commonly indicate a blog exists:
+  /blog  /blogs  /news  /articles  /resources  /insights
+  /posts  /journal  /updates  /media  /tips  /guides  /learn
+${domain ? `For domain "${domain}" consider which of these paths are likely based on the domain name and business type.` : ''}
+
+SIGNAL 2 — BUSINESS TYPE PRIOR: Blog likelihood for "${niche}" is ${blogPrior}
+
+SIGNAL 3 — DOMAIN AUTHORITY: If the website appears established (professional domain, clear niche branding), assume content exists unless strong evidence otherwise.
+
+BLOG STATUS RULES — use exactly one of these 4 values:
+• "Active"         — Blog clearly exists AND shows signs of recent activity (posts within ~3 months)
+• "Outdated"       — Blog exists but last post appears to be 4+ months ago or content is stale
+• "Likely Present" — Signals strongly suggest a blog or content section exists but cannot be confirmed with certainty. USE THIS for: any professional service business (law, dental, med spa, coaching, consulting, agencies, training companies), B2B businesses, or any site where blog-style paths are plausible. DO NOT mark these businesses as Missing.
+• "Missing"        — Use ONLY when you have strong evidence no blog exists. This is appropriate ONLY for clearly local brick-and-mortar businesses (restaurants, nail salons, auto body shops, barbershops) where content marketing is uncommon AND the domain gives no content signals.
+
+⚠ CRITICAL DEFAULT RULE: When uncertain → always output "Likely Present", never "Missing".
+Most businesses with a website have some content section. Reserve "Missing" for cases where you are confident (e.g., a restaurant with a menu-only site, or a business with no website at all).
+
+For "blogPath": output the most likely blog path based on the domain and business type (e.g. "/blog", "/blogs", "/news", "/resources"). Default to "/blog" if unsure.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Return ONLY valid JSON:
 {
@@ -85,10 +124,12 @@ Return ONLY valid JSON:
     {"name":"Content Quality","score":<0-100>,"status":"<...>","detail":"<...>"}
   ],
   "blogData": {
-    "status": "Active|Outdated|Missing",
-    "lastPostEstimate": "<e.g. '2 weeks ago' or '8 months ago' or 'None detected'>",
-    "monthlyTrafficLost": "<estimate e.g. '800–2,000 visitors/mo due to missing blog content'>",
-    "quickWin": "<specific quick win e.g. 'Start with 2 blog posts/month targeting local keywords like best ${niche} in ${city}'>"
+    "status": "Active|Outdated|Likely Present|Missing",
+    "blogPath": "<most likely blog path e.g. '/blog' or '/blogs' or '/news'>",
+    "confidence": "High|Medium|Low",
+    "lastPostEstimate": "<e.g. '2 weeks ago' or '8 months ago' or 'Unable to verify' or 'None detected'>",
+    "monthlyTrafficLost": "<estimate e.g. '800–2,000 visitors/mo due to inactive/missing blog content' — omit if blog is Active>",
+    "quickWin": "<specific quick win e.g. 'Publish 2 blog posts/month targeting local keywords like best ${niche} in ${city}'>"
   },
   "annotations": [
     {"num":1,"issue":"<specific visible problem>"},
@@ -102,7 +143,8 @@ Return ONLY valid JSON:
     {"rank":3,"problem":"<third gap>","costMin":<number>,"costMax":<number>}
   ],
   "nextBestStep": "Your single best next step: <action>. Here is why this will get you <result> in <timeframe> — <specific reason>."
-}`,
+}`;
+},
 
 'ads': (lead, niche, city) => `You are a paid advertising strategist auditing a local business for an agency sales pitch.
 
