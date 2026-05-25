@@ -506,6 +506,43 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 .bing-r { font-size:10px; color:#333; line-height:1.5; }
 .bing-mention { background:#e8f5ff; color:#0078d4; border-radius:3px; padding:0 2px; font-weight:700; }
 
+/* ── Main Tabs ── */
+.main-tabs { display:flex; gap:0; border-bottom:2px solid var(--border); background:var(--bg); padding:0 1.5rem; margin-bottom:0; }
+.main-tab { background:none; border:none; padding:13px 22px; font-size:13px; font-weight:600; font-family:inherit; color:var(--text2); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:color 0.15s, border-color 0.15s; }
+.main-tab.active { color:#1565c0; border-bottom-color:#1565c0; }
+.main-tab:hover:not(.active) { color:var(--text); }
+
+/* ── Outreach Manager ── */
+#outreach-section { display:none; }
+.om-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:1rem; }
+.om-title { font-size:18px; font-weight:800; color:var(--text); }
+.om-subtitle { font-size:12px; color:var(--text2); margin-top:3px; }
+.om-pipeline { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:1rem; }
+.om-stage { background:var(--bg); border:1.5px solid var(--border); border-radius:20px; padding:5px 13px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; display:inline-flex; align-items:center; gap:6px; color:var(--text); }
+.om-stage:hover { border-color:#1565c0; color:#1565c0; }
+.om-stage-count { background:rgba(0,0,0,0.1); border-radius:10px; padding:1px 7px; font-size:11px; }
+.om-search-input { width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:var(--radius); font-size:13px; font-family:inherit; box-sizing:border-box; margin-bottom:1rem; outline:none; }
+.om-search-input:focus { border-color:#1565c0; }
+.om-table-wrap { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow); }
+.om-table { width:100%; border-collapse:collapse; font-size:12.5px; }
+.om-table th { background:#f8f8f6; border-bottom:1px solid var(--border); padding:9px 10px; text-align:left; font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; white-space:nowrap; }
+.om-table td { padding:9px 10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.om-table tr:last-child td { border-bottom:none; }
+.om-table tr:hover td { background:var(--bg2); }
+.om-actions { display:flex; gap:4px; align-items:center; flex-wrap:wrap; }
+.om-action-btn { border:1.5px solid var(--border); background:var(--bg); border-radius:4px; padding:4px 9px; font-size:11px; font-weight:600; cursor:pointer; font-family:inherit; text-decoration:none; color:var(--text); display:inline-block; white-space:nowrap; }
+.om-action-btn.email { border-color:#1565c0; color:#1565c0; }
+.om-action-btn.whatsapp { border-color:#25d366; color:#25d366; }
+.om-note-preview { max-width:180px; font-size:11px; color:var(--text2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.om-status-sel { border:1px solid var(--border); border-radius:4px; padding:3px 6px; font-size:11px; font-family:inherit; background:var(--bg); cursor:pointer; }
+.om-empty { text-align:center; padding:3rem 2rem; color:var(--text2); }
+.om-empty h3 { font-size:16px; font-weight:700; margin-bottom:8px; color:var(--text); }
+.om-empty p { font-size:13px; }
+.om-footer { display:flex; justify-content:space-between; align-items:center; margin-top:1rem; }
+.om-count-label { font-size:12px; color:var(--text2); }
+.om-clear-btn { background:none; border:1px solid var(--border); color:var(--text2); border-radius:var(--radius); padding:6px 14px; font-size:12px; font-family:inherit; cursor:pointer; }
+.om-clear-btn:hover { border-color:#dc2626; color:#dc2626; }
+
 /* ── Utility ── */
 .divider { border:none; border-top:1px solid var(--border); margin:1rem 0; }
 .text-red { color:var(--red-text); }
@@ -556,6 +593,12 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
     <button class="icon-btn" onclick="toggleConfig()">⚙ Settings</button>
   </div>
 </header>
+
+<!-- Main Tab Navigation -->
+<nav class="main-tabs">
+  <button class="main-tab active" id="tab-prospects" onclick="showTab('prospects')">Prospects</button>
+  <button class="main-tab" id="tab-outreach" onclick="showTab('outreach')">Outreach Manager</button>
+</nav>
 
 <!-- Config Panel -->
 <div id="config-panel">
@@ -693,6 +736,9 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
       </table>
     </div>
   </div>
+
+  <!-- Outreach Manager -->
+  <div id="outreach-section"></div>
 
 </div><!-- /main -->
 
@@ -970,6 +1016,7 @@ async function findProspects() {
     document.getElementById('sort-select').value = 'score';
 
     renderTable();
+    saveLeadsToStorage();
     updateSummary();
     document.getElementById('prospects-section').style.display = 'block';
     document.getElementById('summary-bar').style.display = 'flex';
@@ -2017,6 +2064,165 @@ function renderVideoPitch(idx, d) {
 function switchScriptTab(idx, key) {
   activeScriptTab[idx] = key;
   renderVideoPitch(idx, videoPitchCache[idx]);
+}
+
+// ── Lead Persistence ────────────────────────────────────────────────────────
+function saveLeadsToStorage() {
+  const stored = JSON.parse(localStorage.getItem('lg_leads') || '[]');
+  leads.forEach(l => {
+    const key = l.name + '|' + (l.phone || '');
+    if (!stored.find(s => s._key === key)) {
+      stored.push({ ...l, _key: key, niche: currentNiche, city: currentCity });
+    }
+  });
+  localStorage.setItem('lg_leads', JSON.stringify(stored));
+}
+
+// ── Tab Navigation ──────────────────────────────────────────────────────────
+function showTab(tab) {
+  document.getElementById('tab-prospects').classList.toggle('active', tab === 'prospects');
+  document.getElementById('tab-outreach').classList.toggle('active', tab === 'outreach');
+  const marketCard = document.querySelector('.market-card');
+  const prospSection = document.getElementById('prospects-section');
+  const outSection = document.getElementById('outreach-section');
+  if (tab === 'prospects') {
+    marketCard.style.display = '';
+    if (leads.length) prospSection.style.display = 'block';
+    outSection.style.display = 'none';
+  } else {
+    marketCard.style.display = 'none';
+    prospSection.style.display = 'none';
+    outSection.style.display = 'block';
+    renderOutreachManager();
+  }
+}
+
+// ── Outreach Manager ────────────────────────────────────────────────────────
+let omFilter = 'All';
+let omSearch = '';
+
+const OM_STAGE_COLORS = {
+  'All': '#1565c0', 'Not Contacted': '#64748b', 'Contacted': '#0891b2',
+  'Proposal Sent': '#7c3aed', 'Follow Up': '#d97706', 'Negotiating': '#0d9488',
+  'Closed Won': '#16a34a', 'Closed Lost': '#dc2626'
+};
+const OM_STAGES = ['All', 'Not Contacted', 'Contacted', 'Proposal Sent', 'Follow Up', 'Negotiating', 'Closed Won', 'Closed Lost'];
+
+function renderOutreachManager() {
+  const storedLeads = JSON.parse(localStorage.getItem('lg_leads') || '[]');
+  const statuses = JSON.parse(localStorage.getItem('lg_status') || '{}');
+  const notes = JSON.parse(localStorage.getItem('lg_notes') || '{}');
+  const el = document.getElementById('outreach-section');
+
+  if (storedLeads.length === 0) {
+    el.innerHTML = `
+      <div class="om-header">
+        <div><div class="om-title">Outreach Manager</div><div class="om-subtitle">Your saved leads pipeline</div></div>
+      </div>
+      <div class="om-empty"><h3>No leads saved yet</h3><p>Search for prospects on the Prospects tab — they'll appear here automatically.</p></div>`;
+    return;
+  }
+
+  const counts = {};
+  OM_STAGES.forEach(s => counts[s] = 0);
+  counts['All'] = storedLeads.length;
+  storedLeads.forEach(l => {
+    const st = statuses[l.name] || 'Not Contacted';
+    counts[st] = (counts[st] || 0) + 1;
+  });
+
+  const filtered = storedLeads.filter(l => {
+    const st = statuses[l.name] || 'Not Contacted';
+    const matchStatus = omFilter === 'All' || st === omFilter;
+    const matchSearch = !omSearch || l.name.toLowerCase().includes(omSearch.toLowerCase());
+    return matchStatus && matchSearch;
+  });
+
+  const pipelineChips = OM_STAGES.map(s => {
+    const col = OM_STAGE_COLORS[s];
+    const isActive = omFilter === s;
+    const style = isActive ? `background:${col};border-color:${col};color:#fff` : '';
+    return `<div class="om-stage" onclick="filterOutreach('${s}')" style="${style}">${s}<span class="om-stage-count">${counts[s] || 0}</span></div>`;
+  }).join('');
+
+  const rows = filtered.map(l => {
+    const st = statuses[l.name] || 'Not Contacted';
+    const note = notes[l.name] || '';
+    const col = OM_STAGE_COLORS[st] || '#64748b';
+    const statusOpts = OM_STAGES.slice(1)
+      .map(s => `<option value="${s}" ${s === st ? 'selected' : ''}>${s}</option>`).join('');
+    const noteHtml = note
+      ? `<div class="om-note-preview">${esc(note)}</div>`
+      : `<div class="om-note-preview" style="color:var(--text3);font-style:italic">No note</div>`;
+    return `<tr>
+      <td>
+        <div style="font-weight:700;font-size:12.5px">${esc(l.name)}</div>
+        <div style="font-size:10px;color:var(--text2)">${esc(l.niche || '')}${l.city ? ' · ' + esc(l.city) : ''}</div>
+      </td>
+      <td style="white-space:nowrap">${esc(l.phone || '—')}</td>
+      <td style="font-size:11px">${l.email ? `<a href="mailto:${esc(l.email)}" style="color:#1565c0;text-decoration:none">${esc(l.email)}</a>` : '—'}</td>
+      <td><span style="background:${col}18;color:${col};border:1px solid ${col}44;border-radius:12px;padding:2px 10px;font-size:10px;font-weight:700;white-space:nowrap">${esc(st)}</span></td>
+      <td>${noteHtml}</td>
+      <td>
+        <div class="om-actions">
+          ${l.email ? `<a class="om-action-btn email" href="mailto:${esc(l.email)}" target="_blank">✉ Email</a>` : ''}
+          ${l.phone ? `<a class="om-action-btn whatsapp" href="https://wa.me/${(l.phone || '').replace(/\D/g, '')}" target="_blank" rel="noreferrer">💬 WA</a>` : ''}
+          <select class="om-status-sel" onchange="omSetStatus('${esc(l.name)}',this.value)">${statusOpts}</select>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const tableHtml = filtered.length === 0
+    ? `<div class="om-empty"><h3>No leads match</h3><p>Try a different filter or clear the search.</p></div>`
+    : `<div class="om-table-wrap"><table class="om-table">
+        <thead><tr>
+          <th>Business</th><th>Phone</th><th>Email</th><th>Status</th><th>Note</th><th>Actions</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>`;
+
+  el.innerHTML = `
+    <div class="om-header">
+      <div>
+        <div class="om-title">Outreach Manager</div>
+        <div class="om-subtitle">${storedLeads.length} leads in pipeline · ${filtered.length} shown</div>
+      </div>
+    </div>
+    <div class="om-pipeline">${pipelineChips}</div>
+    <input class="om-search-input" type="text" placeholder="Search by business name..." value="${esc(omSearch)}" oninput="omSearchChanged(this.value)">
+    ${tableHtml}
+    <div class="om-footer">
+      <span class="om-count-label">${filtered.length} of ${storedLeads.length} leads</span>
+      <button class="om-clear-btn" onclick="clearOutreachData()">Clear All Leads</button>
+    </div>`;
+}
+
+function filterOutreach(status) {
+  omFilter = status;
+  renderOutreachManager();
+}
+
+function omSearchChanged(val) {
+  omSearch = val;
+  renderOutreachManager();
+}
+
+function omSetStatus(name, val) {
+  const s = JSON.parse(localStorage.getItem('lg_status') || '{}');
+  s[name] = val;
+  localStorage.setItem('lg_status', JSON.stringify(s));
+  if (val === 'Proposal Sent') saveStats('pitches', 1);
+  if (val === 'Closed Won') saveStats('meetings', 1);
+  renderOutreachManager();
+}
+
+function clearOutreachData() {
+  if (!confirm('Clear all saved leads from Outreach Manager? This cannot be undone.')) return;
+  localStorage.removeItem('lg_leads');
+  omFilter = 'All';
+  omSearch = '';
+  renderOutreachManager();
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────
