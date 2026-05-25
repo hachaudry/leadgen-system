@@ -234,6 +234,17 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 .rpt-banner-meta { font-size:11px; opacity:0.55; margin-top:3px; }
 .rpt-banner-close { flex-shrink:0; background:rgba(0,0,0,0.12); border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; font-size:14px; color:inherit; font-family:inherit; display:flex; align-items:center; justify-content:center; transition:background .15s; }
 .rpt-banner-close:hover { background:rgba(0,0,0,0.22); }
+.rpt-banner-sub { display:flex; align-items:center; gap:6px; margin-top:4px; flex-wrap:wrap; }
+.rpt-niche-badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:8px; }
+.rpt-banner-loc { font-size:11px; opacity:0.65; }
+/* Inline niche warning (shows above report buttons when niche missing) */
+.niche-warn-box { display:flex; align-items:flex-start; gap:10px; background:#fff8e1; border:1px solid #f59e0b; border-radius:var(--radius); padding:10px 14px; margin-bottom:10px; }
+.niche-warn-text { font-size:12.5px; color:#78350f; line-height:1.5; flex:1; }
+.niche-warn-row { display:flex; align-items:center; gap:6px; margin-top:8px; flex-wrap:wrap; }
+.niche-inline-sel { border:1px solid #f59e0b; border-radius:var(--radius); padding:5px 8px; font-size:12.5px; font-family:inherit; background:#fffde7; color:#1a1a1a; }
+.niche-set-btn { background:#1565c0; color:#fff; border:none; border-radius:var(--radius); padding:6px 16px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; }
+.niche-set-btn:hover { background:#0d47a1; }
+.niche-skip-link { font-size:11.5px; color:var(--text3); cursor:pointer; text-decoration:underline; background:none; border:none; font-family:inherit; padding:0; }
 
 /* ── Report Output ── */
 #report-output-container { margin-bottom:1.25rem; }
@@ -1427,6 +1438,7 @@ function buildSnapPanel(idx, lead) {
   <!-- Analysis Report Buttons — TOP of panel -->
   <div class="section-title" style="margin-bottom:8px">Run Analysis Reports</div>
   <div id="rpt-bc-${idx}" class="rpt-breadcrumb">Select a report to analyze this prospect</div>
+  <div id="niche-warn-${idx}"></div>
   <div class="report-btn-grid">
     <button class="rpt-btn rpt-localseo" onclick="runReport(${idx},'local-seo',this)">📍 Local SEO / GMB</button>
     <button class="rpt-btn rpt-seo" onclick="runReport(${idx},'seo',this)">🔍 SEO Analysis</button>
@@ -1567,22 +1579,35 @@ function getStatusClass(s) {
 async function runReport(idx, type, btn) {
   const lead = filteredLeads[idx];
   if (!lead) return;
+
+  // Niche validation — required for all reports
+  const niche = currentNiche || lead.niche || '';
+  if (!niche) {
+    showNicheWarning(idx);
+    return;
+  }
+  // Dismiss any existing warning now that niche is confirmed
+  const warnEl = document.getElementById(`niche-warn-${idx}`);
+  if (warnEl) warnEl.innerHTML = '';
+
   const cacheKey = `${idx}-${type}`;
   const keys = getKeys();
   const outEl = document.getElementById(`report-output-${idx}`);
   const rm = REPORT_META[type] || { icon:'📊', name:type, color:'#555', bg:'#f5f5f5', text:'#333' };
+  const reportCity  = currentCity  || lead.city  || lead.address || '';
+  const reportState = currentState || lead.state || '';
 
-  // FIX 1 — Activate clicked button, deactivate all others in this panel
+  // Activate clicked button, deactivate others in this panel
   const snap = document.getElementById(`snap-${idx}`);
   if (snap) snap.querySelectorAll('.rpt-btn').forEach(b => b.classList.remove('rpt-active'));
   btn.classList.add('rpt-active');
 
-  // FIX 3 — Update breadcrumb
+  // Update breadcrumb
   const bcEl = document.getElementById(`rpt-bc-${idx}`);
   if (bcEl) {
     bcEl.innerHTML = `<span class="rpt-bc-dot" style="background:${rm.color}"></span>
       <strong style="color:${rm.color}">${rm.icon} Viewing: ${rm.name}</strong>
-      <span style="color:var(--text3)">— click another report to switch</span>`;
+      <span style="color:var(--text3)">— ${esc(niche)} · ${esc(reportCity)}${reportState ? ', ' + esc(reportState) : ''} — click another to switch</span>`;
   }
 
   outEl.innerHTML = `<div class="report-output report-loading"><span class="spinner"></span>Generating ${rm.name}...</div>`;
@@ -1597,15 +1622,16 @@ async function runReport(idx, type, btn) {
       const resp = await fetch(`${BASE_URL}/api/competitors`, {
         method:'POST',
         headers:{'Content-Type':'application/json','x-google-key':keys.google,'x-anthropic-key':keys.anthropic},
-        body: JSON.stringify({ lat:lead.lat, lng:lead.lng, niche:currentNiche, radius:5000,
-          prospectName:lead.name, prospectRating:lead.rating, prospectReviews:lead.reviews })
+        body: JSON.stringify({ lat:lead.lat, lng:lead.lng, niche, radius:5000,
+          prospectName:lead.name, prospectRating:lead.rating, prospectReviews:lead.reviews,
+          city: reportCity, state: reportState })
       });
       data = await resp.json();
     } else {
       const resp = await fetch(`${BASE_URL}/api/report`, {
         method:'POST',
         headers:{'Content-Type':'application/json','x-anthropic-key':keys.anthropic},
-        body: JSON.stringify({ type, lead, niche:currentNiche, city:currentCity })
+        body: JSON.stringify({ type, lead, niche, city: reportCity, state: reportState })
       });
       data = await resp.json();
     }
@@ -1613,7 +1639,6 @@ async function runReport(idx, type, btn) {
     renderReport(idx, type, data, outEl);
     renderPitchSection(idx, lead, data);
 
-    // FIX 4 — Smooth scroll to report output
     setTimeout(() => {
       outEl.scrollIntoView({ behavior:'smooth', block:'start' });
     }, 120);
@@ -1623,6 +1648,41 @@ async function runReport(idx, type, btn) {
     btn.classList.remove('loading');
     btn.disabled = false;
   }
+
+}
+
+function showNicheWarning(idx) {
+  const warnEl = document.getElementById(`niche-warn-${idx}`);
+  if (!warnEl) return;
+  const NICHES = ['Restaurant','Med Spa','Dental Clinic','Gym','Law Firm','Real Estate Agency',
+    'Roofing Company','Plumbing Company','Hair Salon','Chiropractor'];
+  warnEl.innerHTML = `
+    <div class="niche-warn-box">
+      <span style="font-size:18px;flex-shrink:0">⚠️</span>
+      <div class="niche-warn-text">
+        <strong>Niche is required</strong> — reports will be generic without one. AI cannot generate the correct search queries, keywords, or platform mockups without knowing the business type.
+        <div class="niche-warn-row">
+          <select class="niche-inline-sel" id="niche-sel-${idx}">
+            <option value="">— Select niche —</option>
+            ${NICHES.map(n => `<option value="${n}"${n === currentNiche ? ' selected' : ''}>${n}</option>`).join('')}
+          </select>
+          <button class="niche-set-btn" onclick="setLeadNiche(${idx})">Set &amp; Run Reports</button>
+          <button class="niche-skip-link" onclick="document.getElementById('niche-warn-${idx}').innerHTML=''">Dismiss</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function setLeadNiche(idx) {
+  const sel = document.getElementById(`niche-sel-${idx}`);
+  const niche = sel ? sel.value : '';
+  if (!niche) { sel && (sel.style.borderColor = '#c62828'); return; }
+  currentNiche = niche;
+  const lead = filteredLeads[idx];
+  if (lead) lead.niche = niche;
+  saveLeadsToStorage();
+  const warnEl = document.getElementById(`niche-warn-${idx}`);
+  if (warnEl) warnEl.innerHTML = '';
 }
 
 // Close / collapse an open report
@@ -1654,18 +1714,25 @@ function renderReport(idx, type, data, el) {
     html = renderGenericReport(type, data);
   }
 
-  // FIX 2 — Report header banner
+  // Report header banner
   const rm = REPORT_META[type] || { icon:'📊', name:type, color:'#555', bg:'#f5f5f5', text:'#333' };
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
   const timeStr = now.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+  const bannerNiche = currentNiche || lead?.niche || '';
+  const bannerCity  = currentCity  || lead?.city  || '';
+  const bannerState = currentState || lead?.state || '';
+  const bannerLoc   = [bannerCity, bannerState].filter(Boolean).join(', ');
   const banner = `
   <div class="rpt-banner" style="background:${rm.bg};border-left:4px solid ${rm.color};color:${rm.text}">
     <div class="rpt-banner-left">
       <div class="rpt-banner-icon">${rm.icon}</div>
       <div class="rpt-banner-info">
-        <div class="rpt-banner-title">${rm.name}</div>
-        <div class="rpt-banner-biz">— ${esc(lead?.name || '')}</div>
+        <div class="rpt-banner-title">${rm.name} — ${esc(lead?.name || '')}</div>
+        <div class="rpt-banner-sub">
+          ${bannerNiche ? `<span class="rpt-niche-badge" style="background:${rm.color}22;color:${rm.color};border:1px solid ${rm.color}44">${esc(bannerNiche)}</span>` : ''}
+          ${bannerLoc   ? `<span class="rpt-banner-loc">${esc(bannerLoc)}</span>` : ''}
+        </div>
         <div class="rpt-banner-meta">Generated: ${dateStr} at ${timeStr}</div>
       </div>
     </div>
@@ -1852,10 +1919,17 @@ function renderCompetitors(data, lead) {
 
 function renderPresenceCards(pd, lead, niche, city) {
   if (!pd) return '';
-  const biz  = lead ? lead.name : 'This Business';
-  const q    = encodeURIComponent(`${biz} ${city}`);
-  const aiQ  = `Best ${niche} in ${city}`;
-  const aiQe = encodeURIComponent(aiQ);
+  const biz      = lead ? lead.name : 'This Business';
+  const nicheLC  = (niche || '').toLowerCase();
+  // Build query strings
+  const gsQ   = niche ? `best ${niche} in ${city}` : `${biz} ${city}`;      // Google SERP
+  const aiQ   = niche ? `What is the best ${niche} in ${city}?` : `Best businesses in ${city}?`; // AI display
+  const aiQnp = niche ? `What is the best ${niche} in ${city}` : `Best businesses in ${city}`;   // no "?" for URLs
+  const bingQ = niche ? `best ${niche} in ${city}` : `${biz} ${city}`;      // Bing
+  const gsQe   = encodeURIComponent(gsQ);
+  const aiQe   = encodeURIComponent(aiQ);
+  const aiQnpe = encodeURIComponent(aiQnp);
+  const bingQe = encodeURIComponent(bingQ);
 
   const badge = present =>
     present ? `<span class="pres-badge pres-badge-yes">✓ Appearing</span>`
@@ -1871,7 +1945,7 @@ function renderPresenceCards(pd, lead, niche, city) {
       <span class="serp-glogo"><span style="color:#4285F4;font-size:14px;font-weight:900;font-family:Arial">G</span><span style="color:#EA4335;font-size:14px;font-weight:900;font-family:Arial">o</span><span style="color:#FBBC05;font-size:14px;font-weight:900;font-family:Arial">o</span><span style="color:#34A853;font-size:14px;font-weight:900;font-family:Arial">g</span><span style="color:#EA4335;font-size:14px;font-weight:900;font-family:Arial">l</span><span style="color:#4285F4;font-size:14px;font-weight:900;font-family:Arial">e</span></span>
       ${badge(gsPresent)}
     </div>
-    <div class="serp-bar">🔍 ${esc(biz)} ${esc(city)}</div>
+    <div class="serp-bar">🔍 ${esc(niche ? `best ${niche} in ${city}` : `${biz} ${city}`)}</div>
     ${inTop3
       ? `<div class="serp-result">
            <div class="serp-site">${esc(biz.toLowerCase().replace(/\s+/g,''))}.com <span class="serp-rb serp-rb-good">#1</span></div>
@@ -1898,7 +1972,7 @@ function renderPresenceCards(pd, lead, niche, city) {
     </div>
     <div class="pres-footer">
       <span class="pres-traffic-lost">${gs.monthlyTrafficLost ? '📉 ' + esc(gs.monthlyTrafficLost) + ' lost/mo' : 'Position: ' + esc(gsPos)}</span>
-      <a class="pres-link" href="https://www.google.com/search?q=${q}" target="_blank" rel="noreferrer">Search Google ↗</a>
+      <a class="pres-link" href="https://www.google.com/search?q=${gsQe}" target="_blank" rel="noreferrer">Search on Google ↗</a>
     </div>
   </div>`;
 
@@ -1911,14 +1985,14 @@ function renderPresenceCards(pd, lead, niche, city) {
       ${badge(gaoPresent)}
     </div>
     <div style="padding:8px 12px;background:#e8f0fe;border-radius:8px;margin:8px 12px;font-size:10px;color:#333;line-height:1.55;border-left:3px solid #4285f4">
-      <div style="font-size:9px;font-weight:700;color:#1a73e8;margin-bottom:4px">AI Overview · ${esc(aiQ)}</div>
+      <div style="font-size:9px;font-weight:700;color:#1a73e8;margin-bottom:4px">AI Overview · ${esc(niche ? `best ${niche} in ${city}` : aiQ)}</div>
       ${gaoPresent
         ? `Top ${esc(niche.toLowerCase())} options in ${esc(city)} include <strong style="background:#c8e6c9;padding:0 2px;border-radius:2px">${esc(biz)}</strong>, recognised for consistent service quality and strong local reviews...`
         : `${esc(city)}'s most recommended ${esc(niche.toLowerCase())} businesses based on reviews include several highly-rated competitors. <span style="color:#c62828;font-weight:600">${esc(biz)} was not found in this AI summary.</span>`}
     </div>
     <div class="pres-footer">
       <span class="pres-traffic-lost">${gaoPresent ? '✓ AI brand presence active' : '⚠ Not in AI answers'}</span>
-      <a class="pres-link" href="https://www.google.com/search?q=${aiQe}" target="_blank" rel="noreferrer">Check on Google ↗</a>
+      <a class="pres-link" href="https://www.google.com/search?q=${encodeURIComponent('best ' + (niche||'businesses') + ' in ' + city)}" target="_blank" rel="noreferrer">Check on Google ↗</a>
     </div>
   </div>`;
 
@@ -1931,7 +2005,7 @@ function renderPresenceCards(pd, lead, niche, city) {
       ${badge(cgptPresent)}
     </div>
     <div class="cgpt-body">
-      <div class="cgpt-user">${esc(aiQ)}?</div>
+      <div class="cgpt-user">${esc(aiQ)}</div>
       <div class="cgpt-ai">${cgptPresent
         ? `Great options for ${esc(niche.toLowerCase())} in ${esc(city)} include <span class="cgpt-mention">${esc(biz)}</span> — well-regarded for quality service and strong customer reviews. Other options include several local providers...`
         : `Some well-regarded ${esc(niche.toLowerCase())} businesses in ${esc(city)} include Competitor A, Competitor B, and Competitor C based on their strong online presence.
@@ -1940,7 +2014,7 @@ function renderPresenceCards(pd, lead, niche, city) {
     </div>
     <div class="pres-footer">
       <span class="pres-traffic-lost">${cgptPresent ? '✓ In ChatGPT answers' : '⚠ Not in ChatGPT answers'}</span>
-      <a class="pres-link" href="https://chat.openai.com" target="_blank" rel="noreferrer">Ask ChatGPT ↗</a>
+      <a class="pres-link" href="https://chat.openai.com/?q=${aiQnpe}" target="_blank" rel="noreferrer">Ask ChatGPT ↗</a>
     </div>
   </div>`;
 
@@ -1953,7 +2027,7 @@ function renderPresenceCards(pd, lead, niche, city) {
       ${badge(gemPresent)}
     </div>
     <div class="gem-body">
-      <div class="gem-q">${esc(aiQ)}</div>
+      <div class="gem-q">${esc(aiQ.replace('?',''))}</div>
       <div class="gem-r">${gemPresent
         ? `Based on local reviews and web presence, <span class="gem-mention">${esc(biz)}</span> is a recommended ${esc(niche.toLowerCase())} in ${esc(city)}, with a track record of positive customer experiences...`
         : `Top ${esc(niche.toLowerCase())} businesses in ${esc(city)} by review count include Competitor A and Competitor B. <span style="color:#c62828;font-weight:600">${esc(biz)} was not surfaced.</span>`}
@@ -1961,7 +2035,7 @@ function renderPresenceCards(pd, lead, niche, city) {
     </div>
     <div class="pres-footer">
       <span class="pres-traffic-lost">${gemPresent ? '✓ Mentioned in Gemini' : '⚠ Not in Gemini'}</span>
-      <a class="pres-link" href="https://gemini.google.com" target="_blank" rel="noreferrer">Ask Gemini ↗</a>
+      <a class="pres-link" href="https://gemini.google.com/app?q=${aiQnpe}" target="_blank" rel="noreferrer">Ask Gemini ↗</a>
     </div>
   </div>`;
 
@@ -1974,7 +2048,7 @@ function renderPresenceCards(pd, lead, niche, city) {
       ${badge(claPresent)}
     </div>
     <div class="clai-body">
-      <div style="font-size:10px;color:#888;margin-bottom:5px;font-style:italic">${esc(aiQ)}</div>
+      <div style="font-size:10px;color:#888;margin-bottom:5px;font-style:italic">${esc(aiQ.replace('?',''))}</div>
       <div class="clai-r">${claPresent
         ? `For ${esc(niche.toLowerCase())} in ${esc(city)}, <span class="clai-mention">${esc(biz)}</span> is worth considering — they have a solid local reputation and visible online presence that makes them easy to find and verify...`
         : `I'd look at well-reviewed ${esc(niche.toLowerCase())} businesses in ${esc(city)} with strong Google profiles. <span style="color:#c62828;font-weight:600">${esc(biz)} isn't in my knowledge base for this query.</span>`}
@@ -1982,7 +2056,7 @@ function renderPresenceCards(pd, lead, niche, city) {
     </div>
     <div class="pres-footer">
       <span class="pres-traffic-lost">${claPresent ? '✓ Known to Claude AI' : '⚠ Not in Claude AI'}</span>
-      <a class="pres-link" href="https://claude.ai" target="_blank" rel="noreferrer">Ask Claude ↗</a>
+      <a class="pres-link" href="https://claude.ai/new?q=${aiQnpe}" target="_blank" rel="noreferrer">Ask Claude ↗</a>
     </div>
   </div>`;
 
@@ -2007,7 +2081,7 @@ function renderPresenceCards(pd, lead, niche, city) {
     </div>
     <div class="pres-footer">
       <span class="pres-traffic-lost">${bing.monthlyTrafficLost ? '📉 ' + esc(bing.monthlyTrafficLost) : 'Position: ' + esc(bingPos)}</span>
-      <a class="pres-link" href="https://www.bing.com/search?q=${q}" target="_blank" rel="noreferrer">Search Bing ↗</a>
+      <a class="pres-link" href="https://www.bing.com/search?q=${bingQe}" target="_blank" rel="noreferrer">Search on Bing ↗</a>
     </div>
   </div>`;
 

@@ -184,13 +184,15 @@ Return ONLY valid JSON:
   "nextBestStep": "Your single best next step: <action>. Here is why this will get you <result> in <timeframe> — <specific reason>."
 }`,
 
-'360': (lead, niche, city) => `You are a senior digital marketing director writing a comprehensive 360-degree audit for a high-stakes client presentation.
+'360': (lead, niche, city) => `You are a senior digital marketing director and ${niche} industry specialist writing a comprehensive 360-degree audit for a high-stakes client presentation.
 
 Business: ${lead.name}
-Type: ${niche}
+Niche: ${niche}
 City: ${city}
 Website: ${lead.website || 'none'}
 Rating: ${lead.rating || 'unknown'} (${lead.reviews || 0} reviews)
+
+This is a ${niche} business in ${city}. Generate a complete digital marketing audit from the perspective of a ${niche} marketing specialist. All recommendations, keywords, competitor comparisons, content strategies, and ad targeting must be specific to the ${niche} industry — not generic digital marketing advice.
 
 Write a complete 360-degree digital marketing audit. Be specific, compelling, and data-driven. Most small local businesses score 20-50 overall.
 
@@ -264,10 +266,21 @@ Return ONLY valid JSON (no markdown, no commentary):
 'seo': (lead, niche, city) => `You are a senior SEO strategist writing a keyword and search ranking audit for a sales presentation.
 
 Business: ${lead.name}
-Type: ${niche}
+Niche: ${niche}
 City: ${city}
 Website: ${lead.website || 'none — no website detected'}
 Rating: ${lead.rating || 'unknown'} (${lead.reviews || 0} reviews)
+
+This is a ${niche} business. Generate SEO analysis using ${niche}-specific keywords.
+
+Key search terms to audit rankings for:
+- best ${niche} in ${city}
+- ${niche} near me
+- ${niche} ${city}
+- affordable ${niche} ${city}
+- top ${niche} ${city}
+
+For AIO/GEO readiness: evaluate whether this ${niche} business would appear when someone asks an AI assistant about ${niche} services in ${city}.
 
 Audit their organic search performance and SEO health. Be specific and sales-oriented.
 
@@ -328,13 +341,31 @@ Return ONLY valid JSON:
   "nextBestStep": "Your single best next step: <action>. Here is why this will get you <result> in <timeframe> — <specific reason referencing their keyword gap vs top competitor>."
 }`,
 
-'social': (lead, niche, city) => `You are a senior social media strategist writing a full 6-platform audit for a sales presentation.
+'social': (lead, niche, city) => {
+  const SOCIAL_CONTEXT = {
+    'Restaurant':         'focus on food photography, daily specials, behind-the-scenes kitchen content, and event announcements',
+    'Med Spa':            'focus on before/after transformations, treatment spotlights, skincare tips, and client testimonials',
+    'Dental Clinic':      'focus on smile transformations, patient education, dental tips, and friendly staff content',
+    'Gym':                'focus on member transformations, workout videos, motivational content, and class schedules',
+    'Law Firm':           'focus on educational legal tips, case results (anonymized), community involvement, and trust-building content',
+    'Real Estate Agency': 'focus on property listings, neighborhood guides, market updates, and client success stories',
+    'Roofing Company':    'focus on project before/after, storm damage tips, customer testimonials, and seasonal promotions',
+    'Plumbing Company':   'focus on emergency tips, project showcases, how-to content, and customer reviews',
+    'Hair Salon':         'focus on transformation photos, style inspiration, product tips, and booking promotions',
+    'Chiropractor':       'focus on pain relief education, adjustment videos, patient testimonials, and wellness content'
+  };
+  const socialCtx = SOCIAL_CONTEXT[niche] || 'focus on local community engagement, service quality content, and customer success stories';
+
+  return `You are a senior social media strategist writing a full 6-platform audit for a sales presentation.
 
 Business: ${lead.name}
-Type: ${niche}
+Niche: ${niche}
 City: ${city}
 Website: ${lead.website || 'none'}
 Rating: ${lead.rating || 'unknown'} (${lead.reviews || 0} reviews)
+
+This is a ${niche} business. Analyze their social media presence in the context of ${niche} marketing.
+${niche}-specific content strategy: ${socialCtx}
 
 Audit their presence across ALL 6 major platforms in this exact order: Facebook, X/Twitter, Instagram, LinkedIn, YouTube, TikTok.
 Most small local businesses score 20-45 overall and are weak on 3-5 platforms.
@@ -434,7 +465,8 @@ Return ONLY valid JSON:
     {"rank":3,"problem":"<third gap>","costMin":<number>,"costMax":<number>}
   ],
   "nextBestStep": "Your single best next step: <action>. Here is why this will get you <result> in <timeframe> — <specific reason>."
-}`
+}`;
+}
 };
 
 export default async function handler(req, res) {
@@ -442,7 +474,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { type, lead, niche, city } = req.body;
+  const { type, lead, niche, city, state } = req.body;
   if (!type || !lead) return res.status(400).json({ error: 'type and lead required' });
 
   const ANTHROPIC_KEY = req.headers['x-anthropic-key'] || process.env.ANTHROPIC_API_KEY;
@@ -453,7 +485,10 @@ export default async function handler(req, res) {
 
   const TOKEN_MAP = { 'social': 3200, 'seo': 2800, '360': 3800, 'website': 2400 };
   try {
-    const raw = await claude(ANTHROPIC_KEY, promptFn(lead, niche || lead.businessType || '', city || lead.city || ''), TOKEN_MAP[type] || 2200);
+    const resolvedCity = city || lead.city || '';
+    const resolvedState = state || lead.state || '';
+    const fullCity = resolvedCity && resolvedState ? `${resolvedCity}, ${resolvedState}` : resolvedCity || resolvedState || 'local area';
+    const raw = await claude(ANTHROPIC_KEY, promptFn(lead, niche || lead.businessType || '', fullCity), TOKEN_MAP[type] || 2200);
     const data = parseJSON(raw);
     if (!data) return res.status(500).json({ error: 'Failed to parse AI response' });
     return res.status(200).json(data);
