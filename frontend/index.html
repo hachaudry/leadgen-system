@@ -798,6 +798,15 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
     </div>
   </div>
 
+  <!-- Quick-Add Inbound Lead Bar — always visible on Prospects tab -->
+  <div id="quick-add-bar" class="quick-add-bar">
+    <span class="quick-add-label">⚡ Quick Add Inbound Lead</span>
+    <input class="quick-add-input" id="quick-add-input" type="text"
+      placeholder="Paste website URL or business name to instantly add inbound lead"
+      onkeydown="if(event.key==='Enter')quickAddLead()">
+    <button class="quick-add-btn" id="quick-add-btn" onclick="quickAddLead()">+ Add Lead</button>
+  </div>
+
   <!-- Section 2: Prospects -->
   <div id="prospects-section">
     <div id="summary-bar">
@@ -805,14 +814,6 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
       <div class="sum-item"><div class="sum-dot" style="background:#60a5fa"></div><span id="sum-email">0 with email</span></div>
       <div class="sum-item"><div class="sum-dot" style="background:#f97316"></div><span id="sum-noweb">0 no website</span></div>
       <div class="sum-item"><div class="sum-dot" style="background:#a78bfa"></div><span id="sum-lowrating">0 low rating</span></div>
-    </div>
-    <!-- Quick-Add Inbound Lead Bar -->
-    <div class="quick-add-bar">
-      <span class="quick-add-label">⚡ Quick Add</span>
-      <input class="quick-add-input" id="quick-add-input" type="text"
-        placeholder="Paste website URL or business name to instantly add inbound lead"
-        onkeydown="if(event.key==='Enter')quickAddLead()">
-      <button class="quick-add-btn" id="quick-add-btn" onclick="quickAddLead()">+ Add Lead</button>
     </div>
 
     <div id="filter-bar">
@@ -2467,15 +2468,21 @@ function saveLeadsToStorage() {
 function showTab(tab) {
   document.getElementById('tab-prospects').classList.toggle('active', tab === 'prospects');
   document.getElementById('tab-outreach').classList.toggle('active', tab === 'outreach');
-  const marketCard = document.querySelector('.market-card');
-  const prospSection = document.getElementById('prospects-section');
-  const outSection = document.getElementById('outreach-section');
+  const marketCard    = document.querySelector('.market-card');
+  const manualPanel   = document.getElementById('manual-entry-panel');
+  const quickAddBar   = document.getElementById('quick-add-bar');
+  const prospSection  = document.getElementById('prospects-section');
+  const outSection    = document.getElementById('outreach-section');
   if (tab === 'prospects') {
     marketCard.style.display = '';
+    if (quickAddBar) quickAddBar.style.display = 'flex';
+    if (manualPanel && manualPanel.classList.contains('open')) manualPanel.style.display = 'block';
     if (leads.length) prospSection.style.display = 'block';
     outSection.style.display = 'none';
   } else {
     marketCard.style.display = 'none';
+    if (quickAddBar) quickAddBar.style.display = 'none';
+    if (manualPanel) { manualPanel.style.display = 'none'; manualPanel.classList.remove('open'); }
     prospSection.style.display = 'none';
     outSection.style.display = 'block';
     renderOutreachManager();
