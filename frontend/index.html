@@ -194,23 +194,51 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 .insight-text { font-size:13px; line-height:1.6; color:var(--text); }
 
 /* ── Report Buttons ── */
-.report-btn-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:1.25rem; }
-.rpt-btn { border:none; border-radius:var(--radius); padding:13px 8px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; text-align:center; transition:opacity .15s,transform .1s; letter-spacing:-0.1px; }
+.report-btn-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:0.5rem; }
+.rpt-btn { position:relative; border:2px solid transparent; border-radius:var(--radius); padding:13px 8px 13px 8px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; text-align:center; transition:all .15s; letter-spacing:-0.1px; }
 .rpt-btn:hover { opacity:0.88; transform:translateY(-1px); }
 .rpt-btn:active { transform:translateY(0); }
 .rpt-btn.loading { opacity:0.6; cursor:wait; }
-.rpt-localseo { background:var(--blue-bg); color:var(--blue-text); border:1px solid rgba(21,101,192,0.25); }
-.rpt-seo { background:var(--indigo-bg); color:var(--indigo-text); border:1px solid rgba(40,53,147,0.25); }
-.rpt-social { background:var(--purple-bg); color:var(--purple-text); border:1px solid rgba(106,27,154,0.25); }
-.rpt-website { background:var(--orange-bg); color:var(--orange-text); border:1px solid rgba(230,81,0,0.25); }
-.rpt-ads { background:var(--green-bg); color:var(--green-text); border:1px solid rgba(46,125,50,0.25); }
-.rpt-360 { background:#111; color:#fff; border:1px solid #111; }
+.rpt-localseo { background:var(--blue-bg); color:var(--blue-text); border-color:rgba(21,101,192,0.25); }
+.rpt-seo { background:var(--indigo-bg); color:var(--indigo-text); border-color:rgba(40,53,147,0.25); }
+.rpt-social { background:var(--purple-bg); color:var(--purple-text); border-color:rgba(106,27,154,0.25); }
+.rpt-website { background:var(--orange-bg); color:var(--orange-text); border-color:rgba(230,81,0,0.25); }
+.rpt-ads { background:var(--green-bg); color:var(--green-text); border-color:rgba(46,125,50,0.25); }
+.rpt-360 { background:#111; color:#fff; border-color:#444; }
 .rpt-360:hover { opacity:0.85; }
-.rpt-competitors { background:var(--red-bg); color:var(--red-text); border:1px solid rgba(198,40,40,0.25); }
+.rpt-competitors { background:var(--red-bg); color:var(--red-text); border-color:rgba(198,40,40,0.25); }
+
+/* Active report button states */
+.rpt-btn.rpt-active { transform:none !important; box-shadow:0 0 0 3px rgba(0,0,0,0.12); }
+.rpt-btn.rpt-active::after { content:'✓'; position:absolute; top:4px; right:5px; width:15px; height:15px; border-radius:50%; background:rgba(0,0,0,0.20); font-size:9px; font-weight:900; display:flex; align-items:center; justify-content:center; line-height:15px; }
+.rpt-localseo.rpt-active { background:#1565c0; color:#fff; border-color:#0d47a1; box-shadow:0 0 0 3px rgba(21,101,192,0.30); }
+.rpt-seo.rpt-active     { background:#283593; color:#fff; border-color:#1a237e; box-shadow:0 0 0 3px rgba(40,53,147,0.30); }
+.rpt-social.rpt-active  { background:#6a1b9a; color:#fff; border-color:#4a148c; box-shadow:0 0 0 3px rgba(106,27,154,0.30); }
+.rpt-website.rpt-active { background:#e65100; color:#fff; border-color:#bf360c; box-shadow:0 0 0 3px rgba(230,81,0,0.30); }
+.rpt-ads.rpt-active     { background:#2e7d32; color:#fff; border-color:#1b5e20; box-shadow:0 0 0 3px rgba(46,125,50,0.30); }
+.rpt-360.rpt-active     { background:#000;    color:#fff; border-color:#555;    box-shadow:0 0 0 3px rgba(0,0,0,0.35); }
+.rpt-competitors.rpt-active { background:#c62828; color:#fff; border-color:#b71c1c; box-shadow:0 0 0 3px rgba(198,40,40,0.30); }
+
+/* Breadcrumb indicator */
+.rpt-breadcrumb { display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--text3); margin-bottom:10px; min-height:18px; }
+.rpt-bc-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+
+/* Report Banner (FIX 2) */
+.report-with-banner { border-radius:var(--radius-lg); overflow:hidden; margin-bottom:0; }
+.rpt-banner { padding:1rem 1.25rem; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.rpt-banner-left { display:flex; align-items:center; gap:12px; min-width:0; }
+.rpt-banner-icon { font-size:26px; flex-shrink:0; line-height:1; }
+.rpt-banner-info { min-width:0; }
+.rpt-banner-title { font-size:16px; font-weight:800; line-height:1.2; }
+.rpt-banner-biz { font-size:13px; font-weight:600; opacity:0.75; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rpt-banner-meta { font-size:11px; opacity:0.55; margin-top:3px; }
+.rpt-banner-close { flex-shrink:0; background:rgba(0,0,0,0.12); border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; font-size:14px; color:inherit; font-family:inherit; display:flex; align-items:center; justify-content:center; transition:background .15s; }
+.rpt-banner-close:hover { background:rgba(0,0,0,0.22); }
 
 /* ── Report Output ── */
 #report-output-container { margin-bottom:1.25rem; }
 .report-output { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem; }
+.report-with-banner .report-output { border-radius:0; border-left:none; border-right:none; border-bottom:none; }
 .report-loading { text-align:center; padding:2rem; color:var(--text2); font-size:13px; }
 .spinner { display:inline-block; width:20px; height:20px; border:2px solid var(--border2); border-top-color:#1565c0; border-radius:50%; animation:spin 0.8s linear infinite; margin-right:8px; vertical-align:middle; }
 @keyframes spin { to { transform:rotate(360deg); } }
@@ -758,6 +786,17 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 
 <script>
 // ── Constants ──────────────────────────────────────────────────────────────
+// Report type metadata — icon, display name, accent color, light bg, text color
+const REPORT_META = {
+  'local-seo':   { icon:'📍', name:'Local SEO / GMB Report',       color:'#1565c0', bg:'#e3f2fd', text:'#0d47a1' },
+  'seo':         { icon:'🔍', name:'SEO Analysis Report',           color:'#283593', bg:'#e8eaf6', text:'#1a237e' },
+  'social':      { icon:'📱', name:'Social Media Report',           color:'#6a1b9a', bg:'#f3e5f5', text:'#4a148c' },
+  'website':     { icon:'🌐', name:'Website Audit',                 color:'#e65100', bg:'#fff3e0', text:'#bf360c' },
+  'ads':         { icon:'📣', name:'Ads Opportunity Report',        color:'#2e7d32', bg:'#e8f5e9', text:'#1b5e20' },
+  '360':         { icon:'🎯', name:'360° Full Digital Marketing Audit', color:'#111', bg:'#f5f5f5', text:'#111' },
+  'competitors': { icon:'⚔️', name:'Competitor Analysis',           color:'#c62828', bg:'#ffebee', text:'#b71c1c' }
+};
+
 const DEAL_VALUES = {
   'Med Spa':1800,'Restaurant':1200,'Dental Clinic':2200,'Gym':1400,
   'Law Firm':3500,'Real Estate Agency':2800,'Roofing Company':2000,
@@ -1214,8 +1253,9 @@ function buildSnapPanel(idx, lead) {
 <div class="snap-panel">
 
   <!-- Analysis Report Buttons — TOP of panel -->
-  <div class="section-title" style="margin-bottom:10px">Run Analysis Reports</div>
-  <div class="report-btn-grid" style="margin-bottom:1.25rem">
+  <div class="section-title" style="margin-bottom:8px">Run Analysis Reports</div>
+  <div id="rpt-bc-${idx}" class="rpt-breadcrumb">Select a report to analyze this prospect</div>
+  <div class="report-btn-grid">
     <button class="rpt-btn rpt-localseo" onclick="runReport(${idx},'local-seo',this)">📍 Local SEO / GMB</button>
     <button class="rpt-btn rpt-seo" onclick="runReport(${idx},'seo',this)">🔍 SEO Analysis</button>
     <button class="rpt-btn rpt-social" onclick="runReport(${idx},'social',this)">📱 Social Media</button>
@@ -1358,8 +1398,22 @@ async function runReport(idx, type, btn) {
   const cacheKey = `${idx}-${type}`;
   const keys = getKeys();
   const outEl = document.getElementById(`report-output-${idx}`);
+  const rm = REPORT_META[type] || { icon:'📊', name:type, color:'#555', bg:'#f5f5f5', text:'#333' };
 
-  outEl.innerHTML = `<div class="report-output report-loading"><span class="spinner"></span>Generating ${type} report...</div>`;
+  // FIX 1 — Activate clicked button, deactivate all others in this panel
+  const snap = document.getElementById(`snap-${idx}`);
+  if (snap) snap.querySelectorAll('.rpt-btn').forEach(b => b.classList.remove('rpt-active'));
+  btn.classList.add('rpt-active');
+
+  // FIX 3 — Update breadcrumb
+  const bcEl = document.getElementById(`rpt-bc-${idx}`);
+  if (bcEl) {
+    bcEl.innerHTML = `<span class="rpt-bc-dot" style="background:${rm.color}"></span>
+      <strong style="color:${rm.color}">${rm.icon} Viewing: ${rm.name}</strong>
+      <span style="color:var(--text3)">— click another report to switch</span>`;
+  }
+
+  outEl.innerHTML = `<div class="report-output report-loading"><span class="spinner"></span>Generating ${rm.name}...</div>`;
   btn.classList.add('loading');
   btn.disabled = true;
 
@@ -1386,12 +1440,27 @@ async function runReport(idx, type, btn) {
     reportCache[cacheKey] = data;
     renderReport(idx, type, data, outEl);
     renderPitchSection(idx, lead, data);
+
+    // FIX 4 — Smooth scroll to report output
+    setTimeout(() => {
+      outEl.scrollIntoView({ behavior:'smooth', block:'start' });
+    }, 120);
   } catch(e) {
     outEl.innerHTML = `<div class="report-output report-loading">Error: ${esc(e.message)}</div>`;
   } finally {
     btn.classList.remove('loading');
     btn.disabled = false;
   }
+}
+
+// Close / collapse an open report
+function closeReport(idx) {
+  const outEl = document.getElementById(`report-output-${idx}`);
+  if (outEl) outEl.innerHTML = '';
+  const bcEl = document.getElementById(`rpt-bc-${idx}`);
+  if (bcEl) bcEl.innerHTML = 'Select a report to analyze this prospect';
+  const snap = document.getElementById(`snap-${idx}`);
+  if (snap) snap.querySelectorAll('.rpt-btn').forEach(b => b.classList.remove('rpt-active'));
 }
 
 // ── Render Report ──────────────────────────────────────────────────────────
@@ -1413,7 +1482,25 @@ function renderReport(idx, type, data, el) {
     html = renderGenericReport(type, data);
   }
 
-  el.innerHTML = `<div class="report-output">${html}</div>`;
+  // FIX 2 — Report header banner
+  const rm = REPORT_META[type] || { icon:'📊', name:type, color:'#555', bg:'#f5f5f5', text:'#333' };
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+  const timeStr = now.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+  const banner = `
+  <div class="rpt-banner" style="background:${rm.bg};border-left:4px solid ${rm.color};color:${rm.text}">
+    <div class="rpt-banner-left">
+      <div class="rpt-banner-icon">${rm.icon}</div>
+      <div class="rpt-banner-info">
+        <div class="rpt-banner-title">${rm.name}</div>
+        <div class="rpt-banner-biz">— ${esc(lead?.name || '')}</div>
+        <div class="rpt-banner-meta">Generated: ${dateStr} at ${timeStr}</div>
+      </div>
+    </div>
+    <button class="rpt-banner-close" onclick="closeReport(${idx})" title="Close report">✕</button>
+  </div>`;
+
+  el.innerHTML = `<div class="report-with-banner" style="border:1px solid ${rm.color}44;border-left:4px solid ${rm.color};border-radius:var(--radius-lg);overflow:hidden">${banner}<div class="report-output" style="border:none;border-radius:0;border-top:1px solid ${rm.color}22">${html}</div></div>`;
   animateScores(el);
 }
 
