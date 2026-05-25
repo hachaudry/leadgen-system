@@ -215,10 +215,38 @@ Return ONLY valid JSON:
     {"rank":2,"problem":"<second gap>","costMin":<number>,"costMax":<number>},
     {"rank":3,"problem":"<third gap>","costMin":<number>,"costMax":<number>}
   ],
+  "presenceData": {
+    "googleSearch": {
+      "present": <true if ranking page 1, false if page 2+>,
+      "position": "<Top 3|Page 1 (4-10)|Page 2+|Not Found>",
+      "monthlyTrafficLost": "<estimate e.g. '500–1,200 visitors/mo'>"
+    },
+    "googleAIO": {
+      "present": <true if likely mentioned in Google AI Overviews, false if not>,
+      "context": "<one sentence — would they appear in Google's AI overview for 'best ${niche} in ${city}'?>"
+    },
+    "chatGPT": {
+      "present": <true if they would likely appear in ChatGPT answers, false if not>,
+      "context": "<one sentence — would ChatGPT mention them for local ${niche} searches?>"
+    },
+    "gemini": {
+      "present": <true if likely in Gemini results, false if not>,
+      "context": "<one sentence>"
+    },
+    "claudeAI": {
+      "present": <true if notable enough to appear in Claude answers, false if not>,
+      "context": "<one sentence>"
+    },
+    "bing": {
+      "present": <true if ranking on Bing page 1, false if not>,
+      "position": "<Top 3|Page 1|Page 2+|Not Found>",
+      "monthlyTrafficLost": "<estimate>"
+    }
+  },
   "nextBestStep": "Your single best next step: <action>. Here is why this will get you <result> in <timeframe> — <specific reason referencing their keyword gap vs top competitor>."
 }`,
 
-'social': (lead, niche, city) => `You are a senior social media strategist writing a full platform audit for a sales presentation.
+'social': (lead, niche, city) => `You are a senior social media strategist writing a full 6-platform audit for a sales presentation.
 
 Business: ${lead.name}
 Type: ${niche}
@@ -226,7 +254,8 @@ City: ${city}
 Website: ${lead.website || 'none'}
 Rating: ${lead.rating || 'unknown'} (${lead.reviews || 0} reviews)
 
-Audit their presence across ALL major social platforms. Be specific and sales-oriented. Most small local businesses score 20-45 overall.
+Audit their presence across ALL 6 major platforms in this exact order: Facebook, X/Twitter, Instagram, LinkedIn, YouTube, TikTok.
+Most small local businesses score 20-45 overall and are weak on 3-5 platforms.
 
 Return ONLY valid JSON:
 {
@@ -236,23 +265,89 @@ Return ONLY valid JSON:
   "salesAngle": "<1 sentence hook about their social media gap>",
   "salesSummary": "<2-3 sentences why targeting this prospect for social media management>",
   "subscores": [
-    {"name":"Instagram","score":<0-100>,"status":"<Critical Gap|Needs Improvement|Average|Strong>","detail":"<estimated followers, post frequency, engagement rate>"},
-    {"name":"Facebook","score":<0-100>,"status":"<...>","detail":"<page likes, post activity, ad presence>"},
+    {"name":"Facebook","score":<0-100>,"status":"<Critical Gap|Needs Improvement|Average|Strong>","detail":"<page likes, post frequency, ad presence>"},
     {"name":"X / Twitter","score":<0-100>,"status":"<...>","detail":"<account presence, tweet frequency, follower estimate>"},
-    {"name":"LinkedIn","score":<0-100>,"status":"<...>","detail":"<company page presence, employee count shown, posts>"},
-    {"name":"YouTube","score":<0-100>,"status":"<...>","detail":"<channel presence, estimated subscribers, video count and recency>"},
+    {"name":"Instagram","score":<0-100>,"status":"<...>","detail":"<estimated followers, post frequency, engagement rate>"},
+    {"name":"LinkedIn","score":<0-100>,"status":"<...>","detail":"<company page presence, posts per month>"},
+    {"name":"YouTube","score":<0-100>,"status":"<...>","detail":"<channel presence, estimated subscribers, video count>"},
     {"name":"TikTok","score":<0-100>,"status":"<...>","detail":"<account presence, estimated followers, video posting frequency>"}
   ],
   "platformSummary": [
-    {"platform":"Instagram","status":"Active|Inactive|Not Found","followers":"<estimate>","posts":"<estimate per month>","opportunity":"<one sentence specific opportunity>"},
-    {"platform":"Facebook","status":"Active|Inactive|Not Found","followers":"<estimate>","posts":"<estimate per month>","opportunity":"<one sentence>"},
-    {"platform":"X / Twitter","status":"Active|Inactive|Not Found","followers":"<estimate>","posts":"<estimate per month>","opportunity":"<one sentence>"},
-    {"platform":"LinkedIn","status":"Active|Inactive|Not Found","followers":"<estimate>","posts":"<estimate per month>","opportunity":"<one sentence>"},
-    {"platform":"YouTube","status":"Active|Inactive|Not Found","followers":"<estimate subscribers>","posts":"<estimated videos>","opportunity":"<one sentence>"},
-    {"platform":"TikTok","status":"Active|Inactive|Not Found","followers":"<estimate>","posts":"<estimate per month>","opportunity":"<one sentence>"}
+    {
+      "platform": "Facebook",
+      "status": "Active|Inactive|Not Found",
+      "followers": "<estimate e.g. '~600 page likes'>",
+      "totalPosts": "<estimate e.g. '~85 posts'>",
+      "postsPerMonth": "<estimate e.g. '1-2/month'>",
+      "lastPost": "<estimate e.g. '~3 weeks ago'>",
+      "engagementRate": "<estimate e.g. '0.5%' or 'Very Low'>",
+      "gap": "<2 specific sentences about what they are missing on Facebook>",
+      "quickWin": "<one specific, immediately actionable quick win for Facebook>",
+      "monthlyReachLost": "<estimate e.g. '2,000–4,000 local users/mo'>"
+    },
+    {
+      "platform": "X / Twitter",
+      "status": "Active|Inactive|Not Found",
+      "followers": "<estimate>",
+      "totalPosts": "<estimate>",
+      "postsPerMonth": "<estimate>",
+      "lastPost": "<estimate>",
+      "engagementRate": "<estimate>",
+      "gap": "<2 specific sentences>",
+      "quickWin": "<one actionable quick win>",
+      "monthlyReachLost": "<estimate>"
+    },
+    {
+      "platform": "Instagram",
+      "status": "Active|Inactive|Not Found",
+      "followers": "<estimate>",
+      "totalPosts": "<estimate>",
+      "postsPerMonth": "<estimate>",
+      "lastPost": "<estimate>",
+      "engagementRate": "<estimate>",
+      "gap": "<2 specific sentences>",
+      "quickWin": "<one actionable quick win>",
+      "monthlyReachLost": "<estimate>"
+    },
+    {
+      "platform": "LinkedIn",
+      "status": "Active|Inactive|Not Found",
+      "followers": "<estimate>",
+      "totalPosts": "<estimate>",
+      "postsPerMonth": "<estimate>",
+      "lastPost": "<estimate>",
+      "engagementRate": "<estimate>",
+      "gap": "<2 specific sentences>",
+      "quickWin": "<one actionable quick win>",
+      "monthlyReachLost": "<estimate>"
+    },
+    {
+      "platform": "YouTube",
+      "status": "Active|Inactive|Not Found",
+      "followers": "<estimate subscribers>",
+      "totalPosts": "<estimate videos>",
+      "postsPerMonth": "<estimate videos/mo>",
+      "lastPost": "<estimate>",
+      "engagementRate": "<estimate or N/A>",
+      "gap": "<2 specific sentences>",
+      "quickWin": "<one actionable quick win>",
+      "monthlyReachLost": "<estimate>"
+    },
+    {
+      "platform": "TikTok",
+      "status": "Active|Inactive|Not Found",
+      "followers": "<estimate>",
+      "totalPosts": "<estimate>",
+      "postsPerMonth": "<estimate>",
+      "lastPost": "<estimate>",
+      "engagementRate": "<estimate>",
+      "gap": "<2 specific sentences>",
+      "quickWin": "<one actionable quick win>",
+      "monthlyReachLost": "<estimate>"
+    }
   ],
   "painPoints": [
-    {"rank":1,"problem":"<biggest social media gap>","costMin":<number>,"costMax":<number>},
+    {"rank":1,"problem":"<biggest social media gap across all platforms>","costMin":<number>,"costMax":<number>},
     {"rank":2,"problem":"<second gap>","costMin":<number>,"costMax":<number>},
     {"rank":3,"problem":"<third gap>","costMin":<number>,"costMax":<number>}
   ],
@@ -274,8 +369,9 @@ export default async function handler(req, res) {
   const promptFn = prompts[type];
   if (!promptFn) return res.status(400).json({ error: `Unknown report type: ${type}` });
 
+  const TOKEN_MAP = { 'social': 3200, 'seo': 2800, '360': 2600 };
   try {
-    const raw = await claude(ANTHROPIC_KEY, promptFn(lead, niche || lead.businessType || '', city || lead.city || ''), 2200);
+    const raw = await claude(ANTHROPIC_KEY, promptFn(lead, niche || lead.businessType || '', city || lead.city || ''), TOKEN_MAP[type] || 2200);
     const data = parseJSON(raw);
     if (!data) return res.status(500).json({ error: 'Failed to parse AI response' });
     return res.status(200).json(data);
