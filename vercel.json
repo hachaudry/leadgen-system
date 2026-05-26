@@ -1,5 +1,25 @@
 {
   "version": 2,
+  "headers": [
+    {
+      "source": "/(.*).html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, max-age=0" }
+      ]
+    },
+    {
+      "source": "/",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, max-age=0" }
+      ]
+    }
+  ],
+  "functions": {
+    "api/prospect-seo.js": { "maxDuration": 30 },
+    "api/proposal.js":     { "maxDuration": 60 },
+    "api/deep-audit.js":   { "maxDuration": 60 },
+    "api/report.js":       { "maxDuration": 30 }
+  },
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/(.*)", "dest": "/frontend/$1" }

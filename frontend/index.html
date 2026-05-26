@@ -2527,8 +2527,22 @@ async function runReport(idx, type, btn) {
           })
         });
         const text = await resp.text();
-        try { data = JSON.parse(text); }
-        catch { data = { error: 'Server returned an unexpected response. Check API keys and try again.' }; }
+        try {
+          data = JSON.parse(text);
+        } catch {
+          // Server returned non-JSON — function likely timed out or crashed
+          console.error('prospect-seo non-JSON response (first 500 chars):', text.slice(0, 500));
+          const isTimeout = text.includes('FUNCTION_INVOCATION_TIMEOUT') || text.includes('timed out') || resp.status === 504;
+          const isNotFound = resp.status === 404;
+          data = {
+            error: isTimeout
+              ? 'Audit timed out — the website may be slow to respond. Try again or use the Deep Audit tab.'
+              : isNotFound
+                ? 'Audit API not found. Redeploy may be needed.'
+                : `Server returned an unexpected response (HTTP ${resp.status}). Check Vercel deployment and API keys.`,
+            _rawResponse: text.slice(0, 200)
+          };
+        }
       }
     } else {
       const resp = await fetch(`${BASE_URL}/api/report`, {
@@ -3289,8 +3303,16 @@ function renderRealSeoReport(data, lead) {
 
   // ── Error case ───────────────────────────────────────────────────────────
   if (data.error) {
-    return `<div style="color:var(--red-text);font-size:13px;background:var(--red-bg);border-radius:var(--radius);padding:12px 14px">
-      <strong>Audit failed:</strong> ${esc(data.error)}
+    const displayMsg = data.userMessage || data.error;
+    const isTimeout  = displayMsg.includes('timed out') || displayMsg.includes('timeout');
+    const isNoWebsite = displayMsg.includes('no website') || displayMsg.includes('No website');
+    const debugRaw = data._rawResponse ? `<details style="margin-top:10px"><summary style="cursor:pointer;font-size:11px;color:var(--text3)">Debug info</summary><pre style="font-size:10px;white-space:pre-wrap;color:var(--text3);margin-top:6px;background:var(--bg2);padding:8px;border-radius:6px">${esc(data._rawResponse)}</pre></details>` : '';
+    return `
+    <div style="background:var(--red-bg);border:1px solid rgba(198,40,40,0.2);border-radius:var(--radius);padding:16px 18px">
+      <div style="font-size:15px;font-weight:800;color:var(--red-text);margin-bottom:8px">${isNoWebsite ? '⚠️ No Website URL' : isTimeout ? '⏱ Audit Timed Out' : '❌ Audit Failed'}</div>
+      <div style="font-size:13px;color:var(--red-text);line-height:1.5;margin-bottom:10px">${esc(displayMsg)}</div>
+      ${isTimeout ? `<div style="font-size:12px;color:var(--red-text);opacity:0.8">Tip: If this keeps timing out, verify <strong>GOOGLE_PLACES_KEY</strong> is set in your Vercel dashboard → Settings → Environment Variables.</div>` : ''}
+      ${debugRaw}
     </div>`;
   }
 
