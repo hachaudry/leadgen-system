@@ -1235,6 +1235,7 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
     </div>
   </div>
   <button class="save-btn" onclick="saveConfig()">Save Keys</button>
+  <span id="keys-saved-msg" style="display:none;margin-left:10px;color:#2e7d32;font-size:13px;font-weight:600">✓ Keys saved</span>
 </div>
 
 <!-- Main -->
@@ -1774,7 +1775,8 @@ function saveConfig() {
   if (a) localStorage.setItem('lg_anthropic', a);
   loadConfig();
   document.getElementById('config-panel').style.display = 'none';
-  alert('Keys saved!');
+  const savedMsg = document.getElementById('keys-saved-msg');
+  if (savedMsg) { savedMsg.style.display='inline'; setTimeout(() => { savedMsg.style.display='none'; }, 2500); }
 }
 function toggleConfig() {
   const p = document.getElementById('config-panel');
@@ -6428,7 +6430,7 @@ async function generateProposalFor(idx) {
   if (!lead) return;
   const keys = getKeys();
   if (!keys.anthropic) {
-    alert('Anthropic API key is required to generate proposals. Go to Settings to add it.');
+    showPropV2Error('Anthropic API key is required to generate proposals.', 'Go to ⚙ Settings and add your Anthropic API key, then try again.', null, idx);
     return;
   }
   const loadEl = document.getElementById('prop-v2-loading');
@@ -6437,6 +6439,8 @@ async function generateProposalFor(idx) {
     const niche = currentNiche || lead.niche || 'Local Business';
     const city  = currentCity  || lead.city  || '';
     const state = currentState || lead.state  || 'CA';
+    const auditData = collectAuditData(idx);
+
     const resp = await fetch(`${BASE_URL}/api/proposal`, {
       method:'POST',
       headers:{ 'Content-Type':'application/json', 'x-anthropic-key':keys.anthropic },
@@ -6449,34 +6453,184 @@ async function generateProposalFor(idx) {
           website: lead.website || null,
           phone:   lead.phone   || null
         },
-        auditData:   collectAuditData(idx),
+        auditData,
         agencyNiche: getNicheAgency(niche),
         nicheValues: getNicheValues(niche)
       })
     });
+
     const text = await resp.text();
     let result;
     try { result = JSON.parse(text); } catch {
       if (loadEl) loadEl.classList.remove('open');
-      alert('Proposal generation failed — server returned an unexpected response. Please try again.');
+      showPropV2Error(
+        'Server returned an unexpected response.',
+        'This usually means the proposal API is not deployed. Check Vercel deployment and try again.',
+        () => generateProposalFor(idx), idx
+      );
       return;
     }
-    if (result.error) {
-      if (loadEl) loadEl.classList.remove('open');
-      alert('Proposal error: ' + result.error);
-      return;
-    }
+
     if (loadEl) loadEl.classList.remove('open');
+
+    // Server returned an error — offer fallback
+    if (result.error || result.useFallback) {
+      console.warn('[proposal] server error, using fallback:', result.error);
+      const fallback = createFallbackProposal(lead, auditData, getNicheAgency(niche));
+      openProposalV2({ proposal: fallback, prospect: lead, agencyNiche: getNicheAgency(niche), _fallback: true });
+      return;
+    }
+
+    // Partial proposal (one of the two API calls failed) — still open it
+    if (result.proposal?._partial) {
+      console.warn('[proposal] partial proposal — one API call failed');
+    }
+
     openProposalV2(result);
+
   } catch (e) {
     if (loadEl) loadEl.classList.remove('open');
-    alert('Proposal generation failed: ' + e.message);
+    console.error('[proposal] generateProposalFor error:', e);
+    const fallback = createFallbackProposal(lead, collectAuditData(idx), getNicheAgency(currentNiche || lead.niche || ''));
+    openProposalV2({ proposal: fallback, prospect: lead, agencyNiche: getNicheAgency(currentNiche || lead.niche || ''), _fallback: true });
   }
 }
 
+// Show an error card inside the proposal overlay (never use alert())
+function showPropV2Error(title, detail, onRetry, idx) {
+  const overlay = document.getElementById('prop-v2-overlay');
+  const body    = document.getElementById('prop-v2-body');
+  const loadEl  = document.getElementById('prop-v2-loading');
+  if (loadEl) loadEl.classList.remove('open');
+  if (!overlay || !body) return;
+  body.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:center;min-height:60vh;padding:40px">
+      <div style="max-width:520px;background:#fff;border:2px solid #c62828;border-radius:12px;padding:32px;text-align:center">
+        <div style="font-size:32px;margin-bottom:12px">⚠️</div>
+        <div style="font-size:18px;font-weight:800;color:#c62828;margin-bottom:10px">${esc(title)}</div>
+        <div style="font-size:14px;color:#555;margin-bottom:24px;line-height:1.6">${esc(detail)}</div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          ${onRetry ? `<button onclick="closePropV2();generateProposalFor(${idx})" style="background:#1565c0;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer">↺ Retry</button>` : ''}
+          ${idx != null ? `<button onclick="closePropV2();const fb=createFallbackProposal(filteredLeads[${idx}],collectAuditData(${idx}),getNicheAgency(currentNiche||filteredLeads[${idx}]?.niche||''));openProposalV2({proposal:fb,prospect:filteredLeads[${idx}],agencyNiche:getNicheAgency(currentNiche||filteredLeads[${idx}]?.niche||''),_fallback:true})" style="background:#e65100;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer">Use Simplified Version</button>` : ''}
+          <button onclick="closePropV2()" style="background:#eee;color:#333;border:none;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:600;cursor:pointer">Close</button>
+        </div>
+      </div>
+    </div>`;
+  overlay.classList.add('open');
+}
+
+// Build a fallback proposal from local data (no AI needed)
+function createFallbackProposal(lead, auditData, agencyName) {
+  const niche   = currentNiche || lead?.niche || 'Local Business';
+  const city    = currentCity  || lead?.city  || 'your city';
+  const name    = lead?.name   || 'Your Business';
+  const agency  = agencyName   || getNicheAgency(niche);
+  const date    = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  const seo     = auditData?.seo;
+  const issues  = seo?.issues || [];
+  const scores  = seo?.scores || {};
+
+  const topIssues = issues
+    .filter(i => i.severity === 'Critical' || i.severity === 'High')
+    .slice(0, 4)
+    .map(i => i.title);
+
+  return {
+    _fallback: true,
+    coverPage: {
+      headline:           `Digital Growth Plan for ${name}`,
+      subheadline:        `A personalized digital marketing strategy for ${name} in ${city}, California`,
+      date,
+      confidentialityNote: `Prepared exclusively for ${name} - Confidential`
+    },
+    executiveSummary: {
+      openingStatement: `Based on our analysis of ${name}, we have identified key opportunities to improve your digital presence and attract more customers in ${city}. Our findings reveal specific areas where targeted improvements can deliver measurable results.`,
+      keyFindings:      topIssues.length ? topIssues : ['Digital presence improvements needed', 'Local search visibility can be strengthened', 'Review generation strategy recommended'],
+      opportunityStatement: `The ${niche} market in ${city} presents significant growth opportunities for businesses that invest in their online presence.`,
+      ourPromise: `We will work methodically to improve your search visibility and help you attract more qualified local customers.`
+    },
+    marketContext: {
+      localMarketAnalysis:       `The ${niche} market in ${city} is competitive, with customers increasingly relying on Google, reviews, and social media to choose providers.`,
+      customerBehaviorInsights:  `${city} customers typically search online before visiting a ${niche}. Having strong reviews, a fast website, and accurate business listings is essential.`,
+      competitiveLandscape:      `Local ${niche} businesses that invest in SEO and reputation management consistently attract more qualified leads than those that do not.`,
+      seasonalOpportunities: [
+        { month:'Jan-Mar', icon:'❄️', opportunity:'New Year promotions and fresh-start campaigns' },
+        { month:'Apr-Jun', icon:'🌸', opportunity:'Spring demand surge and outdoor campaigns' },
+        { month:'Jul-Sep', icon:'☀️', opportunity:'Peak season visibility and review campaigns' },
+        { month:'Oct-Dec', icon:'🎄', opportunity:'Holiday promotions and year-end campaigns' }
+      ]
+    },
+    auditFindings: {
+      headline: scores.overall != null ? `${name} scored ${scores.overall}/100 on our digital audit — here are the key areas to address.` : `Our audit of ${name} revealed several opportunities for digital improvement.`,
+      findings: issues.slice(0, 3).map(i => ({
+        category:       i.category,
+        severity:       i.severity,
+        evidence:       i.evidence,
+        businessImpact: i.proposalAngle || 'This issue may be limiting your ability to attract new customers.',
+        recommendation: i.recommendation
+      }))
+    },
+    strategicRecommendations: {
+      priorityActions: [
+        { rank:1, action:'Google My Business optimization and review generation', rationale:'Highest-impact local visibility action', timeframe:'Week 1-2' },
+        { rank:2, action:'Website technical SEO and speed improvements',          rationale:'Foundational for all search visibility',  timeframe:'Week 2-4' },
+        { rank:3, action:'Local citation building and directory listings',        rationale:'Strengthens local search presence',       timeframe:'Month 2' }
+      ],
+      thirtyDayPlan: {
+        week1: 'Audit all existing listings, claim and optimize Google My Business profile',
+        week2: 'Begin review generation campaign, fix critical website issues',
+        week3: 'Build local citations, optimize on-page SEO elements',
+        week4: 'Launch content strategy, set up analytics tracking'
+      },
+      ninetyDayRoadmap: [
+        { phase:'Month 1', theme:'Foundation', deliverables:['GMB optimization','Website audit & fixes','Analytics setup'],      expectedOutcome:'Improved local search visibility' },
+        { phase:'Month 2', theme:'Momentum',   deliverables:['Review campaigns','Citation building','Content creation'],        expectedOutcome:'Increased organic traffic' },
+        { phase:'Month 3', theme:'Growth',     deliverables:['Paid ads launch','Conversion optimization','Monthly reporting'], expectedOutcome:'Measurable lead increase' }
+      ],
+      longTermVision: `In 12 months, ${name} could be among the top-ranked ${niche} businesses in ${city}, with a consistent flow of new customers from search and referrals.`
+    },
+    servicePackages: {
+      starter:   { packageName:'Local Visibility Starter', price:997,  tagline:'Get found by local customers searching for your services',          includedServices:['GMB optimization','Review strategy','Basic SEO fixes','Monthly reporting'],             expectedResults:'Improved local search presence in 90 days', idealFor:'Businesses just starting digital marketing', timeToResults:'60-90 days' },
+      growth:    { packageName:'Local Growth Plan',        price:1897, tagline:'Build a consistent pipeline of new customers from search',          includedServices:['Everything in Starter','Full SEO campaign','Content marketing','Local ads management','Bi-weekly reporting'], expectedResults:'Measurable increase in website leads in 90 days', idealFor:'Businesses ready to invest in consistent growth', timeToResults:'60-90 days' },
+      dominator: { packageName:'Market Dominator',         price:2997, tagline:'Become the most visible and trusted business in your local area',   includedServices:['Everything in Growth','Social media management','Reputation management','Paid search ads','Video content','Weekly strategy calls'], expectedResults:'Dominant local search presence in 90 days', idealFor:'Businesses committed to market leadership', timeToResults:'45-60 days' },
+      recommendation: `Based on the audit findings for ${name}, we recommend the Local Growth Plan as the best starting point to address the identified issues and build lasting visibility in ${city}.`
+    },
+    investmentJustification: {
+      revenueOpportunity: `For a ${niche} in ${city}, improving digital visibility typically generates 3-8 additional qualified inquiries per month.`,
+      roiCalculation:     `At $1,897/month investment and even 3 additional customers per month, the ROI potential is significant depending on your average transaction value.`,
+      costOfInaction:     `Every month without an optimized digital presence means potential customers are choosing competitors who appear higher in search results.`,
+      competitorAdvantage:`Investing in your digital presence now gives ${name} a compounding advantage - the longer you wait, the harder it is to catch up to established competitors.`
+    },
+    whyUs: {
+      expertiseStatement:  `${agency} specializes exclusively in ${niche} marketing, giving us deep insight into what works for businesses like ${name}.`,
+      nicheSpecialization: `We understand the specific customer journey for ${niche} businesses — how people search, what reviews they read, and what makes them choose one business over another.`,
+      provenProcess:       `Our approach starts with a comprehensive audit, builds a custom strategy, and delivers measurable results with transparent monthly reporting.`,
+      clientCommitment:    `${name} will have a dedicated strategist, guaranteed response within 24 hours, and monthly video calls to review progress and adjust strategy.`
+    },
+    nextSteps: {
+      callToAction:     'Schedule a 20-minute strategy call this week to walk through these findings together.',
+      meetingAsk:       'We have availability Tuesday and Thursday afternoons this week — reply to this proposal to book a time.',
+      onboardingPreview:[
+        { day:'Day 1',   task:'Welcome call and business brief (30 min)',               icon:'👋' },
+        { day:'Day 2-3', task:'Deep audit completion and custom strategy build',        icon:'🔍' },
+        { day:'Day 4-5', task:'Account access setup: GMB, Analytics, Social',          icon:'🔑' },
+        { day:'Day 7',   task:'Strategy presentation and campaign launch',             icon:'🚀' }
+      ],
+      urgencySignal: `We currently have capacity for one new ${niche} client in ${city}. If you are interested, reaching out this week ensures you can secure that spot.`
+    },
+    closingStatement: {
+      personalNote: `We genuinely believe in what we can help ${name} achieve. The findings in this proposal represent real opportunities, and we would be honored to help you capitalize on them.`,
+      signOff:      `The ${agency} Team`
+    }
+  };
+}
+
 function openProposalV2(resp) {
-  const { proposal, prospect, agencyNiche } = resp;
-  if (!proposal) { alert('No proposal data received.'); return; }
+  const { proposal, prospect, agencyNiche, _fallback } = resp;
+  if (!proposal) {
+    showPropV2Error('No proposal data received.', 'The server returned an empty response. Please try again.', null, null);
+    return;
+  }
   const p       = proposal;
   const bizName = esc(prospect?.name || '');
   const agency  = esc(agencyNiche   || 'growthmarketingca.com');
@@ -6498,7 +6652,10 @@ function openProposalV2(resp) {
   const titleEl = document.getElementById('prop-v2-title');
   const dotsEl  = document.getElementById('prop-v2-dots');
   if (titleEl) titleEl.textContent = `${prospect?.name || 'Business'} — Proposal`;
-  if (bodyEl)  bodyEl.innerHTML = sections.join('');
+  const fallbackBanner = (_fallback || proposal._fallback || proposal._partial)
+    ? `<div style="background:#fff3e0;border-left:4px solid #e65100;padding:12px 18px;font-size:13px;color:#bf360c;display:flex;align-items:center;gap:10px"><span style="font-size:16px">⚠️</span><span><strong>${proposal._fallback ? 'Simplified proposal' : 'Partial proposal'}</strong> — ${proposal._fallback ? 'Generated from your audit data without AI. Key findings and recommendations are accurate.' : 'One AI section failed. The rest of the proposal is complete and accurate.'}</span></div>`
+    : '';
+  if (bodyEl)  bodyEl.innerHTML = fallbackBanner + sections.join('');
 
   const sectionNames = ['Cover','Summary','Market','Findings','Strategy','Packages','ROI','Why Us','Next Steps','Closing'];
   if (dotsEl) {
