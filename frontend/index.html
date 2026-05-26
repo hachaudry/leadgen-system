@@ -2512,10 +2512,7 @@ async function runReport(idx, type, btn) {
         data = { _noWebsite: true, businessName: lead.name };
       } else {
         outEl.innerHTML = `<div class="report-output report-loading"><span class="spinner"></span>Running real-time SEO audit — fetching PageSpeed &amp; HTML data…</div>`;
-        const resp = await fetch(`${BASE_URL}/api/prospect-seo`, {
-          method: 'POST',
-          headers: { 'Content-Type':'application/json', 'x-google-key':keys.google, 'x-anthropic-key':keys.anthropic },
-          body: JSON.stringify({
+        const seoBody = {
             url:          lead.website,
             businessName: lead.name,
             niche,
@@ -2524,9 +2521,15 @@ async function runReport(idx, type, btn) {
             phone:   lead.phone   || null,
             rating:  lead.rating  || null,
             reviews: lead.reviews || 0
-          })
+        };
+        console.log('[SEO Audit] POST /api/prospect-seo', seoBody);
+        const resp = await fetch(`${BASE_URL}/api/prospect-seo`, {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', 'x-google-key':keys.google, 'x-anthropic-key':keys.anthropic },
+          body: JSON.stringify(seoBody)
         });
         const text = await resp.text();
+        console.log('[SEO Audit] raw response (HTTP ' + resp.status + '):', text.slice(0, 300));
         try {
           data = JSON.parse(text);
         } catch {
@@ -6749,5 +6752,26 @@ initCounties();
   </div>
   <div class="pv2-body" id="prop-v2-body"></div>
 </div>
+
+<!-- Hidden API test tool — open browser console, call: testSeoApi() -->
+<script>
+window.testSeoApi = function(url) {
+  const testUrl = url || 'https://www.bistro101.com';
+  const keys = getKeys ? getKeys() : { google: localStorage.getItem('lg_google')||'', anthropic: localStorage.getItem('lg_anthropic')||'' };
+  const body = { url: testUrl, businessName: 'Test Business', niche: 'Restaurant', city: 'Rohnert Park', state: 'CA' };
+  console.log('[testSeoApi] POSTing to /api/prospect-seo with:', body);
+  fetch('/api/prospect-seo', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-google-key': keys.google, 'x-anthropic-key': keys.anthropic },
+    body: JSON.stringify(body)
+  }).then(r => {
+    console.log('[testSeoApi] HTTP status:', r.status);
+    return r.text();
+  }).then(t => {
+    console.log('[testSeoApi] RAW RESPONSE:', t.slice(0, 1000));
+    try { console.log('[testSeoApi] PARSED:', JSON.parse(t)); } catch(e) { console.error('[testSeoApi] Not valid JSON:', e.message); }
+  }).catch(e => console.error('[testSeoApi] fetch error:', e));
+};
+</script>
 </body>
 </html>
