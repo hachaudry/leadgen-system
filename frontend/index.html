@@ -169,6 +169,8 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 .ls-hot  .ls-dot { background:var(--red-text); }
 .ls-warm .ls-dot { background:var(--amber-text); }
 .ls-cool .ls-dot { background:var(--green-text); }
+.ls-pending { background:var(--bg3); color:var(--text3); border:1px solid var(--border); }
+.ls-pending .ls-dot { background:var(--text3); }
 
 /* Time badge */
 .time-badge { font-size:11px; color:var(--text2); white-space:nowrap; }
@@ -2030,6 +2032,18 @@ function oppScore(loss, niche) {
   return Math.min(10, Math.round((loss / max) * 10));
 }
 
+function deriveLeadPain(lead) {
+  const rating  = parseFloat(lead.rating)  || 0;
+  const reviews = parseInt(lead.reviews)   || 0;
+  if (!lead.website)               return 'No website — invisible to every local search engine';
+  if (rating > 0 && rating < 3.5)  return `${lead.rating}-star rating pushing customers to competitors`;
+  if (reviews < 10)                return `Only ${reviews} reviews — no social proof for new buyers`;
+  if (reviews < 30)                return 'Too few reviews to build buyer trust vs. top-ranked rivals';
+  if (rating > 0 && rating < 4.0)  return 'Below 4-star average losing trust comparisons daily';
+  if (!lead.email)                 return 'No contact capture — visitors leave without a follow-up path';
+  return 'Weak digital marketing presence ceding leads to better-optimized competitors';
+}
+
 // ── Find Prospects ─────────────────────────────────────────────────────────
 function showSearchError(msg) {
   const errEl  = document.getElementById('search-error');
@@ -2130,7 +2144,7 @@ async function findProspects() {
     saveStats('prospects', leads.length);
     activeFilters.clear();
     document.querySelectorAll('.chip.active').forEach(c => c.classList.remove('active'));
-    document.getElementById('sort-select').value = 'score';
+    document.getElementById('sort-select').value = 'reviews';
 
     renderTable();
     saveLeadsToStorage();
@@ -2165,7 +2179,12 @@ function applyFilters() {
     if (f === 'high-loss') arr = arr.filter(l => l.revenueLoss > 3000);
   });
   const sort = document.getElementById('sort-select').value;
-  if (sort === 'score') arr.sort((a,b) => b.score - a.score);
+  if (sort === 'score') arr.sort((a,b) => {
+    if (a.score === null && b.score === null) return 0;
+    if (a.score === null) return 1;   // nulls sink to bottom
+    if (b.score === null) return -1;
+    return b.score - a.score;
+  });
   else if (sort === 'loss') arr.sort((a,b) => b.revenueLoss - a.revenueLoss);
   else if (sort === 'rating') arr.sort((a,b) => (parseFloat(a.rating)||0) - (parseFloat(b.rating)||0));
   else if (sort === 'reviews') arr.sort((a,b) => (a.reviews||0) - (b.reviews||0));
@@ -2188,7 +2207,8 @@ function updateSummary() {
 // ── Render Table ───────────────────────────────────────────────────────────
 function renderTable() {
   filteredLeads = [...leads];
-  filteredLeads.sort((a,b) => b.score - a.score);
+  // Default: fewest reviews first (most opportunity)
+  filteredLeads.sort((a,b) => (a.reviews||0) - (b.reviews||0));
   renderTableBody();
 }
 
@@ -2205,9 +2225,10 @@ function renderTableBody() {
     const status = getStatus(lead.name);
     const statusClass = getStatusClass(status);
 
-    const score = lead.score || 5;
-    const lsClass = score >= 7 ? 'ls-hot' : score >= 4 ? 'ls-warm' : 'ls-cool';
-    const lsLabel = score >= 7 ? 'Hot' : score >= 4 ? 'Warm' : 'Low';
+    const score = lead.score;
+    const isPending = score === null || score === undefined;
+    const lsClass = isPending ? 'ls-pending' : (score >= 7 ? 'ls-hot' : score >= 4 ? 'ls-warm' : 'ls-cool');
+    const lsLabel = isPending ? '⏱ Pending' : `${score}/10 ${score >= 7 ? 'Hot' : score >= 4 ? 'Warm' : 'Low'}`;
 
     const gmbStatus = lead.website ? 'Claimed' : (lead.rating ? 'Unclaimed' : 'Missing');
     const gmbClass = gmbStatus === 'Claimed' ? 'gmb-verified' : gmbStatus === 'Unclaimed' ? 'gmb-unclaimed' : 'gmb-missing';
@@ -2224,7 +2245,7 @@ function renderTableBody() {
       <td class="reviews-cnt">${lead.reviews || 0}</td>
       <td><span class="gmb-badge ${gmbClass}">${gmbStatus}</span></td>
       <td><span class="loss-badge">$${lead.revenueLoss.toLocaleString()}</span></td>
-      <td><span class="lead-score-badge ${lsClass}"><span class="ls-dot"></span>${score}/10 ${lsLabel}</span></td>
+      <td><span id="score-badge-${idx}" class="lead-score-badge ${lsClass}" title="${isPending ? 'Run any report to calculate score' : `Lead Score: ${score}/10`}"><span class="ls-dot"></span>${lsLabel}</span></td>
       <td><span class="time-badge">🕐 ${ct.days || '—'}<br><small>${ct.time || ''}</small></span></td>
       <td><span class="status-pill ${statusClass}">${status}</span></td>
       <td><button class="view-btn ${isExpanded ? 'active' : ''}" onclick="event.stopPropagation();togglePanel(${idx})">${isExpanded ? 'Close ▲' : 'View ▼'}</button></td>
@@ -2339,8 +2360,8 @@ function buildSnapPanel(idx, lead) {
       <div class="loss-box-amount">$${lead.revenueLoss.toLocaleString()}</div>
       <div class="loss-box-sub">Est. monthly revenue loss</div>
       <div class="loss-box-score">
-        <div class="loss-box-score-dot"></div>
-        Lead Score: ${lead.score||5}/10 ${lead.score>=7?'🔥 Hot':lead.score>=4?'Warm':'Low'}
+        <div class="loss-box-score-dot" style="${lead.score===null?'background:rgba(255,255,255,0.4)':''}"></div>
+        ${lead.score !== null ? `Lead Score: ${lead.score}/10 ${lead.score>=7?'🔥 Hot':lead.score>=4?'⚡ Warm':'🟢 Low'}` : '⏱ Run a report to score'}
       </div>
     </div>
 
@@ -2558,6 +2579,27 @@ async function runReport(idx, type, btn) {
       data = await resp.json();
     }
     reportCache[cacheKey] = data;
+
+    // Score the lead on first completed report — pure JS, no AI call needed
+    if (lead.score === null || lead.score === undefined) {
+      const sc = Math.max(1, Math.min(10, Math.round(lead.oppScore || oppScore(lead.revenueLoss, currentNiche || ''))));
+      lead.score = sc;
+      lead.scoreStatus = 'scored';
+      lead.pain = deriveLeadPain(lead);
+      // Sync back to master leads array so sort/filter reflects the update
+      const mi = leads.findIndex(l => l.name === lead.name && l.phone === lead.phone);
+      if (mi !== -1) { leads[mi].score = sc; leads[mi].scoreStatus = 'scored'; leads[mi].pain = lead.pain; }
+      // Update the table row badge in-place (no full re-render required)
+      const badge = document.getElementById(`score-badge-${idx}`);
+      if (badge) {
+        const cls = sc >= 7 ? 'ls-hot' : sc >= 4 ? 'ls-warm' : 'ls-cool';
+        badge.className = `lead-score-badge ${cls}`;
+        badge.title = `Lead Score: ${sc}/10`;
+        badge.innerHTML = `<span class="ls-dot"></span>${sc}/10 ${sc >= 7 ? 'Hot' : sc >= 4 ? 'Warm' : 'Low'}`;
+      }
+      saveLeadsToStorage();
+    }
+
     renderReport(idx, type, data, outEl);
     renderPitchSection(idx, lead, data);
 

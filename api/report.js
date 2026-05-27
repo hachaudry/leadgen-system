@@ -469,12 +469,91 @@ Return ONLY valid JSON:
 }
 };
 
+// ── Real-data guard header ─────────────────────────────────────────────────
+// Prepended to EVERY prompt so Claude never fabricates data that contradicts
+// real Google values (rating, review count, phone, website, etc.)
+function buildRealDataHeader(lead, niche, city, state) {
+  const reviews = parseInt(lead.reviews) || 0;
+  const rating  = parseFloat(lead.rating) || 0;
+
+  const ratingNote = !lead.rating
+    ? 'NOT FOUND — do not assume any rating; do not score reputation negatively'
+    : rating >= 4.8 ? `${rating} ★ — EXCELLENT: reputation is a strength; do NOT say it is a problem`
+    : rating >= 4.5 ? `${rating} ★ — STRONG: only minor improvement opportunity`
+    : rating >= 4.0 ? `${rating} ★ — GOOD: review growth is an opportunity`
+    : rating >= 3.5 ? `${rating} ★ — BELOW AVERAGE: reputation pitch is a priority`
+    : `${rating} ★ — CRITICAL: urgent reputation fix needed`;
+
+  const reviewsNote = reviews >= 500
+    ? `${reviews.toLocaleString()} — HIGH social proof; NEVER pitch "get more reviews" here`
+    : reviews >= 200 ? `${reviews} — above average; de-emphasise review generation`
+    : reviews >= 50  ? `${reviews} — below average; pitch review growth`
+    : reviews > 0    ? `${reviews} — very few; strong review generation pitch`
+    : 'ZERO — no Google reviews; pitch GMB setup and review generation';
+
+  const fences = [];
+  if (reviews >= 500) fences.push('Do NOT include review-generation revenue loss — 500+ reviews is already strong');
+  if (reviews < 50 && reviews > 0) fences.push('Include $1,500–2,500/mo loss from low review volume');
+  if (reviews === 0) fences.push('Include $2,000–3,500/mo loss from zero reviews / no GMB presence');
+  if (rating >= 4.5) fences.push(`Do NOT include rating-based revenue loss — rating ${rating} is strong`);
+  if (rating > 0 && rating < 4.0) fences.push(`Include $2,000–3,500/mo loss from below-average rating (${rating})`);
+
+  return `════════════════════════════════════════════════════════════
+VERIFIED REAL BUSINESS DATA — NEVER CONTRADICT — NEVER USE DIFFERENT FIGURES:
+  Name:     ${lead.name || 'Unknown'}
+  Rating:   ${ratingNote}
+  Reviews:  ${reviewsNote}
+  Phone:    ${lead.phone || 'not found'}
+  Website:  ${lead.website || 'NONE — no website detected'}
+  Address:  ${lead.address || 'not found'}
+  Email:    ${lead.email  || 'not found'}
+  Niche:    ${niche || lead.niche || ''}
+  Location: ${[city || lead.city, state || lead.state].filter(Boolean).join(', ') || 'unknown'}
+
+Revenue-loss rules for THIS specific business:
+${fences.length ? fences.map(f => '  • ' + f).join('\n') : '  • Standard estimates apply'}
+
+CRITICAL RULES:
+  • NEVER say "0 reviews" or "no reviews" if the review count above is > 0
+  • NEVER say "invisible online" or "no Google presence" if rating AND reviews are present
+  • NEVER pitch review generation if reviews ≥ 500
+  • ALL scores, issues, and pain points MUST be consistent with the verified data above
+════════════════════════════════════════════════════════════
+
+`;
+}
+
+// Build a real-content context block to prepend to prompts when scraped data is available
+function buildRealContentBlock(scraped) {
+  if (!scraped || !scraped.pagesFound) return '';
+  const pageBlock = (key, label) => {
+    const p = scraped[key];
+    if (!p || !p.success) return `${label}: [Not found]\n`;
+    const preview = (p.content || '').slice(0, 1500);
+    return `${label} (${p.wordCount} words):\n${preview}\n`;
+  };
+  return `
+⚠ IMPORTANT: You have REAL scraped content from this business's actual website (${scraped.pagesFound} pages, ${scraped.totalWords} words total). Base your analysis on this REAL content. Identify specific quotes, actual missing elements, and concrete improvements.
+
+REAL WEBSITE CONTENT:
+${pageBlock('homepage', 'HOMEPAGE')}
+${pageBlock('about', 'ABOUT PAGE')}
+${pageBlock('services', 'SERVICES PAGE')}
+${pageBlock('contact', 'CONTACT PAGE')}
+${pageBlock('blog', 'BLOG PAGE')}
+
+When you find specific weaknesses, QUOTE the actual text and show what it should say instead. Mark all findings as "Based on actual website content" — not estimates.
+
+---
+`.trim() + '\n\n';
+}
+
 export default async function handler(req, res) {
   CORS(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { type, lead, niche, city, state } = req.body;
+  const { type, lead, niche, city, state, scrapedContent } = req.body;
   if (!type || !lead) return res.status(400).json({ error: 'type and lead required' });
 
   const ANTHROPIC_KEY = req.headers['x-anthropic-key'] || process.env.ANTHROPIC_API_KEY;
@@ -483,14 +562,32 @@ export default async function handler(req, res) {
   const promptFn = prompts[type];
   if (!promptFn) return res.status(400).json({ error: `Unknown report type: ${type}` });
 
-  const TOKEN_MAP = { 'social': 3200, 'seo': 2800, '360': 3800, 'website': 2400 };
+  // Larger token budgets when real content is present (more detailed analysis possible)
+  const hasRealContent = scrapedContent && (scrapedContent.pagesFound || 0) > 0;
+  const TOKEN_MAP = hasRealContent
+    ? { 'social': 3800, 'seo': 3400, '360': 4500, 'website': 3200, 'local-seo': 2200, 'ads': 1800 }
+    : { 'social': 3200, 'seo': 2800, '360': 3800, 'website': 2400 };
+
   try {
     const resolvedCity = city || lead.city || '';
     const resolvedState = state || lead.state || '';
     const fullCity = resolvedCity && resolvedState ? `${resolvedCity}, ${resolvedState}` : resolvedCity || resolvedState || 'local area';
-    const raw = await claude(ANTHROPIC_KEY, promptFn(lead, niche || lead.businessType || '', fullCity), TOKEN_MAP[type] || 2200);
+
+    // Build the full prompt: real-data guard first, then optional scraped content, then the analysis prompt
+    const realDataHeader = buildRealDataHeader(lead, niche || lead.businessType || '', resolvedCity, resolvedState);
+    const contentPrefix  = hasRealContent ? buildRealContentBlock(scrapedContent) : '';
+    const basePrompt     = promptFn(lead, niche || lead.businessType || '', fullCity);
+    const fullPrompt     = realDataHeader + contentPrefix + basePrompt;
+
+    const raw = await claude(ANTHROPIC_KEY, fullPrompt, TOKEN_MAP[type] || 2200);
     const data = parseJSON(raw);
     if (!data) return res.status(500).json({ error: 'Failed to parse AI response' });
+
+    // Tag whether real content was used
+    data._dataSource = hasRealContent ? 'real' : 'estimated';
+    data._pagesFound = hasRealContent ? (scrapedContent.pagesFound || 0) : 0;
+    data._totalWords = hasRealContent ? (scrapedContent.totalWords || 0) : 0;
+
     return res.status(200).json(data);
   } catch (err) {
     console.error(err);
