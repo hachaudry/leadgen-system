@@ -645,6 +645,8 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 .sm-group-hdr { display:inline-block;font-size:11px;font-weight:700;padding:4px 10px;border-radius:var(--radius);margin-bottom:8px; }
 .sm-group-provided { background:var(--green-bg);color:var(--green-text); }
 .sm-group-missing  { background:var(--red-bg);color:var(--red-text); }
+@keyframes critPulse { 0%,100%{opacity:1} 50%{opacity:.55} }
+.sm-crit-pulse { animation:critPulse 1.4s ease-in-out infinite; }
 
 /* ── SEO Presence Mockup Cards ── */
 .presence-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1rem; }
@@ -3824,9 +3826,16 @@ function renderSocialReport(data, lead, idx) {
 
     // Summary
     const trulyMissing = missingList.filter(p => !notPresentList.includes(p));
+    // Count critical platforms (from real extracted data)
+    const criticalCount = providedList.filter(pk => {
+      const pd = plats[pk];
+      return pd && (pd.status === 'Critical' || pd.status === 'Inactive' ||
+        (pd._criticalFlags && pd._criticalFlags.length > 0));
+    }).length;
     const summaryBar = `
     <div style="display:flex;align-items:center;gap:14px;padding:9px 13px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:1rem;flex-wrap:wrap;font-size:12px">
       <span>📊 <strong>${providedList.length}</strong> profiles analyzed</span>
+      ${criticalCount > 0 ? `<span style="color:#b91c1c;font-weight:700">🚨 <strong>${criticalCount}</strong> platform${criticalCount!==1?'s':''} with critical issues</span>` : ''}
       <span style="color:var(--red-text)">❌ <strong>${trulyMissing.length}</strong> missing</span>
       ${data.estimatedTotalReachLost ? `<span style="color:var(--amber-text)">📉 Est. reach lost: <strong>${esc(data.estimatedTotalReachLost)}</strong></span>` : ''}
       <span style="margin-left:auto;font-weight:700;color:${sc_color(overallScore)}">Social Score: ${overallScore}/100</span>
@@ -3845,52 +3854,179 @@ function renderSocialReport(data, lead, idx) {
       </div>
     </div>`;
 
+    // Helper: urgency rank for sorting (lower = more urgent)
+    const urgencyRank = (pd) => {
+      const s = pd?.status || '';
+      const cf = (pd?._criticalFlags || []).length;
+      if (s === 'Critical') return 0;
+      if (s === 'Inactive') return 1;
+      if (cf > 0) return 2;
+      if (s === 'Needs Attention') return 3;
+      return 4;
+    };
+
     // Helper: build one platform card
     const buildCard = (pk, pd, pm, isPresent) => {
-      const sc = pd?.score ?? 0;
+      const sc  = pd?.score ?? 0;
       const url = pd?.profileUrl || null;
-      const statusBadge = isPresent
-        ? `<span style="background:${sc_bg(sc)};color:${sc_color(sc)};padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700">${esc(pd?.status||'Active')}</span>`
-        : `<span style="background:var(--red-bg);color:var(--red-text);padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700">Missing</span>`;
 
-      const body = isPresent ? `
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
-          <div style="font-size:20px;font-weight:800;color:${sc_color(sc)}">${sc}</div>
-          <div style="flex:1"><div class="sa-score-bar-wrap"><div class="sa-score-bar" style="width:${sc}%;background:${sc_color(sc)}"></div></div>
-          <div style="font-size:9px;color:var(--text3);margin-top:2px">Score /100</div></div>
-        </div>
-        <div class="social-plat-stat"><span class="social-plat-stat-k">Est. Reach</span><span class="social-plat-stat-v">${esc(pd?.estimatedFollowers||'Unknown')}</span></div>
-        <div class="social-plat-stat"><span class="social-plat-stat-k">Activity</span><span class="social-plat-stat-v">${esc(pd?.activityLevel||'Unknown')}</span></div>
-        ${pd?.nicheSpecificInsight ? `<div style="font-size:11px;color:var(--blue-text);margin-top:6px;padding:4px 7px;background:var(--blue-bg);border-radius:5px">${esc(pd.nicheSpecificInsight)}</div>` : ''}
-        ${pd?.gaps?.length ? `<div class="social-plat-gap" style="margin-top:6px">⚠ ${pd.gaps.map(g=>esc(g)).join(' · ')}</div>` : ''}
-        ${pd?.quickWin ? `<div class="social-plat-win">💡 ${esc(pd.quickWin)}</div>` : ''}
-        <div style="margin-top:7px;display:flex;gap:5px;flex-wrap:wrap">
-          ${url ? `<a class="sa-profile-btn linked" href="${esc(url)}" target="_blank" rel="noreferrer">🔗 Visit Profile ↗</a>` : ''}
-          <a class="sa-profile-btn search" href="${esc(pm?.searchUrl||'#')}" target="_blank" rel="noreferrer">🔍 Search ${esc(pm?.label||pk)}</a>
-        </div>` : `
-        ${pd?.monthlyReachLost ? `<div class="social-plat-reach" style="margin-bottom:6px">📉 Reach being lost: ${esc(pd.monthlyReachLost)}</div>` : ''}
-        ${pd?.nicheSpecificInsight ? `<div style="font-size:11px;color:var(--amber-text);margin-bottom:6px;padding:4px 7px;background:var(--amber-bg);border-radius:5px">${esc(pd.nicheSpecificInsight)}</div>` : ''}
-        ${pd?.quickWin ? `<div class="social-plat-win">💡 Quick start: ${esc(pd.quickWin)}</div>` : ''}
-        <div style="margin-top:7px">
-          <a class="sa-profile-btn search" href="${esc(pm?.searchUrl||'#')}" target="_blank" rel="noreferrer">🔍 Find on ${esc(pm?.label||pk)}</a>
+      // ── Missing platform (no URL provided) ──────────────────────────────────
+      if (!isPresent) {
+        return `<div class="social-plat-card ${pm?.cls||''}" style="opacity:.75">
+          <div class="social-plat-header" style="justify-content:space-between">
+            <div class="social-plat-name" style="font-size:12px;font-weight:700">${esc(pm?.label||pk)}</div>
+            <span style="background:var(--bg3);color:var(--text3);padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700">Missing</span>
+          </div>
+          <div class="social-plat-body">
+            ${pd?.monthlyReachLost ? `<div class="social-plat-reach" style="margin-bottom:6px">📉 Est. monthly reach lost: ${esc(pd.monthlyReachLost)}</div>` : ''}
+            ${pd?.nicheSpecificInsight ? `<div style="font-size:11px;color:var(--amber-text);margin-bottom:6px;padding:4px 7px;background:var(--amber-bg);border-radius:5px">${esc(pd.nicheSpecificInsight)}</div>` : ''}
+            ${pd?.quickWin ? `<div class="social-plat-win">💡 Quick start: ${esc(pd.quickWin)}</div>` : ''}
+            <div style="margin-top:7px">
+              <a class="sa-profile-btn search" href="${esc(pm?.searchUrl||'#')}" target="_blank" rel="noreferrer">🔍 Find on ${esc(pm?.label||pk)}</a>
+            </div>
+          </div>
         </div>`;
+      }
 
-      return `<div class="social-plat-card ${pm?.cls||''}" style="${isPresent?'':'opacity:.75'}">
+      // ── Present platform card ────────────────────────────────────────────────
+      const status       = pd?.status || 'Likely Active';
+      const extracted    = pd?._extracted  || null;
+      const critFlags    = pd?._criticalFlags || [];
+      const dataSource   = pd?._dataSource || 'estimated';
+
+      // Status badge colors
+      let sBg, sClr, sAnimCls = '';
+      if      (status === 'Active')           { sBg = '#dcfce7'; sClr = '#15803d'; }
+      else if (status === 'Likely Active')    { sBg = '#d1fae5'; sClr = '#065f46'; }
+      else if (status === 'Needs Attention')  { sBg = '#fef3c7'; sClr = '#92400e'; }
+      else if (status === 'Inactive')         { sBg = '#fee2e2'; sClr = '#b91c1c'; }
+      else if (status === 'Critical')         { sBg = '#7f1d1d'; sClr = '#fff'; sAnimCls = 'sm-crit-pulse'; }
+      else                                    { sBg = sc_bg(sc); sClr = sc_color(sc); }
+
+      const statusBadge = `<span class="${sAnimCls}" style="background:${sBg};color:${sClr};padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700;display:inline-block">${esc(status)}</span>`;
+
+      // Score bar
+      const scoreBar = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="font-size:20px;font-weight:800;color:${sc_color(sc)}">${sc}</div>
+        <div style="flex:1">
+          <div class="sa-score-bar-wrap"><div class="sa-score-bar" style="width:${sc}%;background:${sc_color(sc)}"></div></div>
+          <div style="font-size:9px;color:var(--text3);margin-top:2px">Score /100</div>
+        </div>
+      </div>`;
+
+      // Metric rows — real extracted data when available
+      let metricRows = '';
+      if (extracted) {
+        // Followers / subscribers / likes row
+        const fc = extracted.followers ?? extracted.likes ?? extracted.subscribers ?? null;
+        if (fc !== null) {
+          const fcFmt = fc >= 1e6 ? `${(fc/1e6).toFixed(1)}M` : fc >= 1000 ? `${(fc/1000).toFixed(1)}K` : fc.toLocaleString();
+          const fcLabel = pk === 'youtube' ? 'Subscribers' : (pk === 'facebook' && extracted.likes != null) ? 'Page Likes' : 'Followers';
+          metricRows += `<div class="social-plat-stat"><span class="social-plat-stat-k">${fcLabel}</span><span class="social-plat-stat-v" style="font-weight:700">${fcFmt}</span></div>`;
+        } else {
+          metricRows += `<div class="social-plat-stat"><span class="social-plat-stat-k">Followers</span><span class="social-plat-stat-v" style="color:var(--text3);font-size:11px">Not detected</span></div>`;
+        }
+
+        // Posts / 28 days row
+        const p28 = extracted.postsLast28Days;
+        if (p28 !== null && p28 !== undefined) {
+          let p28Bg, p28Clr, p28Lbl;
+          if      (p28 >= 20) { p28Bg = '#dcfce7'; p28Clr = '#15803d'; p28Lbl = 'Good frequency'; }
+          else if (p28 >= 10) { p28Bg = '#fef3c7'; p28Clr = '#92400e'; p28Lbl = 'Below recommended'; }
+          else                { p28Bg = '#fee2e2'; p28Clr = '#b91c1c'; p28Lbl = 'Critical — too few'; }
+          metricRows += `<div class="social-plat-stat"><span class="social-plat-stat-k">Posts / 28 days</span>
+            <span class="social-plat-stat-v"><strong>${p28}</strong> <span style="background:${p28Bg};color:${p28Clr};padding:1px 5px;border-radius:4px;font-size:9px;font-weight:700">${p28Lbl}</span></span></div>`;
+        } else {
+          metricRows += `<div class="social-plat-stat"><span class="social-plat-stat-k">Posts / 28 days</span><span class="social-plat-stat-v"><span style="background:var(--bg3);color:var(--text3);padding:1px 5px;border-radius:4px;font-size:9px">Could not detect</span></span></div>`;
+        }
+
+        // Last post row
+        const days = extracted.lastPostDaysAgo;
+        if (days !== null && days !== undefined) {
+          let lpBg, lpClr, lpLbl, lpAnimCls = '';
+          if      (days <= 2)  { lpBg = '#dcfce7'; lpClr = '#15803d'; lpLbl = 'Recent'; }
+          else if (days <= 7)  { lpBg = '#fef3c7'; lpClr = '#92400e'; lpLbl = 'Getting old'; }
+          else if (days <= 14) { lpBg = '#fee2e2'; lpClr = '#b91c1c'; lpLbl = 'Overdue'; }
+          else                 { lpBg = '#7f1d1d'; lpClr = '#fff'; lpLbl = 'CRITICAL — Audience going cold'; lpAnimCls = 'sm-crit-pulse'; }
+          const daysText = days === 0 ? 'Today' : days === 1 ? 'Yesterday' : `${days} days ago`;
+          metricRows += `<div class="social-plat-stat"><span class="social-plat-stat-k">Last post</span>
+            <span class="social-plat-stat-v"><strong>${daysText}</strong> <span class="${lpAnimCls}" style="background:${lpBg};color:${lpClr};padding:1px 5px;border-radius:4px;font-size:9px;font-weight:700;display:inline-block">${lpLbl}</span></span></div>`;
+        } else {
+          metricRows += `<div class="social-plat-stat"><span class="social-plat-stat-k">Last post</span><span class="social-plat-stat-v"><span style="background:var(--bg3);color:var(--text3);padding:1px 5px;border-radius:4px;font-size:9px">Could not detect</span></span></div>`;
+        }
+
+        // Activity level from Claude
+        metricRows += `<div class="social-plat-stat"><span class="social-plat-stat-k">Activity level</span><span class="social-plat-stat-v">${esc(pd?.activityLevel||'Unknown')}</span></div>`;
+
+        // Instagram-specific extras
+        if (pk === 'instagram') {
+          metricRows += `<div class="social-plat-stat"><span class="social-plat-stat-k">Reels</span>
+            <span class="social-plat-stat-v" style="color:${extracted.hasReels?'#15803d':'#b91c1c'};font-weight:700">${extracted.hasReels ? '✓ Present' : '✗ Not found'}</span></div>`;
+        }
+
+        // Rating rows (Google, Yelp, Facebook)
+        if (extracted.rating != null) {
+          metricRows += `<div class="social-plat-stat"><span class="social-plat-stat-k">Rating</span><span class="social-plat-stat-v"><strong>${extracted.rating}</strong> ⭐ ${extracted.reviews != null ? `(${extracted.reviews.toLocaleString()} reviews)` : ''}</span></div>`;
+        }
+
+      } else {
+        // Fallback: Claude estimates only
+        metricRows += `<div class="social-plat-stat"><span class="social-plat-stat-k">Est. Reach</span><span class="social-plat-stat-v">${esc(pd?.estimatedFollowers||'Unknown')}</span></div>`;
+        metricRows += `<div class="social-plat-stat"><span class="social-plat-stat-k">Activity</span><span class="social-plat-stat-v">${esc(pd?.activityLevel||'Unknown')}</span></div>`;
+      }
+
+      // Critical flags section
+      let critFlagsHtml = '';
+      if (critFlags.length) {
+        const flagItems = critFlags.map(f => `
+          <div style="margin-bottom:7px;padding-bottom:7px;border-bottom:1px solid #fecaca">
+            <div style="font-weight:700;color:#b91c1c;font-size:11px;margin-bottom:2px">⚠ ${esc(f.message)}</div>
+            ${f.detail ? `<div style="color:#7f1d1d;font-size:10.5px;line-height:1.45;margin-bottom:2px">${esc(f.detail)}</div>` : ''}
+            ${f.fix ? `<div style="color:#166534;font-size:10.5px;font-weight:600">Fix: ${esc(f.fix)}</div>` : ''}
+          </div>`).join('');
+        critFlagsHtml = `<div style="border:1.5px solid #b91c1c;border-radius:6px;padding:8px 10px;margin:8px 0;background:#fff5f5">
+          <div style="font-size:10px;font-weight:800;color:#b91c1c;margin-bottom:6px;letter-spacing:.3px">⚠ CRITICAL ISSUES FOUND</div>
+          ${flagItems}
+        </div>`;
+      }
+
+      // Niche insight, gaps, quick win
+      const nicheHtml  = pd?.nicheSpecificInsight ? `<div style="font-size:11px;color:var(--blue-text);margin-top:6px;padding:4px 7px;background:var(--blue-bg);border-radius:5px">${esc(pd.nicheSpecificInsight)}</div>` : '';
+      const gapsHtml   = pd?.gaps?.length ? `<div class="social-plat-gap" style="margin-top:6px">⚠ ${pd.gaps.map(g=>esc(g)).join(' · ')}</div>` : '';
+      const quickWinHtml = pd?.quickWin ? `<div class="social-plat-win">💡 ${esc(pd.quickWin)}</div>` : '';
+
+      // Buttons
+      const btnsHtml = `<div style="margin-top:8px;display:flex;gap:5px;flex-wrap:wrap">
+        ${url ? `<a class="sa-profile-btn linked" href="${esc(url)}" target="_blank" rel="noreferrer">🔗 Visit Profile ↗</a>` : ''}
+        <a class="sa-profile-btn search" href="${esc(pm?.searchUrl||'#')}" target="_blank" rel="noreferrer">🔍 Search ${esc(pm?.label||pk)}</a>
+      </div>`;
+
+      // Data source transparency
+      const srcBadge = `<div style="margin-top:8px;font-size:9.5px;color:var(--text3);border-top:1px solid var(--border);padding-top:6px">
+        ${dataSource === 'live'
+          ? '🟢 Data extracted from live profile via Jina AI'
+          : `🟡 Profile page could not be read — showing AI estimates.${url ? ` <a href="${esc(url)}" target="_blank" rel="noreferrer" style="color:var(--blue-text);text-decoration:none">Visit Profile to verify manually ↗</a>` : ''}`}
+      </div>`;
+
+      return `<div class="social-plat-card ${pm?.cls||''}">
         <div class="social-plat-header" style="justify-content:space-between">
           <div class="social-plat-name" style="font-size:12px;font-weight:700">${esc(pm?.label||pk)}</div>
           ${statusBadge}
         </div>
-        <div class="social-plat-body">${body}</div>
+        <div class="social-plat-body">
+          ${scoreBar}${metricRows}${critFlagsHtml}${nicheHtml}${gapsHtml}${quickWinHtml}${btnsHtml}${srcBadge}
+        </div>
       </div>`;
     };
 
-    // Group 1 — Provided
+    // Group 1 — Provided (sorted: Critical → Inactive → flagged → Needs Attention → Active)
     let group1 = '';
     if (providedList.length) {
+      const sortedProvided = [...providedList].sort((a, b) => urgencyRank(plats[a]) - urgencyRank(plats[b]));
       group1 = `<div style="margin-top:1rem">
         <div class="sm-group-hdr sm-group-provided">✅ Profiles Provided (${providedList.length})</div>
         <div class="social-platforms-grid" style="grid-template-columns:repeat(2,1fr)">
-          ${providedList.map(pk => buildCard(pk, plats[pk]||{}, SMETA[pk], true)).join('')}
+          ${sortedProvided.map(pk => buildCard(pk, plats[pk]||{}, SMETA[pk], true)).join('')}
         </div></div>`;
     }
 
@@ -7815,7 +7951,7 @@ async function runSocialAnalysis(idx) {
   const reportCity = currentCity   || lead.city   || '';
   const reportState= currentState  || lead.state  || '';
 
-  outEl.innerHTML = `<div class="report-output report-loading"><span class="spinner"></span>Analyzing ${urlCount} social media profile${urlCount!==1?'s':''}…</div>`;
+  outEl.innerHTML = `<div class="report-output report-loading"><span class="spinner"></span>Reading ${urlCount} live profile page${urlCount!==1?'s':''} &amp; running AI analysis… (may take up to 30 seconds)</div>`;
 
   try {
     const resp = await fetch(`${BASE_URL}/api/social-audit`, {
