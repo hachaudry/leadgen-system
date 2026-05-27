@@ -598,6 +598,54 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 .sa-pitch-wrap { margin-top:1rem;padding:14px 16px;background:linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 100%);border:1px solid var(--border);border-radius:var(--radius-lg); }
 .sa-pitch-content { font-size:12px;line-height:1.6;color:var(--text2);margin-top:8px;white-space:pre-wrap; }
 
+/* ── Social Media Input Panel ── */
+.sm-input-panel { background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-lg);animation:slideDown .2s ease; }
+.sm-input-header { padding:1rem 1.25rem;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(106,27,154,.07),rgba(106,27,154,.02)); }
+.sm-input-title { font-size:15px;font-weight:800;color:var(--text);margin-bottom:3px; }
+.sm-input-sub { font-size:12px;color:var(--text2);line-height:1.5; }
+.sm-platform-list { padding:.4rem 1.25rem; }
+.sm-plat-row { display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border); }
+.sm-plat-row:last-child { border-bottom:none; }
+.sm-plat-dot { width:10px;height:10px;border-radius:50%;flex-shrink:0; }
+.sm-plat-label { width:120px;font-size:12px;font-weight:600;flex-shrink:0;color:var(--text); }
+.sm-plat-input { flex:1;border:1px solid var(--border2);border-radius:var(--radius);padding:5px 9px;font-size:11.5px;font-family:inherit;background:var(--bg);color:var(--text);min-width:0;transition:border-color .15s,background .15s; }
+.sm-plat-input:focus { outline:none;border-color:#6a1b9a;box-shadow:0 0 0 2px rgba(106,27,154,.1); }
+.sm-plat-input.has-url { border-color:#16a34a;background:#f0fdf4; }
+.sm-plat-input:disabled { opacity:.4;background:var(--bg3);cursor:not-allowed; }
+.sm-plat-visit-btn { border:1px solid var(--border2);background:var(--bg);border-radius:var(--radius);padding:5px 8px;font-size:11px;font-weight:700;cursor:pointer;color:var(--blue-text);white-space:nowrap;flex-shrink:0;text-decoration:none;line-height:1; }
+.sm-plat-visit-btn:hover { background:var(--blue-bg); }
+.sm-plat-visit-btn.sm-disabled { opacity:.3;pointer-events:none; }
+.sm-plat-search-btn { border:1px solid var(--border2);background:var(--bg2);border-radius:var(--radius);padding:5px 8px;font-size:11px;font-weight:600;cursor:pointer;color:var(--text2);white-space:nowrap;flex-shrink:0;text-decoration:none;line-height:1; }
+.sm-plat-search-btn:hover { background:var(--bg3); }
+.sm-plat-np-label { display:flex;align-items:center;gap:3px;font-size:10px;color:var(--text3);cursor:pointer;white-space:nowrap;flex-shrink:0;user-select:none; }
+.sm-plat-np-label input[type=checkbox] { cursor:pointer;width:12px;height:12px; }
+.sm-input-actions { display:flex;gap:8px;padding:.9rem 1.25rem;border-top:1px solid var(--border);background:var(--bg2);align-items:center;flex-wrap:wrap; }
+.sm-analyze-btn { background:#6a1b9a;color:#fff;border:none;border-radius:var(--radius);padding:9px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s; }
+.sm-analyze-btn:hover { background:#4a148c; }
+.sm-analyze-btn:disabled { background:#aaa;cursor:not-allowed; }
+.sm-save-btn { background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius);padding:8px 15px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text2);transition:background .15s; }
+.sm-save-btn:hover { background:var(--bg3); }
+.sm-url-count { font-size:11px;color:var(--text3);margin-left:auto; }
+.sm-custom-section { padding:.7rem 1.25rem;border-top:1px dashed var(--border2); }
+.sm-custom-title { font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between; }
+.sm-add-custom-row { display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px;padding:8px 10px;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border); }
+.sm-add-custom-row input { border:1px solid var(--border2);border-radius:var(--radius);padding:6px 9px;font-size:12px;font-family:inherit;background:var(--bg);color:var(--text); }
+.sm-color-opts { display:flex;gap:4px;align-items:center;flex-shrink:0; }
+.sm-color-opt { width:16px;height:16px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .1s; }
+.sm-color-opt:hover { transform:scale(1.2); }
+.sm-color-opt.sm-sel { border-color:#111;box-shadow:0 0 0 1px #fff inset; }
+.sm-add-plat-btn { background:#1565c0;color:#fff;border:none;border-radius:var(--radius);padding:6px 13px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;flex-shrink:0; }
+.sm-add-plat-btn:hover { background:#0d47a1; }
+.sm-chips { display:flex;flex-wrap:wrap;gap:5px;margin-top:6px; }
+.sm-chip { display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 9px;border-radius:12px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;color:var(--text2);transition:all .15s; }
+.sm-chip:hover { background:var(--purple-bg);border-color:#6a1b9a;color:#6a1b9a; }
+.sm-back-btn { display:inline-flex;align-items:center;gap:5px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2);font-family:inherit;margin-bottom:12px;transition:background .15s; }
+.sm-back-btn:hover { background:var(--bg3);color:var(--text); }
+/* provided vs missing group headers */
+.sm-group-hdr { display:inline-block;font-size:11px;font-weight:700;padding:4px 10px;border-radius:var(--radius);margin-bottom:8px; }
+.sm-group-provided { background:var(--green-bg);color:var(--green-text); }
+.sm-group-missing  { background:var(--red-bg);color:var(--red-text); }
+
 /* ── SEO Presence Mockup Cards ── */
 .presence-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1rem; }
 .pres-card { border-radius:var(--radius-lg); border:1px solid var(--border); overflow:hidden; font-size:11px; }
@@ -2625,6 +2673,12 @@ async function runReport(idx, type, btn) {
       <span style="color:var(--text3)">— ${esc(niche)} · ${esc(reportCity)}${reportState ? ', ' + esc(reportState) : ''} — click another to switch</span>`;
   }
 
+  // ── Social Media: show manual URL input panel — no auto-scanning ──────────
+  if (type === 'social') {
+    showSocialInputPanel(idx, lead, outEl, niche, reportCity, reportState);
+    return;
+  }
+
   outEl.innerHTML = `<div class="report-output report-loading"><span class="spinner"></span>Generating ${rm.name}...</div>`;
   btn.classList.add('loading');
   btn.disabled = true;
@@ -2682,33 +2736,6 @@ async function runReport(idx, type, btn) {
             _rawResponse: text.slice(0, 200)
           };
         }
-      }
-    } else if (type === 'social') {
-      // ── Real Social Media Audit via /api/social-audit ──
-      outEl.innerHTML = `<div class="report-output report-loading"><span class="spinner"></span>Scanning website for social profiles…</div>`;
-      const socialBody = {
-        businessName: lead.name,
-        website:  lead.website  || null,
-        niche,
-        city:     reportCity,
-        state:    reportState,
-        phone:    lead.phone    || null,
-        reviews:  lead.reviews  || 0,
-        rating:   lead.rating   || null
-      };
-      const socialResp = await fetch(`${BASE_URL}/api/social-audit`, {
-        method: 'POST',
-        headers: { 'Content-Type':'application/json', 'x-anthropic-key': keys.anthropic },
-        body: JSON.stringify(socialBody)
-      });
-      const socialText = await socialResp.text();
-      try {
-        data = JSON.parse(socialText);
-      } catch {
-        data = {
-          error: `Social audit returned unexpected response (HTTP ${socialResp.status}). Check API keys and try again.`,
-          _rawResponse: socialText.slice(0, 200)
-        };
       }
     } else {
       const resp = await fetch(`${BASE_URL}/api/report`, {
@@ -2809,7 +2836,7 @@ function renderReport(idx, type, data, el) {
   } else if (type === 'seo') {
     html = renderRealSeoReport(data, lead);
   } else if (type === 'social') {
-    html = renderSocialReport(data, lead);
+    html = renderSocialReport(data, lead, idx);
   } else if (type === '360') {
     html = render360Report(data, lead);
   } else if (type === 'website') {
@@ -3758,7 +3785,207 @@ function renderRealSeoReport(data, lead) {
   return overviewHtml + catCardsHtml + issuesHtml + rawHtml + proposalHtml;
 }
 
-function renderSocialReport(data, lead) {
+function renderSocialReport(data, lead, idx) {
+
+  // ══ NEW FORMAT: manual-URL analysis (providedPlatforms present) ══════════
+  if (data && data.providedPlatforms != null) {
+    const bizName = lead?.name || data.businessName || '';
+    const niche   = currentNiche || lead?.niche || data.niche || '';
+    const city    = currentCity  || lead?.city  || data.city  || '';
+    const enc     = encodeURIComponent;
+
+    const SMETA = {
+      google:    { label:'Google Business', cls:'plat-google',    color:'#4285F4', searchUrl:`https://www.google.com/maps/search/${enc(bizName+' '+city)}` },
+      facebook:  { label:'Facebook',        cls:'plat-facebook',  color:'#1877F2', searchUrl:`https://www.facebook.com/search/pages/?q=${enc(bizName)}` },
+      instagram: { label:'Instagram',       cls:'plat-instagram', color:'#E1306C', searchUrl:`https://www.instagram.com/explore/search/?q=${enc(bizName)}` },
+      linkedin:  { label:'LinkedIn',        cls:'plat-linkedin',  color:'#0A66C2', searchUrl:`https://www.linkedin.com/search/results/companies/?keywords=${enc(bizName)}` },
+      tiktok:    { label:'TikTok',          cls:'plat-tiktok',    color:'#010101', searchUrl:`https://www.tiktok.com/search?q=${enc(bizName)}` },
+      youtube:   { label:'YouTube',         cls:'plat-youtube',   color:'#FF0000', searchUrl:`https://www.youtube.com/results?search_query=${enc(bizName)}` },
+      twitter:   { label:'X / Twitter',     cls:'plat-twitter',   color:'#000000', searchUrl:`https://twitter.com/search?q=${enc(bizName)}` },
+      pinterest: { label:'Pinterest',       cls:'plat-pinterest', color:'#E60023', searchUrl:`https://www.pinterest.com/search/pins/?q=${enc(bizName)}` },
+      yelp:      { label:'Yelp',            cls:'plat-yelp',      color:'#D32323', searchUrl:`https://www.yelp.com/search?find_desc=${enc(bizName)}&find_loc=${enc(city||'CA')}` },
+      threads:   { label:'Threads',         cls:'plat-threads',   color:'#1c1c1c', searchUrl:`https://www.threads.net/search?q=${enc(bizName)}` }
+    };
+
+    const plats           = data.platforms  || {};
+    const providedList    = data.providedPlatforms  || [];
+    const missingList     = data.missingPlatforms   || [];
+    const notPresentList  = data.notPresent         || [];
+    const customPlatforms = data.customPlatforms    || [];
+    const overallScore    = data.overallScore       || 0;
+    const scoreLabel      = overallScore >= 90 ? 'Excellent' : overallScore >= 75 ? 'Strong' : overallScore >= 60 ? 'Average' : overallScore >= 40 ? 'Needs Work' : 'Critical';
+    const sc_color  = s => s >= 70 ? '#16a34a' : s >= 45 ? '#d97706' : '#dc2626';
+    const sc_bg     = s => s >= 70 ? '#dcfce7' : s >= 45 ? '#fef3c7' : '#fee2e2';
+
+    // Back-to-edit button
+    const backBtn = idx != null
+      ? `<button class="sm-back-btn" onclick="smBackToEdit(${idx})">← Back to Edit URLs</button>`
+      : '';
+
+    // Summary
+    const trulyMissing = missingList.filter(p => !notPresentList.includes(p));
+    const summaryBar = `
+    <div style="display:flex;align-items:center;gap:14px;padding:9px 13px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:1rem;flex-wrap:wrap;font-size:12px">
+      <span>📊 <strong>${providedList.length}</strong> profiles analyzed</span>
+      <span style="color:var(--red-text)">❌ <strong>${trulyMissing.length}</strong> missing</span>
+      ${data.estimatedTotalReachLost ? `<span style="color:var(--amber-text)">📉 Est. reach lost: <strong>${esc(data.estimatedTotalReachLost)}</strong></span>` : ''}
+      <span style="margin-left:auto;font-weight:700;color:${sc_color(overallScore)}">Social Score: ${overallScore}/100</span>
+    </div>`;
+
+    // Overall score ring
+    const overallBlock = `
+    <div class="sa-overall-wrap">
+      <div class="sa-overall-score" style="background:${sc_bg(overallScore)};color:${sc_color(overallScore)}">
+        <div class="sa-overall-num">${overallScore}</div>
+        <div class="sa-overall-label">/100</div>
+      </div>
+      <div class="sa-overall-info">
+        <div class="sa-overall-title" style="color:${sc_color(overallScore)}">${scoreLabel} Social Presence</div>
+        <div class="sa-overall-sub">${data.salesAngle ? esc(data.salesAngle) : `${esc(bizName)} has significant gaps in social media coverage.`}</div>
+      </div>
+    </div>`;
+
+    // Helper: build one platform card
+    const buildCard = (pk, pd, pm, isPresent) => {
+      const sc = pd?.score ?? 0;
+      const url = pd?.profileUrl || null;
+      const statusBadge = isPresent
+        ? `<span style="background:${sc_bg(sc)};color:${sc_color(sc)};padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700">${esc(pd?.status||'Active')}</span>`
+        : `<span style="background:var(--red-bg);color:var(--red-text);padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700">Missing</span>`;
+
+      const body = isPresent ? `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+          <div style="font-size:20px;font-weight:800;color:${sc_color(sc)}">${sc}</div>
+          <div style="flex:1"><div class="sa-score-bar-wrap"><div class="sa-score-bar" style="width:${sc}%;background:${sc_color(sc)}"></div></div>
+          <div style="font-size:9px;color:var(--text3);margin-top:2px">Score /100</div></div>
+        </div>
+        <div class="social-plat-stat"><span class="social-plat-stat-k">Est. Reach</span><span class="social-plat-stat-v">${esc(pd?.estimatedFollowers||'Unknown')}</span></div>
+        <div class="social-plat-stat"><span class="social-plat-stat-k">Activity</span><span class="social-plat-stat-v">${esc(pd?.activityLevel||'Unknown')}</span></div>
+        ${pd?.nicheSpecificInsight ? `<div style="font-size:11px;color:var(--blue-text);margin-top:6px;padding:4px 7px;background:var(--blue-bg);border-radius:5px">${esc(pd.nicheSpecificInsight)}</div>` : ''}
+        ${pd?.gaps?.length ? `<div class="social-plat-gap" style="margin-top:6px">⚠ ${pd.gaps.map(g=>esc(g)).join(' · ')}</div>` : ''}
+        ${pd?.quickWin ? `<div class="social-plat-win">💡 ${esc(pd.quickWin)}</div>` : ''}
+        <div style="margin-top:7px;display:flex;gap:5px;flex-wrap:wrap">
+          ${url ? `<a class="sa-profile-btn linked" href="${esc(url)}" target="_blank" rel="noreferrer">🔗 Visit Profile ↗</a>` : ''}
+          <a class="sa-profile-btn search" href="${esc(pm?.searchUrl||'#')}" target="_blank" rel="noreferrer">🔍 Search ${esc(pm?.label||pk)}</a>
+        </div>` : `
+        ${pd?.monthlyReachLost ? `<div class="social-plat-reach" style="margin-bottom:6px">📉 Reach being lost: ${esc(pd.monthlyReachLost)}</div>` : ''}
+        ${pd?.nicheSpecificInsight ? `<div style="font-size:11px;color:var(--amber-text);margin-bottom:6px;padding:4px 7px;background:var(--amber-bg);border-radius:5px">${esc(pd.nicheSpecificInsight)}</div>` : ''}
+        ${pd?.quickWin ? `<div class="social-plat-win">💡 Quick start: ${esc(pd.quickWin)}</div>` : ''}
+        <div style="margin-top:7px">
+          <a class="sa-profile-btn search" href="${esc(pm?.searchUrl||'#')}" target="_blank" rel="noreferrer">🔍 Find on ${esc(pm?.label||pk)}</a>
+        </div>`;
+
+      return `<div class="social-plat-card ${pm?.cls||''}" style="${isPresent?'':'opacity:.75'}">
+        <div class="social-plat-header" style="justify-content:space-between">
+          <div class="social-plat-name" style="font-size:12px;font-weight:700">${esc(pm?.label||pk)}</div>
+          ${statusBadge}
+        </div>
+        <div class="social-plat-body">${body}</div>
+      </div>`;
+    };
+
+    // Group 1 — Provided
+    let group1 = '';
+    if (providedList.length) {
+      group1 = `<div style="margin-top:1rem">
+        <div class="sm-group-hdr sm-group-provided">✅ Profiles Provided (${providedList.length})</div>
+        <div class="social-platforms-grid" style="grid-template-columns:repeat(2,1fr)">
+          ${providedList.map(pk => buildCard(pk, plats[pk]||{}, SMETA[pk], true)).join('')}
+        </div></div>`;
+    }
+
+    // Group 2 — Missing
+    let group2 = '';
+    if (trulyMissing.length) {
+      group2 = `<div style="margin-top:1rem">
+        <div class="sm-group-hdr sm-group-missing">❌ Missing Platforms — Opportunities (${trulyMissing.length})</div>
+        <div class="social-platforms-grid" style="grid-template-columns:repeat(2,1fr)">
+          ${trulyMissing.map(pk => buildCard(pk, plats[pk]||{}, SMETA[pk], false)).join('')}
+        </div></div>`;
+    }
+
+    // Custom platforms
+    let customHtml = '';
+    if (customPlatforms.length) {
+      customHtml = `<div style="margin-top:1rem">
+        <div class="section-title" style="margin-bottom:8px">➕ Custom Platforms</div>
+        <div class="social-platforms-grid" style="grid-template-columns:repeat(2,1fr)">
+          ${customPlatforms.map(cp => {
+            const isP = !!cp.profileUrl;
+            const csc = cp.score ?? 0;
+            return `<div class="social-plat-card plat-custom">
+              <div class="social-plat-header"><div class="social-plat-name">📱 ${esc(cp.name)}</div>
+                <span style="background:${isP?'#dcfce7':'var(--red-bg)'};color:${isP?'#15803d':'var(--red-text)'};padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700">${isP?esc(cp.status||'Present'):'Missing'}</span></div>
+              <div class="social-plat-body">
+                ${isP && csc ? `<div style="font-size:18px;font-weight:800;color:${sc_color(csc)};margin-bottom:5px">${csc}<span style="font-size:11px;color:var(--text3)">/100</span></div>` : ''}
+                ${cp.nicheSpecificInsight ? `<div style="font-size:11px;color:var(--blue-text);padding:4px 7px;background:var(--blue-bg);border-radius:5px;margin-bottom:5px">${esc(cp.nicheSpecificInsight)}</div>` : ''}
+                ${cp.gaps?.length ? `<div class="social-plat-gap">⚠ ${cp.gaps.map(g=>esc(g)).join(' · ')}</div>` : ''}
+                ${cp.quickWin ? `<div class="social-plat-win">💡 ${esc(cp.quickWin)}</div>` : ''}
+                ${isP ? `<a class="sa-profile-btn linked" href="${esc(cp.profileUrl)}" target="_blank" rel="noreferrer" style="margin-top:6px">🔗 Visit ↗</a>` : ''}
+              </div></div>`;
+          }).join('')}
+        </div></div>`;
+    }
+
+    // Priority actions
+    const actions = data.priorityActions || [];
+    const rankLbls = ['#1 Highest Impact','#2 Quick Win','#3 Next Step'];
+    let priorityHtml = `<div class="section-title" style="margin-top:1rem;margin-bottom:8px">🎯 Top Priority Actions</div><div class="sa-priority-grid">`;
+    for (let i = 0; i < 3; i++) {
+      const a = actions[i];
+      if (!a) { priorityHtml += `<div class="sa-priority-card"><div class="sa-priority-rank">${rankLbls[i]}</div><div style="color:var(--text3);font-size:12px">No action data</div></div>`; continue; }
+      const efCls = a.effort==='Low'?'sa-effort-low':a.effort==='High'?'sa-effort-high':'sa-effort-medium';
+      priorityHtml += `<div class="sa-priority-card" style="border-color:${i===0?'var(--red-text)':i===1?'var(--amber-text)':'var(--border)'}">
+        <div class="sa-priority-rank">${rankLbls[i]}</div>
+        <div class="sa-priority-plat">${esc(SMETA[a.platform?.toLowerCase()]?.label||a.platform||'—')}<span class="sa-effort-badge ${efCls}">${a.effort||'?'} effort</span></div>
+        <div class="sa-priority-action">${esc(a.action||'—')}</div>
+        ${a.revenueImpact?`<div class="sa-priority-rev">💰 ${esc(a.revenueImpact)}</div>`:''}
+      </div>`;
+    }
+    priorityHtml += `</div>`;
+
+    // Content strategy (niche-matched)
+    const CS = {
+      'Restaurant':         [['Mon','Food Photography'],['Tue','Daily Specials'],['Wed','Behind the Scenes'],['Thu','Customer Features']],
+      'Med Spa':            [['Mon','Treatment Spotlight'],['Tue','Client Testimonial'],['Wed','Educational Tip'],['Thu','Before/After']],
+      'Dental Clinic':      [['Mon','Smile Transformation'],['Tue','Dental Tip'],['Wed','Patient Story'],['Thu','Service Highlight']],
+      'Law Firm':           [['Mon','Case Win Highlight'],['Tue','Legal Tip'],['Wed','Client Success'],['Thu','FAQ Post']],
+      'Real Estate Agency': [['Mon','New Listing'],['Tue','Market Update'],['Wed','Home Tour Video'],['Thu','Buyer/Seller Tip']],
+      'Gym':                [['Mon','Workout of the Week'],['Tue','Member Spotlight'],['Wed','Nutrition Tip'],['Thu','Class Highlight']],
+      'Roofing Company':    [['Mon','Project Transformation'],['Tue','Before/After'],['Wed','Roofing Tip'],['Thu','Free Estimate CTA']],
+      'Plumbing Company':   [['Mon','Job Transformation'],['Tue','DIY Safety Tip'],['Wed','Emergency Services'],['Thu','Customer Review']],
+      'Hair Salon':         [['Mon','Transformation Reveal'],['Tue','Hair Care Tip'],['Wed','Style Inspo'],['Thu','Booking CTA']],
+      'Chiropractor':       [['Mon','Adjustment Video'],['Tue','Posture Tip'],['Wed','Patient Testimonial'],['Thu','Wellness Fact']]
+    };
+    const strategy = CS[niche] || [['Mon','Brand Story'],['Tue','Service Feature'],['Wed','Customer Success'],['Thu','Promo Offer']];
+    let contentHtml = `<div class="section-title" style="margin-top:1rem;margin-bottom:8px">📅 Content Strategy — ${esc(niche||'Local Business')}</div><div class="sa-content-grid">`;
+    strategy.forEach(([day,type_]) => { contentHtml += `<div class="sa-content-tile"><div class="sa-content-day">${day}</div><div class="sa-content-type">${type_}</div></div>`; });
+    contentHtml += `</div>`;
+
+    // Pitch section
+    const pitchHtml = `
+    <div class="sa-pitch-wrap" style="margin-top:1rem">
+      <div class="section-title" style="margin-bottom:4px">📣 Social Media Sales Pitch</div>
+      <div class="sa-pitch-content">${
+        (data.salesAngle ? `Hook: ${esc(data.salesAngle)}\n\n` : '') +
+        `Key findings for ${esc(bizName)}:\n` +
+        `• Social presence score: ${overallScore}/100 (${scoreLabel})\n` +
+        `• Profiles provided: ${providedList.length} of 10 platforms\n` +
+        `• Missing platforms: ${trulyMissing.length}\n` +
+        (data.estimatedTotalReachLost ? `• Est. monthly reach loss: ${esc(data.estimatedTotalReachLost)}\n` : '') +
+        (actions[0] ? `• Top priority: ${esc(actions[0].action||'')} on ${esc(SMETA[actions[0].platform?.toLowerCase()]?.label||actions[0].platform||'—')}\n` : '') +
+        `\nRecommended package:\n` +
+        `• Starter ($799/mo): Profile setup, 12 posts/month, GMB optimization\n` +
+        `• Growth ($1,499/mo): + Instagram/TikTok Reels, ad management, monthly reports\n` +
+        `• Premium ($2,499/mo): Full social management, daily stories, influencer outreach`
+      }</div>
+    </div>`;
+
+    return backBtn + summaryBar + overallBlock + group1 + group2 + customHtml + priorityHtml + contentHtml + pitchHtml;
+  }
+
+  // ══ LEGACY FORMAT: fall through ══════════════════════════════════════════
+
   // Legacy format (from report.js / 360 report) — keep working
   if (!data || !data.detectedProfiles) {
     let html = renderGenericReport('social', data, '📱 Social Media Report');
@@ -7292,7 +7519,359 @@ function renderPropClosing(cl) {
   </div>`;
 }
 
-// ── Social Media Custom Platform Helpers ──────────────────────────────────
+// ── Social Media Manual Input Panel ──────────────────────────────────────────
+
+const SM_PLAT_DEFS = [
+  { key:'google',    label:'Google Business', color:'#4285F4' },
+  { key:'facebook',  label:'Facebook',        color:'#1877F2' },
+  { key:'instagram', label:'Instagram',       color:'#E1306C' },
+  { key:'linkedin',  label:'LinkedIn',        color:'#0A66C2' },
+  { key:'tiktok',    label:'TikTok',          color:'#010101' },
+  { key:'youtube',   label:'YouTube',         color:'#FF0000' },
+  { key:'twitter',   label:'X / Twitter',     color:'#000000' },
+  { key:'pinterest', label:'Pinterest',       color:'#E60023' },
+  { key:'yelp',      label:'Yelp',            color:'#D32323' },
+  { key:'threads',   label:'Threads',         color:'#1c1c1c' }
+];
+const SM_PH = {
+  google:'https://g.co/kgs/... or maps.google.com/...',
+  facebook:'https://www.facebook.com/businessname',
+  instagram:'https://www.instagram.com/businessname',
+  linkedin:'https://www.linkedin.com/company/businessname',
+  tiktok:'https://www.tiktok.com/@businessname',
+  youtube:'https://www.youtube.com/@businessname',
+  twitter:'https://x.com/businessname',
+  pinterest:'https://www.pinterest.com/businessname',
+  yelp:'https://www.yelp.com/biz/businessname',
+  threads:'https://www.threads.net/@businessname'
+};
+const SM_SUGGESTED = ['Nextdoor','Houzz','Alignable','Thumbtack','Angi','Tripadvisor','OpenTable','Zomato','DoorDash','Grubhub','Uber Eats','Booking.com','Etsy','Bing Places','Apple Maps','Waze','Snapchat'];
+
+function smStorKey(bizName) { return `social_profiles_${bizName.replace(/[^a-z0-9]/gi,'_').toLowerCase()}`; }
+function smSid(sk)          { return sk.replace(/[^a-z0-9]/gi,'_'); }
+function smLoad(sk)         { try { return JSON.parse(localStorage.getItem(sk)||'{}'); } catch { return {}; } }
+function smSave(sk, d)      { try { localStorage.setItem(sk, JSON.stringify(d)); } catch {} }
+
+function showSocialInputPanel(idx, lead, outEl, niche, city, state) {
+  const bizName = lead.name || '';
+  const sk  = smStorKey(bizName);
+  const sid = smSid(sk);
+  const saved = smLoad(sk);
+  const notPresent = new Set(saved.notPresent || []);
+  const custom = saved.custom || [];
+  const e = encodeURIComponent;
+
+  const searchUrls = {
+    google:    `https://www.google.com/maps/search/${e(bizName+(city?' '+city:''))}`,
+    facebook:  `https://www.facebook.com/search/pages/?q=${e(bizName)}`,
+    instagram: `https://www.instagram.com/explore/search/?q=${e(bizName)}`,
+    linkedin:  `https://www.linkedin.com/search/results/companies/?keywords=${e(bizName)}`,
+    tiktok:    `https://www.tiktok.com/search?q=${e(bizName)}`,
+    youtube:   `https://www.youtube.com/results?search_query=${e(bizName)}`,
+    twitter:   `https://twitter.com/search?q=${e(bizName)}`,
+    pinterest: `https://www.pinterest.com/search/pins/?q=${e(bizName)}`,
+    yelp:      `https://www.yelp.com/search?find_desc=${e(bizName)}&find_loc=${e((city||'')+' '+(state||'CA'))}`,
+    threads:   `https://www.threads.net/search?q=${e(bizName)}`
+  };
+
+  const rows = SM_PLAT_DEFS.map(p => {
+    const savedUrl = saved[p.key] || '';
+    const isNP = notPresent.has(p.key);
+    return `<div class="sm-plat-row">
+      <div class="sm-plat-dot" style="background:${p.color}"></div>
+      <div class="sm-plat-label">${esc(p.label)}</div>
+      <input type="url" class="sm-plat-input${savedUrl?' has-url':''}"
+        id="smurl-${sid}-${p.key}" placeholder="${esc(SM_PH[p.key]||'')}" value="${esc(savedUrl)}"
+        oninput="smOnUrlInput('${sid}','${p.key}',this)" ${isNP?'disabled':''}>
+      <a id="smvisit-${sid}-${p.key}" class="sm-plat-visit-btn${savedUrl?'':' sm-disabled'}"
+        href="${savedUrl?esc(savedUrl):'#'}" target="_blank" rel="noreferrer" title="Open profile">↗</a>
+      <a class="sm-plat-search-btn" href="${esc(searchUrls[p.key]||'#')}" target="_blank" rel="noreferrer" title="Find on ${esc(p.label)}">🔍</a>
+      <label class="sm-plat-np-label" title="Mark as not present">
+        <input type="checkbox" id="smnp-${sid}-${p.key}" ${isNP?'checked':''}
+          onchange="smToggleNP('${sid}','${p.key}',this.checked)"> N/A
+      </label>
+    </div>`;
+  }).join('');
+
+  const customRowsHtml = custom.map((cp,i) => smBuildCustomRow(sid, cp, i, idx)).join('');
+
+  const chips = SM_SUGGESTED.filter(s => !custom.some(cp => cp.name.toLowerCase()===s.toLowerCase()))
+    .map(s => `<span class="sm-chip" onclick="smAddSuggested('${sid}',${idx},'${s.replace(/'/g,"\\'")}')">+ ${s}</span>`).join('');
+
+  const urlCount = SM_PLAT_DEFS.filter(p => saved[p.key]).length + custom.filter(c=>c.url).length;
+
+  outEl.innerHTML = `<div class="report-output" style="padding:0;border:none;background:transparent">
+  <div class="sm-input-panel">
+    <div class="sm-input-header">
+      <div class="sm-input-title">📱 Enter Social Media Profiles — ${esc(bizName)}</div>
+      <div class="sm-input-sub">Paste the profile URLs you want to analyze. Check N/A if not on that platform. Leave blank if unknown.</div>
+    </div>
+    <div class="sm-platform-list">${rows}</div>
+    <div id="smcustom-rows-${sid}">${customRowsHtml}</div>
+    <div class="sm-custom-section">
+      <div class="sm-custom-title">
+        <span>➕ Add More Platforms</span>
+        <button class="sm-add-plat-btn" onclick="smShowCustomForm('${sid}')">+ Custom</button>
+      </div>
+      <div id="smcustom-form-${sid}" style="display:none" class="sm-add-custom-row">
+        <input type="text" id="smcname-${sid}" placeholder="Platform name" style="width:130px;flex:none">
+        <input type="url"  id="smcurl-${sid}"  placeholder="Profile URL (optional)" style="flex:1;min-width:130px">
+        <div class="sm-color-opts" id="smcolors-${sid}">
+          ${['#1565c0','#16a34a','#d97706','#dc2626','#7c3aed','#0891b2'].map((c,i)=>
+            `<div class="sm-color-opt${i===0?' sm-sel':''}" style="background:${c}" data-color="${c}" onclick="smPickColor('${sid}',this)"></div>`).join('')}
+        </div>
+        <button class="sm-add-plat-btn" onclick="smAddCustom('${sid}',${idx})">Add</button>
+        <button onclick="document.getElementById('smcustom-form-${sid}').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 4px;color:var(--text3)">✕</button>
+      </div>
+      <div style="font-size:11px;font-weight:600;color:var(--text3);margin-top:8px;margin-bottom:4px">Quick-add:</div>
+      <div class="sm-chips" id="smchips-${sid}">${chips}</div>
+    </div>
+    <div class="sm-input-actions">
+      <button class="sm-analyze-btn" id="smanalyze-${sid}" onclick="runSocialAnalysis(${idx})" ${urlCount===0?'disabled':''}>
+        ${urlCount>0?`Analyze ${urlCount} Profile${urlCount!==1?'s':''}…`:'Enter at least one URL to analyze'}
+      </button>
+      <button class="sm-save-btn" onclick="smSaveOnly(${idx})">Save</button>
+      <span class="sm-url-count" id="smurlcount-${sid}">${urlCount>0?`${urlCount} URL${urlCount!==1?'s':''} entered`:''}</span>
+    </div>
+  </div>
+  </div>`;
+
+  outEl.dataset.smSk  = sk;
+  outEl.dataset.smSid = sid;
+}
+
+function smBuildCustomRow(sid, cp, custIdx, mainIdx) {
+  const visitCls = cp.url ? '' : ' sm-disabled';
+  return `<div class="sm-plat-row" style="background:var(--bg2);padding-left:1.25rem" id="smcustrow-${sid}-${custIdx}">
+    <div class="sm-plat-dot" style="background:${cp.color||'#1565c0'}"></div>
+    <div class="sm-plat-label" style="font-style:italic">${esc(cp.name)}</div>
+    <input type="url" class="sm-plat-input${cp.url?' has-url':''}"
+      id="smcurlval-${sid}-${custIdx}" placeholder="https://..."
+      value="${esc(cp.url||'')}" oninput="smOnCustUrlInput('${sid}',${custIdx},this)">
+    <a id="smcvisit-${sid}-${custIdx}" class="sm-plat-visit-btn${visitCls}"
+      href="${cp.url?esc(cp.url):'#'}" target="_blank" rel="noreferrer">↗</a>
+    <button onclick="smRemoveCust(${mainIdx},${custIdx})"
+      style="background:none;border:none;cursor:pointer;font-size:14px;padding:0 4px;color:var(--red-text)" title="Remove">✕</button>
+  </div>`;
+}
+
+function smOnUrlInput(sid, key, el) {
+  const v = el.value.trim();
+  el.classList.toggle('has-url', !!v);
+  const vb = document.getElementById(`smvisit-${sid}-${key}`);
+  if (vb) { vb.href = v||'#'; vb.classList.toggle('sm-disabled', !v); }
+  smRefreshAnalyzeBtn(sid);
+}
+
+function smOnCustUrlInput(sid, ci, el) {
+  const v = el.value.trim();
+  el.classList.toggle('has-url', !!v);
+  const vb = document.getElementById(`smcvisit-${sid}-${ci}`);
+  if (vb) { vb.href = v||'#'; vb.classList.toggle('sm-disabled', !v); }
+  smRefreshAnalyzeBtn(sid);
+}
+
+function smToggleNP(sid, key, checked) {
+  const el = document.getElementById(`smurl-${sid}-${key}`);
+  if (el) { el.disabled = checked; if (checked) el.classList.remove('has-url'); }
+  smRefreshAnalyzeBtn(sid);
+}
+
+function smRefreshAnalyzeBtn(sid) {
+  const btn = document.getElementById(`smanalyze-${sid}`);
+  const cntEl = document.getElementById(`smurlcount-${sid}`);
+  if (!btn) return;
+  let count = 0;
+  SM_PLAT_DEFS.forEach(p => { const el = document.getElementById(`smurl-${sid}-${p.key}`); if (el && !el.disabled && el.value.trim()) count++; });
+  document.querySelectorAll(`[id^="smcurlval-${sid}-"]`).forEach(el => { if (el.value.trim()) count++; });
+  btn.disabled = count === 0;
+  btn.textContent = count > 0 ? `Analyze ${count} Profile${count!==1?'s':''}…` : 'Enter at least one URL to analyze';
+  if (cntEl) cntEl.textContent = count > 0 ? `${count} URL${count!==1?'s':''} entered` : '';
+}
+
+function smShowCustomForm(sid) {
+  const el = document.getElementById(`smcustom-form-${sid}`);
+  if (el) el.style.display = el.style.display === 'none' ? 'flex' : 'none';
+}
+
+function smPickColor(sid, el) {
+  document.querySelectorAll(`#smcolors-${sid} .sm-color-opt`).forEach(o => o.classList.remove('sm-sel'));
+  el.classList.add('sm-sel');
+}
+
+function smAddCustom(sid, mainIdx) {
+  const nameEl  = document.getElementById(`smcname-${sid}`);
+  const urlEl   = document.getElementById(`smcurl-${sid}`);
+  const colorEl = document.querySelector(`#smcolors-${sid} .sm-color-opt.sm-sel`);
+  const name  = nameEl ? nameEl.value.trim() : '';
+  const url   = urlEl  ? urlEl.value.trim()  : '';
+  const color = colorEl ? colorEl.dataset.color : '#1565c0';
+  if (!name) { if (nameEl) { nameEl.style.borderColor='#c62828'; setTimeout(()=>nameEl.style.borderColor='',1500); } return; }
+
+  const outEl = document.getElementById(`report-output-${mainIdx}`);
+  const sk = outEl?.dataset.smSk;
+  if (!sk) return;
+  const saved = smLoad(sk);
+  const custom = saved.custom || [];
+  if (custom.some(c => c.name.toLowerCase()===name.toLowerCase())) return;
+  custom.push({ name, url, color });
+  saved.custom = custom;
+  smSave(sk, saved);
+
+  const rowContainer = document.getElementById(`smcustom-rows-${sid}`);
+  if (rowContainer) rowContainer.insertAdjacentHTML('beforeend', smBuildCustomRow(sid, { name, url, color }, custom.length-1, mainIdx));
+  if (nameEl) nameEl.value = '';
+  if (urlEl)  urlEl.value  = '';
+  document.getElementById(`smcustom-form-${sid}`).style.display = 'none';
+  smRefreshAnalyzeBtn(sid);
+}
+
+function smAddSuggested(sid, mainIdx, name) {
+  const outEl = document.getElementById(`report-output-${mainIdx}`);
+  const sk = outEl?.dataset.smSk;
+  if (!sk) return;
+  const saved = smLoad(sk);
+  const custom = saved.custom || [];
+  if (custom.some(c => c.name.toLowerCase()===name.toLowerCase())) return;
+  const entry = { name, url: '', color: '#1565c0' };
+  custom.push(entry);
+  saved.custom = custom;
+  smSave(sk, saved);
+  const rowContainer = document.getElementById(`smcustom-rows-${sid}`);
+  if (rowContainer) rowContainer.insertAdjacentHTML('beforeend', smBuildCustomRow(sid, entry, custom.length-1, mainIdx));
+  const chipsEl = document.getElementById(`smchips-${sid}`);
+  if (chipsEl) chipsEl.querySelectorAll('.sm-chip').forEach(c => { if (c.textContent.trim()===`+ ${name}`) c.remove(); });
+  smRefreshAnalyzeBtn(sid);
+}
+
+function smRemoveCust(mainIdx, custIdx) {
+  const outEl = document.getElementById(`report-output-${mainIdx}`);
+  const sk  = outEl?.dataset.smSk;
+  const sid = outEl?.dataset.smSid;
+  if (!sk || !sid) return;
+  const saved = smLoad(sk);
+  const custom = (saved.custom||[]).filter((_,i) => i !== custIdx);
+  saved.custom = custom;
+  smSave(sk, saved);
+  const container = document.getElementById(`smcustom-rows-${sid}`);
+  if (container) container.innerHTML = custom.map((cp,i) => smBuildCustomRow(sid, cp, i, mainIdx)).join('');
+  smRefreshAnalyzeBtn(sid);
+}
+
+function smCollectData(mainIdx) {
+  const outEl = document.getElementById(`report-output-${mainIdx}`);
+  const sk  = outEl?.dataset.smSk;
+  const sid = outEl?.dataset.smSid;
+  if (!sid) return { profiles:{}, notPresent:[] };
+  const saved = sk ? smLoad(sk) : {};
+  const profiles = {};
+  const notPresent = [];
+  SM_PLAT_DEFS.forEach(p => {
+    const el   = document.getElementById(`smurl-${sid}-${p.key}`);
+    const npEl = document.getElementById(`smnp-${sid}-${p.key}`);
+    const url  = (el && !el.disabled) ? el.value.trim() : '';
+    if (url) profiles[p.key] = url;
+    if (npEl && npEl.checked) notPresent.push(p.key);
+  });
+  const custSaved = saved.custom || [];
+  profiles.custom = custSaved.map((cp,i) => {
+    const el  = document.getElementById(`smcurlval-${sid}-${i}`);
+    const url = el ? el.value.trim() : (cp.url||'');
+    return { name: cp.name, url, color: cp.color||'#1565c0' };
+  });
+  return { profiles, notPresent };
+}
+
+function smSaveOnly(mainIdx) {
+  const { profiles, notPresent } = smCollectData(mainIdx);
+  const outEl = document.getElementById(`report-output-${mainIdx}`);
+  const sk = outEl?.dataset.smSk;
+  if (!sk) return;
+  const existing = smLoad(sk);
+  smSave(sk, { ...existing, ...profiles, notPresent, custom: profiles.custom });
+  const btn = outEl.querySelector('.sm-save-btn');
+  if (btn) { const t = btn.textContent; btn.textContent = '✓ Saved!'; setTimeout(()=>btn.textContent=t, 1500); }
+}
+
+async function runSocialAnalysis(idx) {
+  const lead = filteredLeads[idx];
+  if (!lead) return;
+  const outEl = document.getElementById(`report-output-${idx}`);
+  const sid = outEl?.dataset.smSid;
+  const sk  = outEl?.dataset.smSk;
+  if (!sid || !sk) return;
+
+  const { profiles, notPresent } = smCollectData(idx);
+  const urlCount = Object.keys(profiles).filter(k=>k!=='custom'&&profiles[k]).length
+    + (profiles.custom||[]).filter(c=>c.url).length;
+  if (urlCount === 0) return;
+
+  // Persist before analysis
+  const existing = smLoad(sk);
+  smSave(sk, { ...existing, ...profiles, notPresent, custom: profiles.custom });
+
+  const keys       = getKeys();
+  const niche      = currentNiche  || lead.niche  || '';
+  const reportCity = currentCity   || lead.city   || '';
+  const reportState= currentState  || lead.state  || '';
+
+  outEl.innerHTML = `<div class="report-output report-loading"><span class="spinner"></span>Analyzing ${urlCount} social media profile${urlCount!==1?'s':''}…</div>`;
+
+  try {
+    const resp = await fetch(`${BASE_URL}/api/social-audit`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'x-anthropic-key': keys.anthropic },
+      body: JSON.stringify({
+        businessName: lead.name, niche,
+        city: reportCity, state: reportState,
+        reviews: lead.reviews||0, rating: lead.rating||null,
+        profiles, notPresent
+      })
+    });
+    const text = await resp.text();
+    let data;
+    try { data = JSON.parse(text); }
+    catch { data = { error:`Social audit error (HTTP ${resp.status})`, _rawResponse: text.slice(0,200) }; }
+
+    reportCache[`${idx}-social`] = data;
+
+    // Lead scoring
+    if (lead.score == null) {
+      const sc = Math.max(1, Math.min(10, Math.round(lead.oppScore||oppScore(lead.revenueLoss, niche||''))));
+      lead.score = sc; lead.scoreStatus = 'scored'; lead.pain = deriveLeadPain(lead);
+      const mi = leads.findIndex(l => l.name===lead.name && l.phone===lead.phone);
+      if (mi !== -1) { leads[mi].score=sc; leads[mi].scoreStatus='scored'; leads[mi].pain=lead.pain; }
+      const badge = document.getElementById(`score-badge-${idx}`);
+      if (badge) {
+        const cls = sc>=7?'ls-hot':sc>=4?'ls-warm':'ls-cool';
+        badge.className = `lead-score-badge ${cls}`;
+        badge.title = `Lead Score: ${sc}/10`;
+        badge.innerHTML = `<span class="ls-dot"></span>${sc}/10 ${sc>=7?'Hot':sc>=4?'Warm':'Low'}`;
+      }
+      saveLeadsToStorage();
+    }
+
+    renderReport(idx, 'social', data, outEl);
+    renderPitchSection(idx, lead, data);
+    setTimeout(() => outEl.scrollIntoView({ behavior:'smooth', block:'start' }), 120);
+  } catch(e) {
+    outEl.innerHTML = `<div class="report-output report-loading">Error: ${esc(e.message)}</div>`;
+    setTimeout(() => showSocialInputPanel(idx, lead, outEl, niche, reportCity, reportState), 2000);
+  }
+}
+
+function smBackToEdit(idx) {
+  const lead = filteredLeads[idx];
+  if (!lead) return;
+  const outEl = document.getElementById(`report-output-${idx}`);
+  if (!outEl) return;
+  showSocialInputPanel(idx, lead, outEl,
+    currentNiche||lead.niche||'',
+    currentCity ||lead.city ||'',
+    currentState||lead.state||'');
+}
+
+// ── Social Media Custom Platform Helpers (legacy) ──────────────────────────
 function addSocialCustomPlatform(storageKey, name, url, color, bizName) {
   if (!name) return;
   const existing = (() => { try { return JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch { return []; } })();

@@ -1,135 +1,79 @@
-// api/social-audit.js — Real Social Media Presence Audit
-// Step 1: Scrapes business website via Jina AI to detect linked social profiles
-// Step 2: Claude AI analysis of detected + estimated presence
+// api/social-audit.js — Manual Social Media Presence Audit
+// Accepts user-provided profile URLs and calls Claude for quality analysis.
+// No website scraping — all URLs are supplied by the sales team.
 
-const PLATFORM_ORDER = ['facebook','instagram','linkedin','tiktok','youtube','twitter','pinterest','yelp','google','threads'];
+const PLATFORM_ORDER = ['google','facebook','instagram','linkedin','tiktok','youtube','twitter','pinterest','yelp','threads'];
+const PLATFORM_LABELS = {
+  google:'Google Business Profile', facebook:'Facebook', instagram:'Instagram',
+  linkedin:'LinkedIn', tiktok:'TikTok', youtube:'YouTube',
+  twitter:'X / Twitter', pinterest:'Pinterest', yelp:'Yelp', threads:'Threads'
+};
 
-// ── Search URLs ──────────────────────────────────────────────────────────────
-function buildSearchUrls(bizName, city) {
-  const e = encodeURIComponent;
-  const tag = e(bizName.replace(/\s+/g, ''));
-  return {
-    facebook:  `https://www.facebook.com/search/pages/?q=${e(bizName)}`,
-    instagram: `https://www.instagram.com/explore/tags/${tag}`,
-    linkedin:  `https://www.linkedin.com/search/results/companies/?keywords=${e(bizName)}`,
-    tiktok:    `https://www.tiktok.com/search?q=${e(bizName)}`,
-    youtube:   `https://www.youtube.com/results?search_query=${e(bizName)}`,
-    twitter:   `https://twitter.com/search?q=${e(bizName)}`,
-    pinterest: `https://www.pinterest.com/search/pins/?q=${e(bizName)}`,
-    yelp:      `https://www.yelp.com/search?find_desc=${e(bizName)}&find_loc=${e(city || 'CA')}`,
-    google:    `https://www.google.com/maps/search/${e(bizName + (city ? ' ' + city : ''))}`,
-    threads:   `https://www.threads.net/search?q=${e(bizName)}`
-  };
-}
-
-// ── Social URL regex extraction ──────────────────────────────────────────────
-function extractSocialUrls(text) {
-  if (!text) return {};
-  const found = {};
-
-  const PATTERNS = {
-    facebook:  /https?:\/\/(?:www\.)?facebook\.com\/(?!sharer|share|dialog|photo|login|home|watch|groups\/)(?:pages\/[^/\s"'<>]+\/|)([a-zA-Z0-9._-]{3,80})/gi,
-    instagram: /https?:\/\/(?:www\.)?instagram\.com\/(?!explore\/|p\/|reel\/|tv\/|stories\/)([a-zA-Z0-9._]{2,40})/gi,
-    linkedin:  /https?:\/\/(?:www\.)?linkedin\.com\/(?:company|in|school)\/([a-zA-Z0-9._%-]{2,80})/gi,
-    tiktok:    /https?:\/\/(?:www\.)?tiktok\.com\/@([a-zA-Z0-9._]{2,40})/gi,
-    youtube:   /https?:\/\/(?:www\.)?youtube\.com\/(?:channel\/|@|user\/)([a-zA-Z0-9._-]{2,80})/gi,
-    twitter:   /https?:\/\/(?:www\.)?(?:twitter|x)\.com\/(?!intent\/|share|home|search|hashtag|i\/)([a-zA-Z0-9_]{2,40})/gi,
-    pinterest: /https?:\/\/(?:www\.)?pinterest\.com\/([a-zA-Z0-9._-]{2,40})\//gi,
-    yelp:      /https?:\/\/(?:www\.)?yelp\.com\/biz\/([a-zA-Z0-9._-]{2,80})/gi,
-    threads:   /https?:\/\/(?:www\.)?threads\.net\/@?([a-zA-Z0-9._]{2,40})/gi,
-    google:    /(?:g\.co\/kgs\/[^\s"'<>]{3,40}|maps\.google\.com[^\s"'<>]{0,100}|goo\.gl\/maps\/[^\s"'<>]{0,40})/gi
-  };
-
-  for (const [key, regex] of Object.entries(PATTERNS)) {
-    regex.lastIndex = 0;
-    const match = regex.exec(text);
-    if (match) {
-      // Reconstruct clean profile URL
-      if (key === 'google') {
-        found[key] = match[0];
-      } else {
-        const handle = match[1];
-        const BASE = {
-          facebook:  `https://www.facebook.com/${handle}`,
-          instagram: `https://www.instagram.com/${handle}`,
-          linkedin:  match[0].replace(/^https?:\/\/(?:www\.)?/, 'https://www.'),
-          tiktok:    `https://www.tiktok.com/@${handle}`,
-          youtube:   match[0].replace(/^https?:\/\/(?:www\.)?/, 'https://www.'),
-          twitter:   `https://twitter.com/${handle}`,
-          pinterest: `https://www.pinterest.com/${handle}`,
-          yelp:      `https://www.yelp.com/biz/${handle}`,
-          threads:   `https://www.threads.net/@${handle}`
-        };
-        found[key] = BASE[key] || match[0];
-      }
-    }
-  }
-  return found;
-}
-
-// ── Claude analysis ──────────────────────────────────────────────────────────
-async function analyzeSocialPresence(apiKey, businessName, niche, city, website, reviews, rating, detectedUrls) {
+async function analyzeSocialPresence(apiKey, { businessName, niche, city, state, reviews, rating, profiles, notPresent }) {
   const profileLines = PLATFORM_ORDER.map(p => {
-    const url = detectedUrls[p];
-    return `${p}: ${url ? 'FOUND ON WEBSITE → ' + url : 'NOT FOUND on website'}`;
-  }).join('\n');
+    const label = PLATFORM_LABELS[p];
+    const url   = profiles[p];
+    if (url) return `${label}: PRESENT — Profile URL: ${url}`;
+    if (notPresent.includes(p)) return `${label}: NOT PRESENT (confirmed by sales team)`;
+    return `${label}: UNKNOWN (no URL provided — assume missing)`;
+  });
 
-  const prompt = `You are a social media analyst for a digital marketing agency.
+  const custom = profiles.custom || [];
+  const customLines = custom.map(cp =>
+    cp.url ? `${cp.name}: PRESENT — Profile URL: ${cp.url}` : `${cp.name}: UNKNOWN`
+  );
+
+  const prompt = `You are a social media analyst for a digital marketing agency. Analyze this business social media presence based on profiles the sales team has manually verified.
 
 Business: ${businessName}
-Type: ${niche || 'local business'}
-City: ${city || 'California'}
-Website: ${website || 'none'}
-Google Reviews: ${reviews || 0} (rating: ${rating || 'unknown'})
+Niche: ${niche || 'local business'}
+Location: ${[city, state].filter(Boolean).join(', ') || 'California'}
+Google Rating: ${rating || 'not available'} stars with ${reviews || 0} reviews
+IMPORTANT: These Google stats are REAL DATA — never contradict them in your analysis.
 
-Social profiles detected on their website:
-${profileLines}
+Manually verified social media profiles:
+${[...profileLines, ...customLines].join('\n')}
 
-Analyze social media presence. Base "status" strictly on detection:
-- If FOUND ON WEBSITE → status can be "Active" or "Inactive" (use niche judgment)
-- If NOT FOUND → status is "Not Linked"
-- Never invent URLs. profileUrl = only real detected URLs (null if not found)
+ANALYSIS INSTRUCTIONS:
+- PRESENT platforms: estimate quality and activity level based on (a) niche typical patterns, (b) Google rating as business health proxy, (c) URL structure (personal vs business handle, handle professionalism)
+- NOT PRESENT / UNKNOWN platforms: mark as Missing, estimate the monthly reach they're losing by not being on this platform
+- NEVER contradict the real Google data (${reviews || 0} reviews, ${rating || 'N/A'} rating)
+- Use follower/reach RANGES, never specific numbers
+- Every gap and insight must be specific to the ${niche || 'local business'} niche, not generic
+- proposalAngle: one sentence on how to pitch improving this specific platform to this business
 
-Return ONLY valid JSON, no markdown, no text outside JSON:
+Return ONLY valid JSON, no markdown fences, no text outside JSON:
 {
   "platforms": {
-    "facebook":  {"status":"Active|Inactive|Not Linked","profileUrl":null,"estimatedFollowers":"string","postsPerMonth":"string","lastPostEstimate":"string","engagementLevel":"High|Medium|Low|Unknown","score":0-100,"gaps":["gap1","gap2"],"quickWin":"string","monthlyReachLost":"string"},
-    "instagram": {"status":"Active|Inactive|Not Linked","profileUrl":null,"estimatedFollowers":"string","postsPerMonth":"string","lastPostEstimate":"string","engagementLevel":"High|Medium|Low|Unknown","score":0-100,"gaps":["gap1","gap2"],"quickWin":"string","monthlyReachLost":"string"},
-    "linkedin":  {"status":"Active|Inactive|Not Linked","profileUrl":null,"estimatedFollowers":"string","postsPerMonth":"string","lastPostEstimate":"string","engagementLevel":"High|Medium|Low|Unknown","score":0-100,"gaps":["gap1","gap2"],"quickWin":"string","monthlyReachLost":"string"},
-    "tiktok":    {"status":"Active|Inactive|Not Linked","profileUrl":null,"estimatedFollowers":"string","postsPerMonth":"string","lastPostEstimate":"string","engagementLevel":"High|Medium|Low|Unknown","score":0-100,"gaps":["gap1","gap2"],"quickWin":"string","monthlyReachLost":"string"},
-    "youtube":   {"status":"Active|Inactive|Not Linked","profileUrl":null,"estimatedFollowers":"string","postsPerMonth":"string","lastPostEstimate":"string","engagementLevel":"High|Medium|Low|Unknown","score":0-100,"gaps":["gap1","gap2"],"quickWin":"string","monthlyReachLost":"string"},
-    "twitter":   {"status":"Active|Inactive|Not Linked","profileUrl":null,"estimatedFollowers":"string","postsPerMonth":"string","lastPostEstimate":"string","engagementLevel":"High|Medium|Low|Unknown","score":0-100,"gaps":["gap1","gap2"],"quickWin":"string","monthlyReachLost":"string"},
-    "pinterest": {"status":"Active|Inactive|Not Linked","profileUrl":null,"estimatedFollowers":"string","postsPerMonth":"string","lastPostEstimate":"string","engagementLevel":"High|Medium|Low|Unknown","score":0-100,"gaps":["gap1","gap2"],"quickWin":"string","monthlyReachLost":"string"},
-    "yelp":      {"status":"Active|Inactive|Not Linked","profileUrl":null,"estimatedFollowers":"string","postsPerMonth":"string","lastPostEstimate":"string","engagementLevel":"High|Medium|Low|Unknown","score":0-100,"gaps":["gap1","gap2"],"quickWin":"string","monthlyReachLost":"string"},
-    "google":    {"status":"Active|Inactive|Not Linked","profileUrl":null,"estimatedFollowers":"string","postsPerMonth":"string","lastPostEstimate":"string","engagementLevel":"High|Medium|Low|Unknown","score":0-100,"gaps":["gap1","gap2"],"quickWin":"string","monthlyReachLost":"string"},
-    "threads":   {"status":"Active|Inactive|Not Linked","profileUrl":null,"estimatedFollowers":"string","postsPerMonth":"string","lastPostEstimate":"string","engagementLevel":"High|Medium|Low|Unknown","score":0-100,"gaps":["gap1","gap2"],"quickWin":"string","monthlyReachLost":"string"}
+    "google":    {"status":"Active|Likely Active|Needs Improvement|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":""},
+    "facebook":  {"status":"Active|Likely Active|Needs Improvement|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":""},
+    "instagram": {"status":"Active|Likely Active|Needs Improvement|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":""},
+    "linkedin":  {"status":"Active|Likely Active|Needs Improvement|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":""},
+    "tiktok":    {"status":"Active|Likely Active|Needs Improvement|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":""},
+    "youtube":   {"status":"Active|Likely Active|Needs Improvement|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":""},
+    "twitter":   {"status":"Active|Likely Active|Needs Improvement|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":""},
+    "pinterest": {"status":"Active|Likely Active|Needs Improvement|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":""},
+    "yelp":      {"status":"Active|Likely Active|Needs Improvement|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":""},
+    "threads":   {"status":"Active|Likely Active|Needs Improvement|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":""}
   },
-  "overallScore": 0-100,
+  "customPlatforms": [],
+  "overallScore": 0,
   "priorityActions": [
-    {"platform":"string","action":"string max 20 words","impact":"High|Medium","effort":"Low|Medium|High","revenueImpact":"string"},
-    {"platform":"string","action":"string max 20 words","impact":"High|Medium","effort":"Low|Medium|High","revenueImpact":"string"},
-    {"platform":"string","action":"string max 20 words","impact":"High|Medium","effort":"Low|Medium|High","revenueImpact":"string"}
+    {"platform":"","action":"","impact":"High|Medium","effort":"Low|Medium|High","revenueImpact":""},
+    {"platform":"","action":"","impact":"High|Medium","effort":"Low|Medium|High","revenueImpact":""},
+    {"platform":"","action":"","impact":"High|Medium","effort":"Low|Medium|High","revenueImpact":""}
   ],
-  "salesAngle": "string max 25 words — why they need social media help right now",
-  "estimatedTotalReachLost": "string e.g. 2,000-5,000 people/month"
+  "salesAngle": "",
+  "estimatedTotalReachLost": ""
 }`;
 
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2800,
-        messages: [{ role: 'user', content: prompt }]
-      }),
-      signal: AbortSignal.timeout(8000)
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 3200, messages: [{ role: 'user', content: prompt }] }),
+      signal: AbortSignal.timeout(15000)
     });
-
     if (!resp.ok) throw new Error(`Claude API HTTP ${resp.status}`);
     const d = await resp.json();
     const raw = (d.content || []).map(b => b.text || '').join('').replace(/```json|```/g, '').trim();
@@ -142,7 +86,6 @@ Return ONLY valid JSON, no markdown, no text outside JSON:
   }
 }
 
-// ── Main handler ──────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -153,90 +96,53 @@ export default async function handler(req, res) {
   const ANTHROPIC_KEY = req.headers['x-anthropic-key'] || process.env.ANTHROPIC_API_KEY;
   if (!ANTHROPIC_KEY) return res.status(400).json({ error: 'Anthropic API key missing. Add it in Settings.' });
 
-  const { businessName, website, niche, city, state, phone, reviews, rating } = req.body || {};
+  const { businessName, niche, city, state, reviews, rating, profiles, notPresent = [] } = req.body || {};
   if (!businessName) return res.status(400).json({ error: 'businessName is required' });
 
-  const searchUrls = buildSearchUrls(businessName, city);
+  const safeProfiles = profiles || {};
+  const custom = safeProfiles.custom || [];
+  const providedPlatforms = PLATFORM_ORDER.filter(p => !!safeProfiles[p]);
+  const missingPlatforms  = PLATFORM_ORDER.filter(p => !safeProfiles[p]);
 
-  // ── Step 1: Jina AI website scrape ────────────────────────────────────────
-  let scrapeText = '';
-  let scrapedSuccessfully = false;
-  let scrapeError = null;
-
-  if (website) {
-    try {
-      const jinaResp = await fetch(`https://r.jina.ai/${website}`, {
-        headers: { 'Accept': 'text/plain', 'User-Agent': 'LeadGen-AI/1.0' },
-        signal: AbortSignal.timeout(4500)
-      });
-      if (jinaResp.ok) {
-        scrapeText = await jinaResp.text();
-        scrapedSuccessfully = true;
-      } else {
-        scrapeError = `Jina HTTP ${jinaResp.status}`;
-      }
-    } catch (e) {
-      scrapeError = e.message;
-      console.error('Jina scrape failed:', e.message);
-    }
+  if (providedPlatforms.length === 0 && custom.filter(c => c.url).length === 0) {
+    return res.status(400).json({ error: 'At least one social media profile URL is required.' });
   }
 
-  // ── Step 2: Extract social profile URLs from scraped text ─────────────────
-  const detectedUrls = extractSocialUrls(scrapeText);
-  const foundCount = Object.keys(detectedUrls).length;
+  const analysis = await analyzeSocialPresence(ANTHROPIC_KEY, {
+    businessName, niche, city, state, reviews, rating,
+    profiles: safeProfiles, notPresent
+  });
 
-  // Build detectedProfiles array for frontend
-  const detectedProfiles = PLATFORM_ORDER.map(p => ({
-    platform: p,
-    foundOnWebsite: !!detectedUrls[p],
-    profileUrl: detectedUrls[p] || null,
-    searchUrl: searchUrls[p],
-    status: detectedUrls[p] ? 'linked' : 'not-linked'
-  }));
-
-  // ── Step 3: Claude AI analysis ────────────────────────────────────────────
-  const analysis = await analyzeSocialPresence(
-    ANTHROPIC_KEY, businessName, niche, city, website, reviews, rating, detectedUrls
-  );
-
-  // If Claude failed, return detection-only results
   if (!analysis) {
     return res.status(200).json({
-      businessName,
-      website: website || null,
-      scrapedSuccessfully,
-      scrapeError,
-      foundCount,
-      detectedProfiles,
-      platforms: null,
-      overallScore: null,
-      priorityActions: [],
-      salesAngle: null,
-      estimatedTotalReachLost: null,
-      _analysisOnly: false,
-      _error: 'AI analysis unavailable — showing detected profiles only'
+      businessName, niche: niche || null, city: city || null, state: state || null,
+      providedPlatforms, missingPlatforms, profiles: safeProfiles, notPresent,
+      platforms: null, customPlatforms: custom, overallScore: null,
+      priorityActions: [], salesAngle: null, estimatedTotalReachLost: null,
+      _error: 'AI analysis unavailable — profile data collected.'
     });
   }
 
-  // Merge real detected URLs into Claude's response
+  // Pin profileUrl to exactly what the user provided (Claude must not invent URLs)
   if (analysis.platforms) {
     for (const p of PLATFORM_ORDER) {
-      if (analysis.platforms[p] && detectedUrls[p]) {
-        analysis.platforms[p].profileUrl = detectedUrls[p];
+      if (analysis.platforms[p]) {
+        analysis.platforms[p].profileUrl = safeProfiles[p] || null;
       }
     }
   }
 
   return res.status(200).json({
-    businessName,
-    website: website || null,
-    niche: niche || null,
-    city: city || null,
-    scrapedSuccessfully,
-    scrapeError: scrapeError || null,
-    foundCount,
-    detectedProfiles,
+    businessName, niche: niche || null, city: city || null, state: state || null,
+    providedPlatforms, missingPlatforms, profiles: safeProfiles, notPresent,
     platforms: analysis.platforms || null,
+    customPlatforms: analysis.customPlatforms?.length
+      ? analysis.customPlatforms.map((cp, i) => ({ ...cp, profileUrl: custom[i]?.url || null }))
+      : custom.map(cp => ({
+          name: cp.name, profileUrl: cp.url || null,
+          status: cp.url ? 'Likely Active' : 'Missing', score: cp.url ? 45 : 0,
+          gaps: [], quickWin: '', nicheSpecificInsight: '', proposalAngle: ''
+        })),
     overallScore: analysis.overallScore || null,
     priorityActions: analysis.priorityActions || [],
     salesAngle: analysis.salesAngle || null,
