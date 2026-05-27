@@ -1,5 +1,8 @@
 {
   "version": 2,
+  "functions": {
+    "api/social-audit.js": { "maxDuration": 25 }
+  },
   "headers": [
     {
       "source": "/(.*).html",

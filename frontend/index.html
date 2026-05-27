@@ -528,6 +528,75 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 .plat-linkedin  .social-plat-header { background:#0A66C2; }
 .plat-youtube   .social-plat-header { background:#FF0000; }
 .plat-tiktok    .social-plat-header { background:#010101; }
+.plat-pinterest .social-plat-header { background:#E60023; }
+.plat-yelp      .social-plat-header { background:#D32323; }
+.plat-google    .social-plat-header { background:#4285F4; }
+.plat-threads   .social-plat-header { background:#1c1c1c; }
+.plat-custom    .social-plat-header { background:var(--blue); }
+/* Social audit: score bar */
+.sa-score-bar-wrap { background:var(--bg3); border-radius:4px; height:6px; margin-top:6px; overflow:hidden; }
+.sa-score-bar      { height:100%; border-radius:4px; transition:width .5s ease; }
+/* Social audit: linked/search buttons */
+.sa-profile-btn  { display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:4px 9px;border-radius:6px;text-decoration:none;border:none;cursor:pointer;margin-top:6px;margin-right:4px; }
+.sa-profile-btn.linked  { background:#dcfce7;color:#15803d; }
+.sa-profile-btn.search  { background:var(--bg3);color:var(--text2); }
+.sa-profile-btn:hover   { opacity:.85; }
+/* Social audit: status pill */
+.sa-status-linked   { background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700; }
+.sa-status-inactive { background:var(--amber-bg);color:var(--amber-text);padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700; }
+.sa-status-notlinked{ background:var(--bg3);color:var(--text3);padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;border:1px solid var(--border); }
+/* Social audit: overall score box */
+.sa-overall-wrap { display:flex;align-items:center;gap:20px;padding:16px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:1rem; }
+.sa-overall-score { width:80px;height:80px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;font-weight:800; }
+.sa-overall-num   { font-size:28px;line-height:1; }
+.sa-overall-label { font-size:10px;opacity:.8; }
+.sa-overall-info  { flex:1; }
+.sa-overall-title { font-size:15px;font-weight:700;margin-bottom:4px; }
+.sa-overall-sub   { font-size:12px;color:var(--text2);line-height:1.5; }
+/* Social audit: overview grid */
+.sa-overview-grid { display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:1rem; }
+.sa-ov-card { border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;text-align:center; }
+.sa-ov-name { font-size:10px;font-weight:600;margin-bottom:4px;color:var(--text2); }
+.sa-ov-score { font-size:16px;font-weight:800; }
+/* Social audit: priority action cards */
+.sa-priority-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem; }
+.sa-priority-card { border-radius:var(--radius-lg);border:2px solid var(--border);padding:12px 14px;background:var(--bg); }
+.sa-priority-rank { font-size:10px;font-weight:700;color:var(--text3);margin-bottom:4px; }
+.sa-priority-plat { font-size:13px;font-weight:800;margin-bottom:6px; }
+.sa-priority-action { font-size:12px;line-height:1.5;color:var(--text2);margin-bottom:8px; }
+.sa-priority-rev { font-size:11px;font-weight:700;color:var(--red-text); }
+.sa-effort-badge { display:inline-block;font-size:9px;font-weight:700;padding:1px 6px;border-radius:5px;margin-left:4px; }
+.sa-effort-low    { background:var(--green-bg);color:var(--green-text); }
+.sa-effort-medium { background:var(--amber-bg);color:var(--amber-text); }
+.sa-effort-high   { background:var(--red-bg);color:var(--red-text); }
+/* Social audit: content strategy */
+.sa-content-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem; }
+.sa-content-tile { background:var(--bg2);border-radius:var(--radius);padding:8px 10px;text-align:center;border:1px solid var(--border); }
+.sa-content-day  { font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px; }
+.sa-content-type { font-size:11px;font-weight:600; }
+/* Social audit: benchmarks table */
+.sa-bench-table { width:100%;border-collapse:collapse;font-size:12px;margin-bottom:1rem; }
+.sa-bench-table th { background:var(--bg3);padding:6px 10px;text-align:left;font-weight:700;border-bottom:2px solid var(--border); }
+.sa-bench-table td { padding:6px 10px;border-bottom:1px solid var(--border); }
+.sa-bench-table tr:last-child td { border-bottom:none; }
+.sa-bench-behind { color:var(--red-text);font-weight:700; }
+.sa-bench-ahead  { color:var(--green-text);font-weight:700; }
+/* Social audit: custom platform section */
+.sa-custom-section { border:1px dashed var(--border2);border-radius:var(--radius-lg);padding:14px 16px;margin-top:1rem; }
+.sa-custom-title { font-size:13px;font-weight:700;margin-bottom:10px; }
+.sa-suggested-chips { display:flex;flex-wrap:wrap;gap:6px;margin-top:8px; }
+.sa-chip { display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;color:var(--text2); }
+.sa-chip:hover { background:var(--bg);border-color:var(--blue);color:var(--blue); }
+.sa-add-form { display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-top:10px; }
+.sa-add-form input { flex:1;min-width:120px;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:12px; }
+/* Social audit: transparency card */
+.sa-transparency { background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--text2); }
+.sa-transparency strong { color:var(--text); }
+.sa-found-chip { display:inline-flex;align-items:center;gap:3px;background:#dcfce7;color:#15803d;border-radius:5px;padding:1px 6px;font-size:10px;font-weight:700;margin:2px; }
+.sa-notfound-chip { display:inline-flex;align-items:center;gap:3px;background:var(--bg3);color:var(--text3);border-radius:5px;padding:1px 6px;font-size:10px;font-weight:600;margin:2px; }
+/* Social audit: pitch section */
+.sa-pitch-wrap { margin-top:1rem;padding:14px 16px;background:linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 100%);border:1px solid var(--border);border-radius:var(--radius-lg); }
+.sa-pitch-content { font-size:12px;line-height:1.6;color:var(--text2);margin-top:8px;white-space:pre-wrap; }
 
 /* ── SEO Presence Mockup Cards ── */
 .presence-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1rem; }
@@ -2614,6 +2683,33 @@ async function runReport(idx, type, btn) {
           };
         }
       }
+    } else if (type === 'social') {
+      // ── Real Social Media Audit via /api/social-audit ──
+      outEl.innerHTML = `<div class="report-output report-loading"><span class="spinner"></span>Scanning website for social profiles…</div>`;
+      const socialBody = {
+        businessName: lead.name,
+        website:  lead.website  || null,
+        niche,
+        city:     reportCity,
+        state:    reportState,
+        phone:    lead.phone    || null,
+        reviews:  lead.reviews  || 0,
+        rating:   lead.rating   || null
+      };
+      const socialResp = await fetch(`${BASE_URL}/api/social-audit`, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'x-anthropic-key': keys.anthropic },
+        body: JSON.stringify(socialBody)
+      });
+      const socialText = await socialResp.text();
+      try {
+        data = JSON.parse(socialText);
+      } catch {
+        data = {
+          error: `Social audit returned unexpected response (HTTP ${socialResp.status}). Check API keys and try again.`,
+          _rawResponse: socialText.slice(0, 200)
+        };
+      }
     } else {
       const resp = await fetch(`${BASE_URL}/api/report`, {
         method:'POST',
@@ -3663,60 +3759,285 @@ function renderRealSeoReport(data, lead) {
 }
 
 function renderSocialReport(data, lead) {
-  let html = renderGenericReport('social', data, '📱 Social Media Report');
-
-  if (data.platformSummary && data.platformSummary.length) {
-    // Inline SVG brand icons (white fill for colored headers)
-    const ICONS = {
-      'Facebook':    `<svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>`,
-      'X / Twitter': `<svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`,
-      'Instagram':   `<svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>`,
-      'LinkedIn':    `<svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>`,
-      'YouTube':     `<svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>`,
-      'TikTok':      `<svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>`
-    };
-    const PLAT_CLASS = {
-      'Facebook':'plat-facebook','X / Twitter':'plat-twitter','Instagram':'plat-instagram',
-      'LinkedIn':'plat-linkedin','YouTube':'plat-youtube','TikTok':'plat-tiktok'
-    };
-    const statusBadge = s => {
-      if (s === 'Active')   return `<span class="social-plat-badge spb-active">✓ Active</span>`;
-      if (s === 'Inactive') return `<span class="social-plat-badge spb-inactive">~ Inactive</span>`;
-      return                       `<span class="social-plat-badge spb-notfound">✗ Not Found</span>`;
-    };
-    const bizName = lead ? lead.name : '';
-
-    let cardsHtml = `<div class="section-title" style="margin-top:1rem">Platform Breakdown — All 6 Channels</div>
-    <div class="social-platforms-grid">`;
-
-    data.platformSummary.forEach(p => {
-      const cls  = PLAT_CLASS[p.platform] || 'plat-tiktok';
-      const icon = ICONS[p.platform] || '📱';
-      const searchQ = encodeURIComponent(`${bizName} ${p.platform}`);
-      cardsHtml += `<div class="social-plat-card ${cls}">
-        <div class="social-plat-header">
-          <div class="social-plat-name">${icon} ${esc(p.platform)}</div>
-          ${statusBadge(p.status)}
-        </div>
-        <div class="social-plat-body">
-          <div class="social-plat-stat"><span class="social-plat-stat-k">Followers</span><span class="social-plat-stat-v">${esc(p.followers||'—')}</span></div>
-          <div class="social-plat-stat"><span class="social-plat-stat-k">Total Posts</span><span class="social-plat-stat-v">${esc(p.totalPosts||'—')}</span></div>
-          <div class="social-plat-stat"><span class="social-plat-stat-k">Posts / Month</span><span class="social-plat-stat-v">${esc(p.postsPerMonth||'—')}</span></div>
-          <div class="social-plat-stat"><span class="social-plat-stat-k">Last Post</span><span class="social-plat-stat-v">${esc(p.lastPost||'—')}</span></div>
-          <div class="social-plat-stat"><span class="social-plat-stat-k">Engagement</span><span class="social-plat-stat-v">${esc(p.engagementRate||'—')}</span></div>
-          ${p.gap          ? `<div class="social-plat-gap">⚠ ${esc(p.gap)}</div>` : ''}
-          ${p.quickWin     ? `<div class="social-plat-win">✓ ${esc(p.quickWin)}</div>` : ''}
-          ${p.monthlyReachLost ? `<div class="social-plat-reach">📉 Reach lost: ${esc(p.monthlyReachLost)}</div>` : ''}
-          <a class="social-plat-search" href="https://www.google.com/search?q=${searchQ}" target="_blank" rel="noreferrer">🔍 Verify ${esc(p.platform)} presence ↗</a>
-        </div>
-      </div>`;
-    });
-    cardsHtml += `</div>`;
-
-    const nbsPos = html.lastIndexOf('<div class="nbs-box">');
-    html = nbsPos > -1 ? html.slice(0, nbsPos) + cardsHtml + html.slice(nbsPos) : html + cardsHtml;
+  // Legacy format (from report.js / 360 report) — keep working
+  if (!data || !data.detectedProfiles) {
+    let html = renderGenericReport('social', data, '📱 Social Media Report');
+    if (data && data.platformSummary && data.platformSummary.length) {
+      const ICONS = {
+        'Facebook':    `<svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>`,
+        'X / Twitter': `<svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`,
+        'Instagram':   `<svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>`,
+        'LinkedIn':    `<svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>`,
+        'YouTube':     `<svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>`,
+        'TikTok':      `<svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>`
+      };
+      const PLAT_CLASS = {'Facebook':'plat-facebook','X / Twitter':'plat-twitter','Instagram':'plat-instagram','LinkedIn':'plat-linkedin','YouTube':'plat-youtube','TikTok':'plat-tiktok'};
+      const statusBadge = s => s === 'Active' ? `<span class="social-plat-badge spb-active">✓ Active</span>` : s === 'Inactive' ? `<span class="social-plat-badge spb-inactive">~ Inactive</span>` : `<span class="social-plat-badge spb-notfound">✗ Not Found</span>`;
+      const bizName = lead ? lead.name : '';
+      let cardsHtml = `<div class="section-title" style="margin-top:1rem">Platform Breakdown</div><div class="social-platforms-grid">`;
+      data.platformSummary.forEach(p => {
+        const cls = PLAT_CLASS[p.platform] || 'plat-tiktok';
+        const icon = ICONS[p.platform] || '📱';
+        const searchQ = encodeURIComponent(`${bizName} ${p.platform}`);
+        cardsHtml += `<div class="social-plat-card ${cls}"><div class="social-plat-header"><div class="social-plat-name">${icon} ${esc(p.platform)}</div>${statusBadge(p.status)}</div><div class="social-plat-body"><div class="social-plat-stat"><span class="social-plat-stat-k">Followers</span><span class="social-plat-stat-v">${esc(p.followers||'—')}</span></div><div class="social-plat-stat"><span class="social-plat-stat-k">Posts/Mo</span><span class="social-plat-stat-v">${esc(p.postsPerMonth||'—')}</span></div>${p.gap ? `<div class="social-plat-gap">⚠ ${esc(p.gap)}</div>` : ''}${p.quickWin ? `<div class="social-plat-win">✓ ${esc(p.quickWin)}</div>` : ''}<a class="social-plat-search" href="https://www.google.com/search?q=${searchQ}" target="_blank" rel="noreferrer">🔍 Verify presence ↗</a></div></div>`;
+      });
+      cardsHtml += `</div>`;
+      const nbsPos = html.lastIndexOf('<div class="nbs-box">');
+      html = nbsPos > -1 ? html.slice(0, nbsPos) + cardsHtml + html.slice(nbsPos) : html + cardsHtml;
+    }
+    return html;
   }
-  return html;
+
+  // ── New comprehensive social audit format ──────────────────────────────────
+  const bizName = lead?.name || data.businessName || '';
+  const niche   = currentNiche || lead?.niche || '';
+  const city    = currentCity  || lead?.city  || data.city || '';
+  const e = encodeURIComponent;
+
+  const PLAT_META = {
+    facebook:  { label:'Facebook',         cls:'plat-facebook',  color:'#1877F2', icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>` },
+    instagram: { label:'Instagram',        cls:'plat-instagram', color:'#E1306C', icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>` },
+    linkedin:  { label:'LinkedIn',         cls:'plat-linkedin',  color:'#0A66C2', icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>` },
+    tiktok:    { label:'TikTok',           cls:'plat-tiktok',    color:'#010101', icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>` },
+    youtube:   { label:'YouTube',          cls:'plat-youtube',   color:'#FF0000', icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>` },
+    twitter:   { label:'X / Twitter',      cls:'plat-twitter',   color:'#000000', icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>` },
+    pinterest: { label:'Pinterest',        cls:'plat-pinterest', color:'#E60023', icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>` },
+    yelp:      { label:'Yelp',             cls:'plat-yelp',      color:'#D32323', icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M20.16 12.594l-4.995 1.435c-.54.156-1.07-.25-1.07-.8V6.8c0-.594.548-1.01 1.12-.838l4.995 1.723c.594.205.834.94.493 1.484l-.543.817c-.1.15-.1.35 0 .5l.543.817c.34.544.1 1.279-.543 1.29zm-9.54-7.002l-1.815 5.03c-.208.576.156 1.2.757 1.27l5.13.627c.626.077 1.118-.5.944-1.1L13.9 5.42c-.177-.604-.89-.83-1.4-.458L10.8 6.185c-.157.112-.362.083-.49-.062l-.667-.8c-.394-.48-1.167-.337-1.36.213z"/></svg>` },
+    google:    { label:'Google Business',  cls:'plat-google',    color:'#4285F4', icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>` },
+    threads:   { label:'Threads',          cls:'plat-threads',   color:'#1c1c1c', icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.028-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 1.868-.016 3.37-.44 4.461-1.26 1.24-.974 1.974-2.498 2.182-4.527H12.22v-2.01h9.355v.433c0 5.96-3.328 9.483-9.39 9.483z"/></svg>` }
+  };
+
+  const PLAT_WEIGHTS = { facebook:20, instagram:25, linkedin:15, tiktok:15, youtube:10, twitter:5, pinterest:3, yelp:5, google:0, threads:2 };
+  const PLAT_ORDER = ['facebook','instagram','linkedin','tiktok','youtube','twitter','pinterest','yelp','google','threads'];
+
+  const plats = data.platforms || {};
+  const searchUrls = {
+    facebook:  `https://www.facebook.com/search/pages/?q=${e(bizName)}`,
+    instagram: `https://www.instagram.com/explore/tags/${e(bizName.replace(/\s+/g,''))}`,
+    linkedin:  `https://www.linkedin.com/search/results/companies/?keywords=${e(bizName)}`,
+    tiktok:    `https://www.tiktok.com/search?q=${e(bizName)}`,
+    youtube:   `https://www.youtube.com/results?search_query=${e(bizName)}`,
+    twitter:   `https://twitter.com/search?q=${e(bizName)}`,
+    pinterest: `https://www.pinterest.com/search/pins/?q=${e(bizName)}`,
+    yelp:      `https://www.yelp.com/search?find_desc=${e(bizName)}&find_loc=${e(city+', CA')}`,
+    google:    `https://www.google.com/maps/search/${e(bizName+' '+city)}`,
+    threads:   `https://www.threads.net/search?q=${e(bizName)}`
+  };
+
+  // ── Status badge helper ──────────────────────────────────────────────────
+  const statusBadge = (status) => {
+    if (status === 'Active')    return `<span class="sa-status-linked">✓ Active</span>`;
+    if (status === 'Inactive')  return `<span class="sa-status-inactive">~ Inactive</span>`;
+    return `<span class="sa-status-notlinked">✗ Not Linked</span>`;
+  };
+
+  // ── Score color helper ───────────────────────────────────────────────────
+  const scoreColor = s => s >= 70 ? '#16a34a' : s >= 45 ? '#d97706' : '#dc2626';
+  const scoreBg    = s => s >= 70 ? '#dcfce7' : s >= 45 ? '#fef3c7' : '#fee2e2';
+
+  // ── Overall score label ──────────────────────────────────────────────────
+  const overallScore = data.overallScore || 0;
+  const scoreLabel = overallScore >= 90 ? 'Excellent' : overallScore >= 75 ? 'Strong' : overallScore >= 60 ? 'Average' : overallScore >= 40 ? 'Needs Work' : 'Critical';
+
+  // ── Data transparency card ───────────────────────────────────────────────
+  const foundChips  = (data.detectedProfiles||[]).filter(p=>p.foundOnWebsite).map(p=>`<span class="sa-found-chip">✓ ${PLAT_META[p.platform]?.label||p.platform}</span>`).join('');
+  const missingChips= (data.detectedProfiles||[]).filter(p=>!p.foundOnWebsite).map(p=>`<span class="sa-notfound-chip">✗ ${PLAT_META[p.platform]?.label||p.platform}</span>`).join('');
+  const transparencyCard = `
+  <div class="sa-transparency">
+    <strong>How we analyzed this:</strong>
+    ${data.website ? `Website scanned: <a href="${esc(data.website)}" target="_blank" rel="noreferrer" style="color:var(--blue)">${esc(data.website)}</a> · ` : 'No website provided · '}
+    ${data.scrapedSuccessfully ? `✓ Website scan successful` : `⚠ Website scan failed — AI estimation only`}
+    <br>
+    ${foundChips ? `Profiles found on website: ${foundChips}` : 'No social profiles found linked from website.'}
+    ${missingChips ? `<br>Not linked from website: ${missingChips}` : ''}
+    ${data._error ? `<br><span style="color:var(--red-text)">⚠ ${esc(data._error)}</span>` : ''}
+  </div>`;
+
+  // ── Overall social score ─────────────────────────────────────────────────
+  const overallBlock = `
+  <div class="sa-overall-wrap">
+    <div class="sa-overall-score" style="background:${scoreBg(overallScore)};color:${scoreColor(overallScore)}">
+      <div class="sa-overall-num">${overallScore}</div>
+      <div class="sa-overall-label">/100</div>
+    </div>
+    <div class="sa-overall-info">
+      <div class="sa-overall-title" style="color:${scoreColor(overallScore)}">${scoreLabel} Social Presence</div>
+      <div class="sa-overall-sub">
+        ${data.salesAngle ? esc(data.salesAngle) : `${esc(bizName)} has significant gaps in social media coverage.`}
+        ${data.estimatedTotalReachLost ? `<br>📉 Estimated reach being missed: <strong>${esc(data.estimatedTotalReachLost)}</strong>` : ''}
+      </div>
+    </div>
+  </div>`;
+
+  // ── Platform overview grid ───────────────────────────────────────────────
+  let ovGrid = `<div class="section-title" style="margin-bottom:8px">Platform Overview</div><div class="sa-overview-grid">`;
+  for (const pk of PLAT_ORDER) {
+    const pm = PLAT_META[pk];
+    const pd = plats[pk];
+    const sc = pd?.score ?? 0;
+    ovGrid += `<div class="sa-ov-card">
+      <div class="sa-ov-name">${pm.label}</div>
+      <div class="sa-ov-score" style="color:${scoreColor(sc)}">${sc}</div>
+      <div class="sa-score-bar-wrap"><div class="sa-score-bar" style="width:${sc}%;background:${scoreColor(sc)}"></div></div>
+      <div style="font-size:9px;margin-top:4px;color:var(--text3)">${statusBadge(pd?.status||'Not Linked')}</div>
+    </div>`;
+  }
+  ovGrid += `</div>`;
+
+  // ── Detailed platform cards ──────────────────────────────────────────────
+  let detailCards = `<div class="section-title" style="margin-bottom:8px;margin-top:1rem">Detailed Platform Analysis</div>
+  <div class="social-platforms-grid" style="grid-template-columns:repeat(2,1fr)">`;
+
+  for (const pk of PLAT_ORDER) {
+    const pm = PLAT_META[pk];
+    const pd = plats[pk] || {};
+    const sc = pd.score ?? 0;
+    const profileUrl = pd.profileUrl || null;
+    const searchUrl  = searchUrls[pk] || '#';
+
+    detailCards += `<div class="social-plat-card ${pm.cls}">
+      <div class="social-plat-header" style="justify-content:space-between">
+        <div class="social-plat-name">${pm.icon} ${pm.label}</div>
+        ${statusBadge(pd.status||'Not Linked')}
+      </div>
+      <div class="social-plat-body">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div style="font-size:20px;font-weight:800;color:${scoreColor(sc)}">${sc}</div>
+          <div style="flex:1">
+            <div class="sa-score-bar-wrap"><div class="sa-score-bar" style="width:${sc}%;background:${scoreColor(sc)}"></div></div>
+            <div style="font-size:9px;color:var(--text3);margin-top:2px">Score out of 100</div>
+          </div>
+        </div>
+        <div class="social-plat-stat"><span class="social-plat-stat-k">Followers</span><span class="social-plat-stat-v">${esc(pd.estimatedFollowers||'Unknown')}</span></div>
+        <div class="social-plat-stat"><span class="social-plat-stat-k">Posts/Month</span><span class="social-plat-stat-v">${esc(pd.postsPerMonth||'Unknown')}</span></div>
+        <div class="social-plat-stat"><span class="social-plat-stat-k">Last Activity</span><span class="social-plat-stat-v">${esc(pd.lastPostEstimate||'Unknown')}</span></div>
+        <div class="social-plat-stat"><span class="social-plat-stat-k">Engagement</span><span class="social-plat-stat-v">${esc(pd.engagementLevel||'Unknown')}</span></div>
+        ${pd.gaps && pd.gaps.length ? `<div class="social-plat-gap" style="margin-top:8px">⚠ ${pd.gaps.map(g=>esc(g)).join(' · ')}</div>` : ''}
+        ${pd.quickWin ? `<div class="social-plat-win">💡 ${esc(pd.quickWin)}</div>` : ''}
+        ${pd.monthlyReachLost ? `<div class="social-plat-reach">📉 Reach lost: ${esc(pd.monthlyReachLost)}</div>` : ''}
+        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+          ${profileUrl ? `<a class="sa-profile-btn linked" href="${esc(profileUrl)}" target="_blank" rel="noreferrer">🔗 Visit Profile ↗</a>` : ''}
+          <a class="sa-profile-btn search" href="${esc(searchUrl)}" target="_blank" rel="noreferrer">🔍 Search ${pm.label}</a>
+        </div>
+      </div>
+    </div>`;
+  }
+  detailCards += `</div>`;
+
+  // ── Priority action plan ─────────────────────────────────────────────────
+  let priorityHtml = `<div class="section-title" style="margin-top:1rem;margin-bottom:8px">🎯 Top Priority Actions</div><div class="sa-priority-grid">`;
+  const actions = data.priorityActions || [];
+  const rankLabels = ['#1 Highest Impact', '#2 Quick Win', '#3 Next Step'];
+  for (let i = 0; i < 3; i++) {
+    const a = actions[i];
+    if (!a) { priorityHtml += `<div class="sa-priority-card"><div class="sa-priority-rank">${rankLabels[i]||''}</div><div style="color:var(--text3);font-size:12px">No action data available</div></div>`; continue; }
+    const effortCls = a.effort === 'Low' ? 'sa-effort-low' : a.effort === 'High' ? 'sa-effort-high' : 'sa-effort-medium';
+    priorityHtml += `<div class="sa-priority-card" style="border-color:${i===0?'var(--red-text)':i===1?'var(--amber-text)':'var(--border)'}">
+      <div class="sa-priority-rank">${rankLabels[i]}</div>
+      <div class="sa-priority-plat">${esc(PLAT_META[a.platform?.toLowerCase()]?.label||a.platform||'—')}<span class="sa-effort-badge ${effortCls}">${a.effort||'?'} effort</span></div>
+      <div class="sa-priority-action">${esc(a.action||'—')}</div>
+      ${a.revenueImpact ? `<div class="sa-priority-rev">💰 ${esc(a.revenueImpact)}</div>` : ''}
+    </div>`;
+  }
+  priorityHtml += `</div>`;
+
+  // ── Content strategy ─────────────────────────────────────────────────────
+  const CONTENT_STRATEGIES = {
+    'Restaurant':          [['Mon','Food Photography'],['Tue','Daily Specials'],['Wed','Behind the Scenes'],['Thu','Customer Features'],['Fri','Weekend Promos'],['Sat','Live / Stories'],['Sun','Staff Spotlight']],
+    'Med Spa':             [['Mon','Treatment Spotlight'],['Tue','Client Testimonial'],['Wed','Educational Tip'],['Thu','Before/After'],['Fri','Promo Offer'],['Sat','Meet the Team'],['Sun','Wellness Tip']],
+    'Dental Clinic':       [['Mon','Smile Transformation'],['Tue','Dental Tip'],['Wed','Patient Story'],['Thu','Service Highlight'],['Fri','Q&A'],['Sat','Team Feature'],['Sun','Health Fact']],
+    'Law Firm':            [['Mon','Case Win Highlight'],['Tue','Legal Tip'],['Wed','Client Success'],['Thu','FAQ Post'],['Fri','Free Consult CTA'],['Sat','Community News'],['Sun','Team Spotlight']],
+    'Real Estate Agency':  [['Mon','New Listing'],['Tue','Market Update'],['Wed','Home Tour Video'],['Thu','Buyer/Seller Tip'],['Fri','Just Sold'],['Sat','Open House'],['Sun','Neighborhood Feature']],
+    'Gym':                 [['Mon','Workout of the Week'],['Tue','Member Spotlight'],['Wed','Nutrition Tip'],['Thu','Class Highlight'],['Fri','Transformation Story'],['Sat','Challenge CTA'],['Sun','Recovery Tips']],
+    'Roofing Company':     [['Mon','Project Transformation'],['Tue','Before/After'],['Wed','Roofing Tip'],['Thu','Storm Damage Info'],['Fri','Free Estimate CTA'],['Sat','Customer Review'],['Sun','Team Feature']],
+    'Plumbing Company':    [['Mon','Job Transformation'],['Tue','DIY Safety Tip'],['Wed','Emergency Services'],['Thu','Customer Review'],['Fri','Service Promo'],['Sat','Team Feature'],['Sun','Water-Saving Tips']],
+    'Hair Salon':          [['Mon','Transformation Reveal'],['Tue','Hair Care Tip'],['Wed','Style Inspo'],['Thu','Product Feature'],['Fri','Booking CTA'],['Sat','Client Feature'],['Sun','Trend Spotlight']],
+    'Chiropractor':        [['Mon','Adjustment Video'],['Tue','Posture Tip'],['Wed','Patient Testimonial'],['Thu','Wellness Fact'],['Fri','Free Consult CTA'],['Sat','Exercise Demo'],['Sun','Pain Relief Tip']]
+  };
+  const strategy = CONTENT_STRATEGIES[niche] || [['Mon','Brand Story'],['Tue','Product/Service Feature'],['Wed','Customer Success'],['Thu','Behind the Scenes'],['Fri','Special Offer'],['Sat','Community Highlight'],['Sun','Educational Tip']];
+  let contentHtml = `<div class="section-title" style="margin-top:1rem;margin-bottom:8px">📅 Recommended Content Strategy — ${esc(niche||'Local Business')}</div><div class="sa-content-grid">`;
+  strategy.slice(0,4).forEach(([day,type]) => {
+    contentHtml += `<div class="sa-content-tile"><div class="sa-content-day">${day}</div><div class="sa-content-type">${type}</div></div>`;
+  });
+  contentHtml += `</div>`;
+
+  // ── Competitor benchmarks ────────────────────────────────────────────────
+  const BENCHMARKS = {
+    'Restaurant':         { facebook:{avg:'800-2K',top:'5K+'},   instagram:{avg:'2K-5K',top:'15K+'}, yelp:{avg:'150-400',top:'1K+'} },
+    'Med Spa':            { facebook:{avg:'1K-3K',top:'8K+'},    instagram:{avg:'3K-8K',top:'25K+'}, google:{avg:'50-150',top:'300+'} },
+    'Dental Clinic':      { facebook:{avg:'500-1.5K',top:'5K+'}, google:{avg:'80-200',top:'500+'},   instagram:{avg:'500-2K',top:'8K+'} },
+    'Law Firm':           { facebook:{avg:'300-800',top:'3K+'},   linkedin:{avg:'200-500',top:'2K+'}, google:{avg:'40-100',top:'200+'} },
+    'Real Estate Agency': { facebook:{avg:'500-2K',top:'10K+'},   instagram:{avg:'1K-5K',top:'20K+'}, linkedin:{avg:'300-800',top:'3K+'} },
+    'Gym':                { facebook:{avg:'1K-3K',top:'10K+'},   instagram:{avg:'2K-6K',top:'20K+'}, youtube:{avg:'200-800',top:'5K+'} },
+    'Roofing Company':    { facebook:{avg:'300-800',top:'3K+'},   google:{avg:'30-100',top:'200+'},   instagram:{avg:'200-600',top:'2K+'} },
+    'Plumbing Company':   { facebook:{avg:'200-600',top:'2K+'},   google:{avg:'40-120',top:'300+'},   yelp:{avg:'50-150',top:'400+'} },
+    'Hair Salon':         { facebook:{avg:'500-1.5K',top:'5K+'}, instagram:{avg:'1.5K-4K',top:'15K+'}, tiktok:{avg:'500-2K',top:'10K+'} },
+    'Chiropractor':       { facebook:{avg:'400-1K',top:'4K+'},   google:{avg:'40-120',top:'300+'},   instagram:{avg:'400-1.5K',top:'6K+'} }
+  };
+  const bench = BENCHMARKS[niche] || {};
+  let benchHtml = '';
+  if (Object.keys(bench).length > 0) {
+    benchHtml = `<div class="section-title" style="margin-top:1rem;margin-bottom:8px">📊 Competitor Benchmark — ${esc(niche)} in ${esc(city||'California')}</div>
+    <table class="sa-bench-table">
+      <thead><tr><th>Platform</th><th>This Business (est.)</th><th>Average ${esc(niche)}</th><th>Top Performer</th></tr></thead>
+      <tbody>`;
+    for (const [pk, b] of Object.entries(bench)) {
+      const pm = PLAT_META[pk];
+      const pd = plats[pk];
+      const thisBiz = pd?.estimatedFollowers || 'Unknown';
+      benchHtml += `<tr><td><strong>${pm?.label||pk}</strong></td><td>${esc(thisBiz)}</td><td style="color:var(--text2)">${b.avg}</td><td style="color:var(--green-text)">${b.top}</td></tr>`;
+    }
+    benchHtml += `</tbody></table>`;
+  }
+
+  // ── Custom platform section ──────────────────────────────────────────────
+  const storageKey = `social_custom_platforms_${bizName.replace(/[^a-z0-9]/gi,'_').toLowerCase()}`;
+  const existingCustom = (() => { try { return JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch { return []; } })();
+  const SUGGESTED = ['Nextdoor','Houzz','Alignable','Thumbtack','Angi','HomeAdvisor','Tripadvisor','OpenTable','DoorDash','Grubhub','Uber Eats','Booking.com','Etsy','Google Shopping','Bing Places','Apple Maps','Waze'];
+  let customCards = existingCustom.map(cp => `
+    <div class="social-plat-card plat-custom" style="margin-top:8px">
+      <div class="social-plat-header" style="${cp.color?'background:'+cp.color:''}"><div class="social-plat-name">📱 ${esc(cp.name)}</div><span class="sa-status-notlinked">Custom</span></div>
+      <div class="social-plat-body">
+        ${cp.profileUrl ? `<a class="sa-profile-btn linked" href="${esc(cp.profileUrl)}" target="_blank" rel="noreferrer">🔗 Visit Profile ↗</a>` : '<div style="font-size:11px;color:var(--text3)">No profile URL provided</div>'}
+        <button class="sa-profile-btn search" onclick="removeSocialCustomPlatform('${storageKey}','${esc(cp.name)}')" style="margin-top:6px">✕ Remove</button>
+      </div>
+    </div>`).join('');
+
+  const suggestedChips = SUGGESTED.map(s => `<span class="sa-chip" onclick="addSocialCustomPlatform('${storageKey}','${s}','','','${bizName.replace(/'/g,"\\'")}')">+ ${s}</span>`).join('');
+
+  const customSection = `
+  <div class="sa-custom-section">
+    <div class="sa-custom-title">➕ Custom Platforms</div>
+    <div id="sa-custom-cards-${storageKey.replace(/[^a-z0-9]/gi,'_')}">${customCards}</div>
+    <div class="sa-add-form" id="sa-add-form-${storageKey.replace(/[^a-z0-9]/gi,'_')}">
+      <input type="text" placeholder="Platform name (e.g. Nextdoor)" id="sa-add-name-${storageKey.replace(/[^a-z0-9]/gi,'_')}">
+      <input type="text" placeholder="Profile URL (optional)" id="sa-add-url-${storageKey.replace(/[^a-z0-9]/gi,'_')}" style="flex:2">
+      <button class="out-btn" onclick="addSocialCustomPlatformFromForm('${storageKey}','${bizName.replace(/'/g,"\\'")}')">Add Platform</button>
+    </div>
+    <div class="sa-custom-title" style="margin-top:10px;font-size:11px;color:var(--text3)">Quick-add suggested platforms:</div>
+    <div class="sa-suggested-chips">${suggestedChips}</div>
+  </div>`;
+
+  // ── Social media pitch section ───────────────────────────────────────────
+  const pitchSection = `
+  <div class="sa-pitch-wrap" style="margin-top:1rem">
+    <div class="section-title" style="margin-bottom:4px">📣 Social Media Sales Pitch</div>
+    <div id="sa-pitch-content-${storageKey.replace(/[^a-z0-9]/gi,'_')}" style="font-size:12px;color:var(--text2)">
+      ${data.salesAngle ? `<strong>Hook:</strong> ${esc(data.salesAngle)}<br><br>` : ''}
+      <strong>Key findings for ${esc(bizName)}:</strong><br>
+      • Social presence score: <strong>${overallScore}/100</strong> (${scoreLabel})<br>
+      ${data.estimatedTotalReachLost ? `• Estimated monthly reach loss: <strong>${esc(data.estimatedTotalReachLost)}</strong><br>` : ''}
+      • Profiles NOT linked from website: <strong>${(data.detectedProfiles||[]).filter(p=>!p.foundOnWebsite).length} of 10 platforms</strong><br>
+      ${actions[0] ? `• Top priority: <strong>${esc(actions[0].action||'')}</strong> on ${esc(PLAT_META[actions[0].platform?.toLowerCase()]?.label||actions[0].platform||'—')}<br>` : ''}
+      <br>
+      <strong>Recommended package:</strong><br>
+      • Starter ($799/mo): Profile setup, 12 posts/month, GMB optimization<br>
+      • Growth ($1,499/mo): + Instagram/TikTok Reels, ad management, monthly reports<br>
+      • Premium ($2,499/mo): Full social management, daily stories, influencer outreach
+    </div>
+  </div>`;
+
+  return transparencyCard + overallBlock + ovGrid + detailCards + priorityHtml + contentHtml + benchHtml + customSection + pitchSection;
 }
 
 function animateScores(container) {
@@ -6969,6 +7290,55 @@ function renderPropClosing(cl) {
     <p class="pv2-close-note">${esc(cl.personalNote || '')}</p>
     <div class="pv2-signoff">${esc(cl.signOff || '')}</div>
   </div>`;
+}
+
+// ── Social Media Custom Platform Helpers ──────────────────────────────────
+function addSocialCustomPlatform(storageKey, name, url, color, bizName) {
+  if (!name) return;
+  const existing = (() => { try { return JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch { return []; } })();
+  if (existing.some(p => p.name.toLowerCase() === name.toLowerCase())) return; // already added
+  existing.push({ name, profileUrl: url || '', color: color || '' });
+  localStorage.setItem(storageKey, JSON.stringify(existing));
+  _refreshSocialCustomCards(storageKey);
+}
+
+function addSocialCustomPlatformFromForm(storageKey, bizName) {
+  const safeKey = storageKey.replace(/[^a-z0-9]/gi, '_');
+  const nameEl = document.getElementById('sa-add-name-' + safeKey);
+  const urlEl  = document.getElementById('sa-add-url-'  + safeKey);
+  const name = nameEl ? nameEl.value.trim() : '';
+  const url  = urlEl  ? urlEl.value.trim()  : '';
+  if (!name) {
+    if (nameEl) { nameEl.style.borderColor = '#c62828'; setTimeout(() => { nameEl.style.borderColor = ''; }, 1500); }
+    return;
+  }
+  addSocialCustomPlatform(storageKey, name, url, '', bizName);
+  if (nameEl) nameEl.value = '';
+  if (urlEl)  urlEl.value  = '';
+}
+
+function removeSocialCustomPlatform(storageKey, name) {
+  const existing = (() => { try { return JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch { return []; } })();
+  localStorage.setItem(storageKey, JSON.stringify(existing.filter(p => p.name !== name)));
+  _refreshSocialCustomCards(storageKey);
+}
+
+function _refreshSocialCustomCards(storageKey) {
+  const safeKey = storageKey.replace(/[^a-z0-9]/gi, '_');
+  const container = document.getElementById('sa-custom-cards-' + safeKey);
+  if (!container) return;
+  const existing = (() => { try { return JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch { return []; } })();
+  container.innerHTML = existing.map(cp => {
+    const styleAttr = cp.color ? ` style="background:${esc(cp.color)}"` : '';
+    const safeName  = cp.name.replace(/'/g, "\\'");
+    return `<div class="social-plat-card plat-custom" style="margin-top:8px">
+      <div class="social-plat-header"${styleAttr}><div class="social-plat-name">📱 ${esc(cp.name)}</div><span class="sa-status-notlinked">Custom</span></div>
+      <div class="social-plat-body">
+        ${cp.profileUrl ? `<a class="sa-profile-btn linked" href="${esc(cp.profileUrl)}" target="_blank" rel="noreferrer">🔗 Visit Profile ↗</a>` : '<div style="font-size:11px;color:var(--text3)">No profile URL provided</div>'}
+        <button class="sa-profile-btn search" onclick="removeSocialCustomPlatform('${storageKey}','${safeName}')" style="margin-top:6px">✕ Remove</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────
