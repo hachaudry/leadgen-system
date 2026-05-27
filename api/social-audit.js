@@ -1,6 +1,7 @@
-// api/social-audit.js — Social Media Presence Audit with Jina AI real-profile reading
-// Fetches each user-provided profile page via Jina AI, extracts real metrics,
-// applies critical flags, then sends all real data to Claude for analysis.
+// api/social-audit.js — Social Media Presence Audit
+// Social platforms (Instagram, Facebook, TikTok, LinkedIn) block automated scraping.
+// This uses URL handle extraction + best-effort Google search snippets + Claude AI
+// niche analysis to produce realistic, actionable estimates.
 
 const PLATFORM_ORDER  = ['google','facebook','instagram','linkedin','tiktok','youtube','twitter','pinterest','yelp','threads'];
 const PLATFORM_LABELS = {
@@ -9,395 +10,164 @@ const PLATFORM_LABELS = {
   twitter:'X / Twitter', pinterest:'Pinterest', yelp:'Yelp', threads:'Threads'
 };
 
-// ── Step 1: Fetch real profile page via Jina AI ──────────────────────────────
-async function fetchProfileData(profileUrl, platform) {
+// ── Extract social handle from profile URL ───────────────────────────────────
+function extractHandle(url, platform) {
+  if (!url) return null;
   try {
-    const jinaUrl = 'https://r.jina.ai/' + profileUrl;
-    const response = await fetch(jinaUrl, {
-      headers: { 'Accept': 'text/plain' },
-      signal: AbortSignal.timeout(12000)
-    });
-    const text = await response.text();
-    return { success: true, content: text.substring(0, 5000), platform, url: profileUrl };
-  } catch (err) {
-    return { success: false, content: '', platform, url: profileUrl, error: err.message };
-  }
-}
-
-// ── Step 2: Parse a k/m/b-suffixed number string ─────────────────────────────
-function parseCount(str) {
-  if (!str) return null;
-  const s = str.replace(/,/g, '').trim();
-  if (/^\d+(\.\d+)?[Kk]$/.test(s)) return Math.round(parseFloat(s) * 1000);
-  if (/^\d+(\.\d+)?[Mm]$/.test(s)) return Math.round(parseFloat(s) * 1000000);
-  if (/^\d+(\.\d+)?[Bb]$/.test(s)) return Math.round(parseFloat(s) * 1000000000);
-  const n = parseFloat(s);
-  return isNaN(n) ? null : Math.round(n);
-}
-
-// ── Step 3: Detect last-post age from text signals ───────────────────────────
-function detectLastPostDays(text) {
-  if (/\bjust\s*now\b/i.test(text)) return 0;
-  if (/\btoday\b/i.test(text)) return 0;
-  if (/\byesterday\b/i.test(text)) return 1;
-  const h = text.match(/(\d+)\s*hours?\s*ago/i);
-  if (h) return Math.floor(parseInt(h[1]) / 24);
-  const d = text.match(/(\d+)\s*days?\s*ago/i);
-  if (d) return parseInt(d[1]);
-  const w = text.match(/(\d+)\s*weeks?\s*ago/i);
-  if (w) return parseInt(w[1]) * 7;
-  const mo = text.match(/(\d+)\s*months?\s*ago/i);
-  if (mo) return parseInt(mo[1]) * 30;
-  return null;
-}
-
-// Count date references within the last 28 days (proxy for posts)
-function countRecentPosts(text) {
-  let n = 0;
-  for (const m of text.matchAll(/(\d+)\s*hours?\s*ago/gi)) n++;
-  for (const m of text.matchAll(/(\d+)\s*days?\s*ago/gi)) { if (parseInt(m[1]) <= 28) n++; }
-  n += (text.match(/\byesterday\b/gi) || []).length;
-  n += (text.match(/\btoday\b/gi) || []).length;
-  n += (text.match(/\bjust\s*now\b/gi) || []).length;
-  for (const m of text.matchAll(/(\d+)\s*weeks?\s*ago/gi)) { if (parseInt(m[1]) <= 4) n++; }
-  return n;
-}
-
-// ── Step 4: Extract per-platform real metrics from Jina content ──────────────
-function extractPlatformMetrics(content, platform) {
-  const m = {
-    followers: null, following: null, posts: null, likes: null,
-    reviews: null, rating: null, employees: null, subscribers: null,
-    videos: null, bio: null, lastPostDaysAgo: null, postsLast28Days: null,
-    hasReels: false, hasHighlights: false, hasBusinessContact: false,
-    responseTime: null, priceRange: null, verified: false
-  };
-  if (!content) return m;
-  const c = content;
-
-  m.lastPostDaysAgo  = detectLastPostDays(c);
-  m.postsLast28Days  = countRecentPosts(c);
-
-  if (platform === 'instagram') {
-    const postsM = c.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*[Pp]osts?/);
-    if (postsM) m.posts = parseCount(postsM[1]);
-    const followersM = c.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*[Ff]ollowers?/);
-    if (followersM) m.followers = parseCount(followersM[1]);
-    const followingM = c.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*[Ff]ollowing/);
-    if (followingM) m.following = parseCount(followingM[1]);
-    m.hasReels            = /\bReels?\b/i.test(c);
-    m.hasHighlights       = /\bHighlights?\b/i.test(c);
-    m.hasBusinessContact  = /\b(Contact|Book\s+Now|Call|Email|Get\s+Directions|Message)\b/i.test(c);
-    const bioM = c.match(/[Bb]io[:\s]+([^\n]{10,150})/);
-    if (bioM) m.bio = bioM[1].trim();
-
-  } else if (platform === 'facebook') {
-    const likesM = c.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*(?:people\s+)?[Ll]ikes?(?:\s+this)?/);
-    if (likesM) m.likes = parseCount(likesM[1]);
-    const followersM = c.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*(?:people\s+)?[Ff]ollowers?(?:\s+follow)?/);
-    if (followersM) m.followers = parseCount(followersM[1]);
-    const ratingM = c.match(/(\d\.?\d?)\s*(?:stars?|out\s+of\s+5)/i);
-    if (ratingM) m.rating = parseFloat(ratingM[1]);
-    const reviewsM = c.match(/(\d[\d,]*)\s*[Rr]eviews?/);
-    if (reviewsM) m.reviews = parseCount(reviewsM[1]);
-    const respM = c.match(/Typically\s+responds[^\n]*/i);
-    if (respM) m.responseTime = respM[0].trim();
-    m.hasBusinessContact = /\b(Call\s+Now|Send\s+Message|Book\s+Now|Get\s+Directions|Email)\b/i.test(c);
-
-  } else if (platform === 'linkedin') {
-    const followersM = c.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*[Ff]ollowers?/);
-    if (followersM) m.followers = parseCount(followersM[1]);
-    const empM = c.match(/(\d[\d,\-\+]*\.?\d*[KkMm]?)\s*employees?/i);
-    if (empM) m.employees = empM[1].trim();
-    m.verified = /\bVerified\b/i.test(c);
-
-  } else if (platform === 'tiktok') {
-    const followersM = c.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*[Ff]ollowers?/);
-    if (followersM) m.followers = parseCount(followersM[1]);
-    const followingM = c.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*[Ff]ollowing/);
-    if (followingM) m.following = parseCount(followingM[1]);
-    const likesM = c.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*[Ll]ikes?/);
-    if (likesM) m.likes = parseCount(likesM[1]);
-    const videosM = c.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*[Vv]ideos?/);
-    if (videosM) m.videos = parseCount(videosM[1]);
-
-  } else if (platform === 'youtube') {
-    const subM = c.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*[Ss]ubscribers?/);
-    if (subM) m.subscribers = parseCount(subM[1]);
-    const videosM = c.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*[Vv]ideos?/);
-    if (videosM) m.videos = parseCount(videosM[1]);
-
-  } else if (platform === 'twitter') {
-    const followersM = c.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*[Ff]ollowers?/);
-    if (followersM) m.followers = parseCount(followersM[1]);
-    const followingM = c.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*[Ff]ollowing/);
-    if (followingM) m.following = parseCount(followingM[1]);
-    m.verified = /\bVerified\b/i.test(c) || c.includes('✓') || c.includes('✔');
-
-  } else if (platform === 'google') {
-    const ratingM = c.match(/(\d\.?\d?)\s*(?:stars?|★)/i);
-    if (ratingM) m.rating = parseFloat(ratingM[1]);
-    const reviewsM = c.match(/(\d[\d,]*)\s*(?:Google\s+)?[Rr]eviews?/);
-    if (reviewsM) m.reviews = parseCount(reviewsM[1]);
-    m.hasBusinessContact = /\b(Call|Directions|Website|Menu|Order\s+Online)\b/i.test(c);
-
-  } else if (platform === 'yelp') {
-    const ratingM = c.match(/(\d\.?\d?)\s*(?:stars?|star\s+rating)/i);
-    if (ratingM) m.rating = parseFloat(ratingM[1]);
-    const reviewsM = c.match(/(\d[\d,]*)\s*[Rr]eviews?/);
-    if (reviewsM) m.reviews = parseCount(reviewsM[1]);
-    const priceM = c.match(/\$+/);
-    if (priceM) m.priceRange = priceM[0];
-
-  } else if (platform === 'pinterest') {
-    const followersM = c.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*[Ff]ollowers?/);
-    if (followersM) m.followers = parseCount(followersM[1]);
-    const followingM = c.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*[Ff]ollowing/);
-    if (followingM) m.following = parseCount(followingM[1]);
-
-  } else if (platform === 'threads') {
-    const followersM = c.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*[Ff]ollowers?/);
-    if (followersM) m.followers = parseCount(followersM[1]);
-  }
-
-  return m;
-}
-
-// ── Step 5: Apply critical flags ─────────────────────────────────────────────
-function applyCriticalFlags(metrics, platform, niche) {
-  const flags = [];
-
-  // Flag 1 — Last post too old
-  const days = metrics.lastPostDaysAgo;
-  if (days !== null && days > 2) {
-    const sev = days > 14 ? 'CRITICAL' : days > 7 ? 'HIGH' : 'MEDIUM';
-    flags.push({
-      id: 'lastPostStale', severity: sev,
-      message: `Last post detected was ${days} day${days !== 1 ? 's' : ''} ago — audience engagement dropping`,
-      detail: days > 14
-        ? 'Algorithm stops showing content after 3-4 days of inactivity. Followers are no longer seeing posts at full reach.'
-        : 'Consistent posting is required to maintain algorithm reach and audience engagement.',
-      fix: 'Post today and set up a daily posting schedule immediately.'
-    });
-  }
-
-  // Flag 2 — Insufficient posting frequency
-  const p28 = metrics.postsLast28Days;
-  if (p28 !== null && p28 < 20) {
-    const sev = p28 < 5 ? 'CRITICAL' : p28 < 10 ? 'HIGH' : 'MEDIUM';
-    flags.push({
-      id: 'lowPostFrequency', severity: sev,
-      message: `Only ${p28} post${p28 !== 1 ? 's' : ''} detected in the last 28 days — platform algorithm deprioritizing this account`,
-      detail: 'Platform algorithms recommend 5-7 posts per week for business accounts to maintain full organic reach.',
-      fix: 'Increase to daily posting with a mix of Reels, Stories, and feed posts.'
-    });
-  }
-
-  // Flag 3 — No Reels on Instagram
-  if (platform === 'instagram' && !metrics.hasReels) {
-    flags.push({
-      id: 'noReels', severity: 'HIGH',
-      message: 'No Reels detected — Instagram algorithm heavily favors Reels over static posts',
-      detail: 'Reels get 3-5× more reach than static posts on Instagram. Missing Reels means missing the majority of potential organic reach.',
-      fix: 'Start posting 3-4 Reels per week immediately. Even repurposed TikTok content works well.'
-    });
-  }
-
-  // Flag 4 — Low followers for niche benchmark
-  const followerCount = metrics.followers ?? metrics.likes;
-  if (followerCount !== null && followerCount !== undefined) {
-    const nicheLC = (niche || '').toLowerCase();
-    let benchmark = 100;
-    if (nicheLC.includes('restaurant') && platform === 'instagram') benchmark = 500;
-    else if ((nicheLC.includes('med spa') || nicheLC.includes('medspa')) && platform === 'instagram') benchmark = 1000;
-    else if (nicheLC.includes('auto') && platform === 'facebook') benchmark = 200;
-    else if (nicheLC.includes('limo') && platform === 'instagram') benchmark = 300;
-
-    if (followerCount < benchmark) {
-      flags.push({
-        id: 'lowFollowers', severity: 'MEDIUM',
-        message: `${followerCount.toLocaleString()} followers is below the ${benchmark.toLocaleString()} benchmark for ${niche || 'this niche'} on ${PLATFORM_LABELS[platform] || platform}`,
-        detail: `Businesses in the ${niche || 'local'} space with under ${benchmark.toLocaleString()} followers struggle to convert social presence into leads.`,
-        fix: 'Run a targeted follower growth campaign with local hashtags and paid promotion.'
-      });
+    const u     = new URL(url.startsWith('http') ? url : 'https://' + url);
+    const parts = u.pathname.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
+    switch (platform) {
+      case 'instagram':
+      case 'facebook':
+      case 'twitter':
+      case 'pinterest':
+      case 'threads':
+        return parts[0]?.replace(/^@/, '') || null;
+      case 'tiktok':
+        return parts[0]?.replace(/^@/, '') || null;
+      case 'youtube':
+        if (parts[0] === 'c' || parts[0] === 'user') return parts[1] || null;
+        if (parts[0]?.startsWith('@'))               return parts[0].slice(1);
+        if (parts[0] === 'channel')                  return null;
+        return parts[0] || null;
+      case 'linkedin':
+        if (parts[0] === 'company' || parts[0] === 'in') return parts[1] || null;
+        return parts[0] || null;
+      case 'yelp':
+        if (parts[0] === 'biz') return parts[1] || null;
+        return parts[0] || null;
+      default:
+        return parts[0] || null;
     }
-  }
-
-  return flags;
+  } catch { return null; }
 }
 
-// ── Step 6: Score & status from real metrics ─────────────────────────────────
-function calculateScore(metrics, platform, niche) {
-  let score = 100;
-  const days = metrics.lastPostDaysAgo;
-  if (days !== null) {
-    if (days > 14) score -= 50;
-    else if (days > 7) score -= 35;
-    else if (days > 2) score -= 20;
-  } else {
-    score -= 10;
-  }
-  const p28 = metrics.postsLast28Days;
-  if (p28 !== null) {
-    if (p28 < 5) score -= 25;
-    else if (p28 < 10) score -= 20;
-    else if (p28 < 20) score -= 15;
-  }
-  if (platform === 'instagram' && !metrics.hasReels) score -= 15;
-  const fc = metrics.followers ?? metrics.likes;
-  if (fc !== null && fc !== undefined) {
-    const nicheLC = (niche || '').toLowerCase();
-    let bench = 100;
-    if (nicheLC.includes('restaurant') && platform === 'instagram') bench = 500;
-    else if ((nicheLC.includes('med spa') || nicheLC.includes('medspa')) && platform === 'instagram') bench = 1000;
-    if (fc < bench) score -= 10;
-  }
-  if (!metrics.bio) score -= 5;
-  if (!metrics.hasBusinessContact && ['instagram', 'facebook', 'google'].includes(platform)) score -= 5;
-  return Math.max(5, Math.min(100, score));
+// ── Best-effort: Google search via Jina for cached social snippet data ────────
+// Instagram/FB/TikTok block direct reads — Google sometimes has cached counts.
+async function fetchGoogleSearchData(businessName, handle, platform, city) {
+  try {
+    const label = PLATFORM_LABELS[platform] || platform;
+    const q     = handle
+      ? `${handle} ${label} followers`
+      : `"${businessName}" ${city} ${label}`;
+    const resp  = await fetch(
+      `https://r.jina.ai/https://www.google.com/search?q=${encodeURIComponent(q)}`,
+      { headers: { 'Accept': 'text/plain' }, signal: AbortSignal.timeout(10000) }
+    );
+    if (!resp.ok) return null;
+    const text      = await resp.text();
+    const data      = {};
+    const followerM = text.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*[Ff]ollowers?/);
+    if (followerM) data.followers = followerM[1];
+    const likeM     = text.match(/(\d[\d,]*\.?\d*[KkMm]?)\s*(?:people\s+)?[Ll]ikes?/);
+    if (likeM)     data.likes = likeM[1];
+    const ratingM   = text.match(/(\d\.?\d?)\s*(?:★|stars?|rating)/i);
+    if (ratingM)   data.rating = ratingM[1];
+    return Object.keys(data).length ? data : null;
+  } catch { return null; }
 }
 
-function determineStatus(metrics) {
-  const days = metrics.lastPostDaysAgo;
-  const p28  = metrics.postsLast28Days;
-  if (days !== null) {
-    if (days > 14) return 'Critical';
-    if (days > 7)  return 'Inactive';
-    if (days > 2)  return 'Needs Attention';
-    // days <= 2
-    if (p28 === null || p28 >= 20) return 'Active';
-    return 'Needs Attention';
-  }
-  if (p28 !== null) {
-    if (p28 >= 20) return 'Likely Active';
-    if (p28 >= 10) return 'Needs Attention';
-    if (p28 > 0)   return 'Inactive';
-  }
-  return 'Likely Active';
-}
-
-// ── Step 7: Build Claude prompt & call API ───────────────────────────────────
+// ── Main analysis: handle extraction + Google search + Claude ─────────────────
 async function analyzeSocialPresence(apiKey, { businessName, niche, city, state, reviews, rating, profiles, notPresent }) {
-
-  // Fetch all provided profile pages simultaneously
-  const fetchTasks = [];
-  const fetchMeta  = [];   // { platform, key }
-
-  for (const p of PLATFORM_ORDER) {
-    if (!profiles[p]) continue;
-    fetchTasks.push(fetchProfileData(profiles[p], p));
-    fetchMeta.push({ platform: p, key: p });
-  }
+  const today  = new Date().toISOString().split('T')[0];
   const custom = profiles.custom || [];
-  for (const cp of custom) {
-    if (!cp.url) continue;
-    fetchTasks.push(fetchProfileData(cp.url, cp.name));
-    fetchMeta.push({ platform: cp.name, key: `custom_${cp.name}` });
+
+  // Step 1 — Extract handles from all provided URLs
+  const handleMap = {};
+  for (const p of PLATFORM_ORDER) {
+    if (profiles[p]) handleMap[p] = extractHandle(profiles[p], p);
   }
 
-  const settled = await Promise.allSettled(fetchTasks);
-  const results = settled.map(r => r.status === 'fulfilled' ? r.value : { success: false, content: '' });
-
-  // Build per-platform extracted data
-  const extractedMap = {};
-  results.forEach((result, i) => {
-    const { platform, key } = fetchMeta[i];
-    const platformKey = PLATFORM_ORDER.includes(platform) ? platform : platform;
-    if (result.success && result.content) {
-      const metrics = extractPlatformMetrics(result.content, platformKey);
-      const flags   = applyCriticalFlags(metrics, platformKey, niche);
-      const score   = calculateScore(metrics, platformKey, niche);
-      const status  = determineStatus(metrics);
-      extractedMap[key] = { metrics, flags, score, status, fetched: true };
-    } else {
-      extractedMap[key] = { metrics: {}, flags: [], score: null, status: null, fetched: false };
-    }
+  // Step 2 — Best-effort Google search for social data (key platforms only, parallel)
+  const searchPlatforms = PLATFORM_ORDER.filter(
+    p => profiles[p] && ['instagram','facebook','tiktok','youtube','twitter'].includes(p)
+  );
+  const searchResults = await Promise.allSettled(
+    searchPlatforms.map(p => fetchGoogleSearchData(businessName, handleMap[p], p, city || 'California'))
+  );
+  const googleDataMap = {};
+  searchResults.forEach((r, i) => {
+    if (r.status === 'fulfilled' && r.value) googleDataMap[searchPlatforms[i]] = r.value;
   });
 
-  // Build Claude prompt lines describing each platform
-  const profileLines = PLATFORM_ORDER.map(p => {
-    const label = PLATFORM_LABELS[p];
-    const url   = profiles[p];
-    if (!url) {
-      return notPresent.includes(p)
-        ? `${label}: NOT PRESENT (confirmed by sales team)`
-        : `${label}: UNKNOWN (no URL provided — assume missing)`;
-    }
-    const ex = extractedMap[p];
-    if (!ex?.fetched) {
-      return `${label}: PRESENT — URL: ${url} — NOTE: profile page could not be read (platform may block automated access)`;
-    }
-    const mx = ex.metrics;
-    const parts = [`${label}: PRESENT — URL: ${url}`];
-    if (mx.followers   != null)  parts.push(`Followers: ${mx.followers.toLocaleString()}`);
-    if (mx.likes       != null)  parts.push(`Page Likes: ${mx.likes.toLocaleString()}`);
-    if (mx.posts       != null)  parts.push(`Total Posts: ${mx.posts.toLocaleString()}`);
-    if (mx.subscribers != null)  parts.push(`Subscribers: ${mx.subscribers.toLocaleString()}`);
-    if (mx.videos      != null)  parts.push(`Videos: ${mx.videos.toLocaleString()}`);
-    if (mx.rating      != null)  parts.push(`Rating: ${mx.rating} stars`);
-    if (mx.reviews     != null)  parts.push(`Reviews: ${mx.reviews.toLocaleString()}`);
-    if (mx.employees   != null)  parts.push(`Employees: ${mx.employees}`);
-    if (mx.lastPostDaysAgo != null) parts.push(`Last post: ${mx.lastPostDaysAgo} days ago`);
-    if (mx.postsLast28Days != null) parts.push(`Posts in last 28 days: ${mx.postsLast28Days}`);
-    if (p === 'instagram') parts.push(`Reels present: ${mx.hasReels ? 'YES' : 'NO'}`);
-    if (mx.hasBusinessContact) parts.push('Business contact buttons present: YES');
-    if (mx.responseTime) parts.push(`Response time: ${mx.responseTime}`);
-    if (ex.flags.length) parts.push(`CRITICAL FLAGS: ${ex.flags.map(f => f.message).join('; ')}`);
+  // Step 3 — Build Claude prompt lines
+  const presentLines = PLATFORM_ORDER.map(p => {
+    if (!profiles[p]) return null;
+    const label  = PLATFORM_LABELS[p];
+    const handle = handleMap[p];
+    const gd     = googleDataMap[p];
+    const parts  = [`${label}: CONFIRMED PRESENT — URL: ${profiles[p]}`];
+    if (handle)          parts.push(`Handle: @${handle}`);
+    if (gd?.followers)   parts.push(`Google snippet: ~${gd.followers} followers`);
+    if (gd?.likes)       parts.push(`Google snippet: ~${gd.likes} likes`);
+    if (gd?.rating)      parts.push(`Google snippet: ${gd.rating} rating`);
     return parts.join(' | ');
-  });
+  }).filter(Boolean);
+
+  const missingLines = PLATFORM_ORDER.map(p => {
+    if (profiles[p]) return null;
+    if (notPresent.includes(p)) return `${PLATFORM_LABELS[p]}: NOT PRESENT (confirmed absent by sales team)`;
+    return `${PLATFORM_LABELS[p]}: No profile URL provided`;
+  }).filter(Boolean);
 
   const customLines = custom.map(cp => {
-    if (!cp.url) return `${cp.name}: UNKNOWN`;
-    const ex = extractedMap[`custom_${cp.name}`];
-    if (!ex?.fetched) return `${cp.name}: PRESENT — URL: ${cp.url} — could not read`;
-    const mx = ex.metrics;
-    const parts = [`${cp.name}: PRESENT — URL: ${cp.url}`];
-    if (mx.followers != null) parts.push(`Followers: ${mx.followers.toLocaleString()}`);
-    if (mx.lastPostDaysAgo != null) parts.push(`Last post: ${mx.lastPostDaysAgo} days ago`);
-    return parts.join(' | ');
-  });
+    if (!cp.url) return null;
+    const h = extractHandle(cp.url, cp.name);
+    return `${cp.name}: CONFIRMED — ${cp.url}${h ? ` | Handle: @${h}` : ''}`;
+  }).filter(Boolean);
 
-  const allCritFlagLines = PLATFORM_ORDER
-    .filter(p => extractedMap[p]?.flags?.length)
-    .map(p => `${PLATFORM_LABELS[p]}: ${extractedMap[p].flags.map(f => f.message).join('; ')}`)
-    .join('\n');
+  const reviewLevel  = (reviews || 0) >= 100 ? 'high (100+)' : (reviews || 0) >= 30 ? 'medium (30-99)' : 'low (<30)';
+  const ratingLevel  = (parseFloat(rating) || 0) >= 4.5 ? 'excellent (4.5+)' : (parseFloat(rating) || 0) >= 4.0 ? 'good (4.0-4.4)' : 'below average (<4.0)';
 
-  const prompt = `You are a social media analyst for a digital marketing agency. Analyze this business's social media presence based on REAL data extracted from their live profile pages.
+  const prompt = `You are a senior social media analyst for a digital marketing agency. Analyze this business's social media presence and provide realistic, actionable estimates.
 
 Business: ${businessName}
 Niche: ${niche || 'local business'}
 Location: ${[city, state].filter(Boolean).join(', ') || 'California'}
-Google Rating: ${rating || 'not available'} stars with ${reviews || 0} reviews
-IMPORTANT: These Google stats are REAL — never contradict them.
+Real Google Rating: ${rating || 'N/A'} stars (${ratingLevel}) with ${reviews || 0} Google reviews (${reviewLevel}) — VERIFIED DATA, never contradict
+Today's date: ${today}
 
-REAL DATA EXTRACTED FROM LIVE PROFILE PAGES:
-${[...profileLines, ...customLines].join('\n')}
+CONFIRMED SOCIAL PROFILES (verified by sales team):
+${presentLines.join('\n')}
 
-${allCritFlagLines ? `CRITICAL FLAGS ALREADY DETECTED (do not contradict):\n${allCritFlagLines}` : ''}
+PLATFORMS WITHOUT PROFILES:
+${missingLines.join('\n')}
+${customLines.length ? `\nCUSTOM PLATFORMS:\n${customLines.join('\n')}` : ''}
 
-ANALYSIS INSTRUCTIONS:
-- Use ONLY the real data above. Never invent specific numbers not in the data.
-- If a field was not found, say "not detected" — do not guess a number.
-- status values MUST match real data: Active = posted ≤2 days AND ≥20 posts/month | Needs Attention = posted ≤7 days OR 10-19 posts | Inactive = last post >7 days OR <10 posts | Critical = last post >14 days OR <5 posts | Missing = no URL
-- score: base 100, deduct per critical flags found in extracted data (not estimated)
-- Every gap must be specific to the ${niche || 'local business'} niche
-- revenueImpact: estimated monthly revenue impact of fixing this platform
-- proposalAngle: one sentence pitching improvement of this specific platform
-- For Missing platforms: estimate monthly reach lost based on niche
+ACTIVITY SIGNALS FROM BUSINESS PROFILE:
+- Google review count (${reviews || 0}) indicates ${reviewLevel} digital engagement
+- Google rating (${rating || 'N/A'}) indicates ${ratingLevel} customer engagement
+- A ${niche || 'local business'} with ${reviewLevel} Google reviews in ${city || 'California'} typically has ${(reviews||0) >= 100 ? 'active, consistent' : (reviews||0) >= 30 ? 'moderate, inconsistent' : 'minimal, rare'} social media activity
 
-Return ONLY valid JSON, no markdown, no extra text:
+ANALYSIS RULES:
+1. Be REALISTIC — most local ${niche || 'businesses'} post 2-8 times per month, not daily
+2. Follower estimates must be RANGES (e.g. "200–800") not single numbers
+3. Post frequency estimates should reflect the activity signal from Google reviews
+4. Set lastPostCritical=true for most local businesses unless Google reviews suggest very high engagement
+5. Set postFrequencyCritical=true unless the business has 100+ Google reviews
+6. criticalIssues should list the 1-2 most important missing elements for this specific niche+platform
+7. revenueImpact must be specific to this niche in this city
+8. All gaps must be NICHE-SPECIFIC for ${niche || 'local business'} on each platform
+
+SCORING RULES:
+- Present + very active (100+ reviews, high engagement signals): 60-75
+- Present + moderately active (30-99 reviews): 40-60
+- Present + low activity signal (<30 reviews): 20-40
+- Missing: 0
+
+Return ONLY valid JSON, no markdown fences, no text outside JSON:
 {
   "platforms": {
-    "google":    {"status":"Active|Needs Attention|Inactive|Critical|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Critical|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","activityAssessment":"","audienceGrowth":"","contentQuality":"","revenueImpact":""},
-    "facebook":  {"status":"Active|Needs Attention|Inactive|Critical|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Critical|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","activityAssessment":"","audienceGrowth":"","contentQuality":"","revenueImpact":""},
-    "instagram": {"status":"Active|Needs Attention|Inactive|Critical|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Critical|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","activityAssessment":"","audienceGrowth":"","contentQuality":"","revenueImpact":""},
-    "linkedin":  {"status":"Active|Needs Attention|Inactive|Critical|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Critical|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","activityAssessment":"","audienceGrowth":"","contentQuality":"","revenueImpact":""},
-    "tiktok":    {"status":"Active|Needs Attention|Inactive|Critical|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Critical|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","activityAssessment":"","audienceGrowth":"","contentQuality":"","revenueImpact":""},
-    "youtube":   {"status":"Active|Needs Attention|Inactive|Critical|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Critical|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","activityAssessment":"","audienceGrowth":"","contentQuality":"","revenueImpact":""},
-    "twitter":   {"status":"Active|Needs Attention|Inactive|Critical|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Critical|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","activityAssessment":"","audienceGrowth":"","contentQuality":"","revenueImpact":""},
-    "pinterest": {"status":"Active|Needs Attention|Inactive|Critical|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Critical|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","activityAssessment":"","audienceGrowth":"","contentQuality":"","revenueImpact":""},
-    "yelp":      {"status":"Active|Needs Attention|Inactive|Critical|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Critical|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","activityAssessment":"","audienceGrowth":"","contentQuality":"","revenueImpact":""},
-    "threads":   {"status":"Active|Needs Attention|Inactive|Critical|Missing","profileUrl":null,"score":0,"estimatedFollowers":"","activityLevel":"High|Medium|Low|Critical|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","activityAssessment":"","audienceGrowth":"","contentQuality":"","revenueImpact":""}
+    "google":    {"status":"Active|Likely Active|Needs Improvement|Inactive|Missing","profileUrl":null,"score":0,"estimatedFollowers":"range or N/A","estimatedPostsLast28Days":"e.g. 2-6","lastPostEstimate":"Within 2 days|3-7 days ago|1-2 weeks ago|Over 2 weeks ago|Unknown","lastPostCritical":false,"postFrequencyCritical":false,"engagementLevel":"High|Medium|Low","estimatedMonthlyReach":"range","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","revenueImpact":"","criticalIssues":[]},
+    "facebook":  {"status":"Active|Likely Active|Needs Improvement|Inactive|Missing","profileUrl":null,"score":0,"estimatedFollowers":"range","estimatedPostsLast28Days":"range","lastPostEstimate":"Within 2 days|3-7 days ago|1-2 weeks ago|Over 2 weeks ago|Unknown","lastPostCritical":false,"postFrequencyCritical":false,"engagementLevel":"High|Medium|Low","estimatedMonthlyReach":"range","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","revenueImpact":"","criticalIssues":[]},
+    "instagram": {"status":"Active|Likely Active|Needs Improvement|Inactive|Missing","profileUrl":null,"score":0,"estimatedFollowers":"range","estimatedPostsLast28Days":"range","lastPostEstimate":"Within 2 days|3-7 days ago|1-2 weeks ago|Over 2 weeks ago|Unknown","lastPostCritical":false,"postFrequencyCritical":false,"engagementLevel":"High|Medium|Low","estimatedMonthlyReach":"range","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","revenueImpact":"","criticalIssues":[]},
+    "linkedin":  {"status":"Active|Likely Active|Needs Improvement|Inactive|Missing","profileUrl":null,"score":0,"estimatedFollowers":"range","estimatedPostsLast28Days":"range","lastPostEstimate":"Within 2 days|3-7 days ago|1-2 weeks ago|Over 2 weeks ago|Unknown","lastPostCritical":false,"postFrequencyCritical":false,"engagementLevel":"High|Medium|Low","estimatedMonthlyReach":"range","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","revenueImpact":"","criticalIssues":[]},
+    "tiktok":    {"status":"Active|Likely Active|Needs Improvement|Inactive|Missing","profileUrl":null,"score":0,"estimatedFollowers":"range","estimatedPostsLast28Days":"range","lastPostEstimate":"Within 2 days|3-7 days ago|1-2 weeks ago|Over 2 weeks ago|Unknown","lastPostCritical":false,"postFrequencyCritical":false,"engagementLevel":"High|Medium|Low","estimatedMonthlyReach":"range","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","revenueImpact":"","criticalIssues":[]},
+    "youtube":   {"status":"Active|Likely Active|Needs Improvement|Inactive|Missing","profileUrl":null,"score":0,"estimatedFollowers":"range","estimatedPostsLast28Days":"range","lastPostEstimate":"Within 2 days|3-7 days ago|1-2 weeks ago|Over 2 weeks ago|Unknown","lastPostCritical":false,"postFrequencyCritical":false,"engagementLevel":"High|Medium|Low","estimatedMonthlyReach":"range","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","revenueImpact":"","criticalIssues":[]},
+    "twitter":   {"status":"Active|Likely Active|Needs Improvement|Inactive|Missing","profileUrl":null,"score":0,"estimatedFollowers":"range","estimatedPostsLast28Days":"range","lastPostEstimate":"Within 2 days|3-7 days ago|1-2 weeks ago|Over 2 weeks ago|Unknown","lastPostCritical":false,"postFrequencyCritical":false,"engagementLevel":"High|Medium|Low","estimatedMonthlyReach":"range","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","revenueImpact":"","criticalIssues":[]},
+    "pinterest": {"status":"Active|Likely Active|Needs Improvement|Inactive|Missing","profileUrl":null,"score":0,"estimatedFollowers":"range","estimatedPostsLast28Days":"range","lastPostEstimate":"Within 2 days|3-7 days ago|1-2 weeks ago|Over 2 weeks ago|Unknown","lastPostCritical":false,"postFrequencyCritical":false,"engagementLevel":"High|Medium|Low","estimatedMonthlyReach":"range","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","revenueImpact":"","criticalIssues":[]},
+    "yelp":      {"status":"Active|Likely Active|Needs Improvement|Inactive|Missing","profileUrl":null,"score":0,"estimatedFollowers":"range or N/A","estimatedPostsLast28Days":"range","lastPostEstimate":"Within 2 days|3-7 days ago|1-2 weeks ago|Over 2 weeks ago|Unknown","lastPostCritical":false,"postFrequencyCritical":false,"engagementLevel":"High|Medium|Low","estimatedMonthlyReach":"range","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","revenueImpact":"","criticalIssues":[]},
+    "threads":   {"status":"Active|Likely Active|Needs Improvement|Inactive|Missing","profileUrl":null,"score":0,"estimatedFollowers":"range","estimatedPostsLast28Days":"range","lastPostEstimate":"Within 2 days|3-7 days ago|1-2 weeks ago|Over 2 weeks ago|Unknown","lastPostCritical":false,"postFrequencyCritical":false,"engagementLevel":"High|Medium|Low","estimatedMonthlyReach":"range","activityLevel":"High|Medium|Low|Unknown","gaps":["","",""],"quickWin":"","monthlyReachLost":"","nicheSpecificInsight":"","proposalAngle":"","revenueImpact":"","criticalIssues":[]}
   },
   "customPlatforms": [],
   "overallScore": 0,
@@ -418,14 +188,14 @@ Return ONLY valid JSON, no markdown, no extra text:
       signal: AbortSignal.timeout(20000)
     });
     if (!resp.ok) throw new Error(`Claude API HTTP ${resp.status}`);
-    const d = await resp.json();
+    const d   = await resp.json();
     const raw = (d.content || []).map(b => b.text || '').join('').replace(/```json|```/g, '').trim();
-    const si = raw.indexOf('{'), ei = raw.lastIndexOf('}');
-    if (si === -1) return { analysis: null, extractedMap };
-    return { analysis: JSON.parse(raw.slice(si, ei + 1)), extractedMap };
+    const si  = raw.indexOf('{'), ei = raw.lastIndexOf('}');
+    if (si === -1) return null;
+    return JSON.parse(raw.slice(si, ei + 1));
   } catch (e) {
     console.error('Claude social analysis error:', e.message);
-    return { analysis: null, extractedMap };
+    return null;
   }
 }
 
@@ -443,8 +213,8 @@ export default async function handler(req, res) {
   const { businessName, niche, city, state, reviews, rating, profiles, notPresent = [] } = req.body || {};
   if (!businessName) return res.status(400).json({ error: 'businessName is required' });
 
-  const safeProfiles     = profiles || {};
-  const custom           = safeProfiles.custom || [];
+  const safeProfiles      = profiles || {};
+  const custom            = safeProfiles.custom || [];
   const providedPlatforms = PLATFORM_ORDER.filter(p => !!safeProfiles[p]);
   const missingPlatforms  = PLATFORM_ORDER.filter(p => !safeProfiles[p]);
 
@@ -452,7 +222,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'At least one social media profile URL is required.' });
   }
 
-  const { analysis, extractedMap } = await analyzeSocialPresence(ANTHROPIC_KEY, {
+  const analysis = await analyzeSocialPresence(ANTHROPIC_KEY, {
     businessName, niche, city, state, reviews, rating,
     profiles: safeProfiles, notPresent
   });
@@ -467,25 +237,10 @@ export default async function handler(req, res) {
     });
   }
 
-  // Pin profileUrl to user-provided URL; merge real extracted data
+  // Pin profileUrl to exactly what the user provided (Claude must not invent URLs)
   if (analysis.platforms) {
     for (const p of PLATFORM_ORDER) {
-      if (!analysis.platforms[p]) continue;
-      analysis.platforms[p].profileUrl = safeProfiles[p] || null;
-
-      const ex = extractedMap[p];
-      if (ex?.fetched) {
-        // Override Claude's guesses with ground-truth calculated values
-        analysis.platforms[p].score  = ex.score;
-        analysis.platforms[p].status = ex.status;
-        analysis.platforms[p]._extracted     = ex.metrics;
-        analysis.platforms[p]._criticalFlags = ex.flags || [];
-        analysis.platforms[p]._dataSource    = 'live';
-      } else if (safeProfiles[p]) {
-        analysis.platforms[p]._dataSource    = 'estimated';
-        analysis.platforms[p]._extracted     = null;
-        analysis.platforms[p]._criticalFlags = [];
-      }
+      if (analysis.platforms[p]) analysis.platforms[p].profileUrl = safeProfiles[p] || null;
     }
   }
 
@@ -500,9 +255,9 @@ export default async function handler(req, res) {
           status: cp.url ? 'Likely Active' : 'Missing', score: cp.url ? 45 : 0,
           gaps: [], quickWin: '', nicheSpecificInsight: '', proposalAngle: ''
         })),
-    overallScore: analysis.overallScore || null,
-    priorityActions: analysis.priorityActions || [],
-    salesAngle: analysis.salesAngle || null,
+    overallScore:            analysis.overallScore            || null,
+    priorityActions:         analysis.priorityActions         || [],
+    salesAngle:              analysis.salesAngle              || null,
     estimatedTotalReachLost: analysis.estimatedTotalReachLost || null
   });
 }
