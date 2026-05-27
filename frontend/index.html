@@ -1319,7 +1319,7 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
           <div class="field-label">ZIP Code <span class="hl-opt-label">(optional)</span> <span id="zip-src-badge"></span></div>
           <div class="hl-select-wrap" id="wrap-zip">
             <select class="hl-select" id="sel-zip" onchange="onZipChange()" disabled>
-              <option value="">Select city first</option>
+              <option value="">Select neighborhood first</option>
             </select>
             <div class="hl-loading-spinner" id="spin-zip"></div>
           </div>
@@ -1336,7 +1336,7 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
           <span class="hl-sum-sep">›</span>
           <span id="sum-city">—</span>
           <span id="sum-nbhd-wrap" style="display:none"><span class="hl-sum-sep">›</span> <span id="sum-nbhd">—</span></span>
-          <span id="sum-zip-wrap" style="display:none"><span class="hl-sum-sep">·</span> <span id="sum-zip">—</span></span>
+          <span id="sum-zip-wrap" style="display:none"><span class="hl-sum-sep">›</span> <span id="sum-zip">—</span></span>
         </div>
         <span class="hl-sum-location" id="sum-location-label"></span>
       </div>
@@ -1865,8 +1865,8 @@ async function onCountyChange() {
   cityEl.innerHTML = '<option value="">Loading cities…</option>';
   cityEl.disabled = true;
   nbhdEl.innerHTML = '<option value="">Select city first</option>';
-  nbhdEl.disabled = true;
-  zipEl.innerHTML  = '<option value="">Select city first</option>';
+  nbhdEl.disabled  = true;
+  zipEl.innerHTML  = '<option value="">Select neighborhood first</option>';
   zipEl.disabled   = true;
   document.getElementById('nbhd-src-badge').innerHTML = '';
   document.getElementById('zip-src-badge').innerHTML  = '';
@@ -1908,52 +1908,54 @@ async function onCityChange() {
   const zipEl  = document.getElementById('sel-zip');
   nbhdEl.innerHTML = '<option value="">Loading neighborhoods…</option>';
   nbhdEl.disabled = true;
-  zipEl.innerHTML  = '<option value="">Loading ZIPs…</option>';
-  zipEl.disabled   = true;
+  // ZIP waits for neighborhood selection — not loaded yet
+  zipEl.innerHTML = '<option value="">Select neighborhood first</option>';
+  zipEl.disabled  = true;
   document.getElementById('nbhd-src-badge').innerHTML = '';
   document.getElementById('zip-src-badge').innerHTML  = '';
 
   if (!cityId) {
     nbhdEl.innerHTML = '<option value="">Select city first</option>';
-    zipEl.innerHTML  = '<option value="">Select city first</option>';
     return;
   }
 
   hlSetLoading('nbhd', true);
-  hlSetLoading('zip', true);
 
-  // Load neighborhoods and ZIPs in parallel
-  const [nbhdResp, zipResp] = await Promise.allSettled([
-    fetch(`${BASE_URL}/api/locations?type=neighborhoods&cityId=${cityId}&cityName=${encodeURIComponent(cityName)}`).then(r=>r.json()),
-    fetch(`${BASE_URL}/api/locations?type=zipcodes&cityId=${cityId}&cityName=${encodeURIComponent(cityName)}`).then(r=>r.json())
-  ]);
-
-  // Neighborhoods
-  if (nbhdResp.status === 'fulfilled') {
-    const data = nbhdResp.value;
+  // Only load neighborhoods at this step — ZIPs come after neighborhood selection
+  try {
+    const resp = await fetch(`${BASE_URL}/api/locations?type=neighborhoods&cityId=${cityId}&cityName=${encodeURIComponent(cityName)}`);
+    const data = await resp.json();
     const nbhds = data.data || [];
     hlState.nbhdSource = data.source || '';
-    const badge = hlSrcBadge(data.source);
-    document.getElementById('nbhd-src-badge').innerHTML = badge;
+    document.getElementById('nbhd-src-badge').innerHTML = hlSrcBadge(data.source);
     if (nbhds.length === 0) {
-      nbhdEl.innerHTML = `<option value="">No neighborhood data — searching city-wide</option>`;
+      nbhdEl.innerHTML = `<option value="">No neighborhood data — select ZIP below</option>`;
+      // No neighborhoods: fall back to loading city ZIPs directly
+      _loadCityZips(cityId, cityName);
     } else {
       nbhdEl.innerHTML = `<option value="">All neighborhoods in ${cityName}</option>` +
-        nbhds.map(n => `<option value="${n.name}">${n.name}</option>`).join('');
+        nbhds.map(n => `<option value="${n.id}" data-name="${n.name}">${n.name}</option>`).join('');
       nbhdEl.disabled = false;
     }
-  } else {
+  } catch (e) {
     nbhdEl.innerHTML = '<option value="">Neighborhood data unavailable</option>';
+    console.error('Neighborhood load error:', e);
+  } finally {
+    hlSetLoading('nbhd', false);
   }
-  hlSetLoading('nbhd', false);
+}
 
-  // ZIP codes
-  if (zipResp.status === 'fulfilled') {
-    const data = zipResp.value;
+// Internal helper: load city-level ZIPs directly (used when no neighborhoods exist)
+async function _loadCityZips(cityId, cityName) {
+  const zipEl = document.getElementById('sel-zip');
+  zipEl.innerHTML = '<option value="">Loading ZIPs…</option>';
+  hlSetLoading('zip', true);
+  try {
+    const resp = await fetch(`${BASE_URL}/api/locations?type=zipcodes&cityId=${cityId}&cityName=${encodeURIComponent(cityName)}`);
+    const data = await resp.json();
     const zips = data.data || [];
     hlState.zipSource = data.source || '';
-    const badge = hlSrcBadge(data.source);
-    document.getElementById('zip-src-badge').innerHTML = badge;
+    document.getElementById('zip-src-badge').innerHTML = hlSrcBadge(data.source);
     if (zips.length === 0) {
       zipEl.innerHTML = `<option value="">No ZIP data for ${cityName}</option>`;
     } else {
@@ -1961,15 +1963,58 @@ async function onCityChange() {
         zips.map(z => `<option value="${z.zip}">${z.zip}</option>`).join('');
       zipEl.disabled = false;
     }
-  } else {
+  } catch (e) {
     zipEl.innerHTML = '<option value="">ZIP data unavailable</option>';
+  } finally {
+    hlSetLoading('zip', false);
   }
-  hlSetLoading('zip', false);
 }
 
-function onNbhdChange() {
-  hlState.nbhd = document.getElementById('sel-nbhd').value;
+async function onNbhdChange() {
+  const nbhdOpt  = document.getElementById('sel-nbhd').selectedOptions[0];
+  const nbhdName = nbhdOpt?.dataset?.name || nbhdOpt?.text || '';
+  const nbhdId   = document.getElementById('sel-nbhd').value; // this is the neighborhood id
+  hlState.nbhd = nbhdName || nbhdId; // store display name; fall back to id
+  hlState.zip  = '';
   hlUpdateSummary();
+
+  const zipEl = document.getElementById('sel-zip');
+  document.getElementById('zip-src-badge').innerHTML = '';
+
+  if (!nbhdId) {
+    // User chose "All neighborhoods" — reset ZIP to city-level
+    zipEl.innerHTML = '<option value="">Select neighborhood first</option>';
+    zipEl.disabled  = true;
+    return;
+  }
+
+  // Load ZIP codes for this neighborhood (falls back to city ZIPs if none specific)
+  const cityId   = hlState.city;
+  const cityName = hlState.cityName;
+  zipEl.innerHTML = '<option value="">Loading ZIP codes…</option>';
+  zipEl.disabled  = true;
+  hlSetLoading('zip', true);
+
+  try {
+    const url = `${BASE_URL}/api/locations?type=zipcodes&cityId=${cityId}&cityName=${encodeURIComponent(cityName)}&neighborhoodId=${encodeURIComponent(nbhdId)}`;
+    const resp = await fetch(url);
+    const data = await resp.json();
+    const zips = data.data || [];
+    hlState.zipSource = data.source || '';
+    document.getElementById('zip-src-badge').innerHTML = hlSrcBadge(data.source);
+    if (zips.length === 0) {
+      zipEl.innerHTML = `<option value="">No ZIP data for this area</option>`;
+    } else {
+      zipEl.innerHTML = `<option value="">All ZIPs in ${hlState.nbhd}</option>` +
+        zips.map(z => `<option value="${z.zip}">${z.zip}</option>`).join('');
+      zipEl.disabled = false;
+    }
+  } catch (e) {
+    zipEl.innerHTML = '<option value="">ZIP data unavailable</option>';
+    console.error('ZIP load error:', e);
+  } finally {
+    hlSetLoading('zip', false);
+  }
 }
 
 function onZipChange() {
@@ -1985,9 +2030,8 @@ function onNicheChange() {
 function onStateChange() {}
 
 function hlBuildSearchLocation() {
-  if (hlState.nbhd) return `${hlState.nbhd}, ${hlState.cityName}`;
-  if (hlState.cityName) return hlState.cityName;
-  return '';
+  // Always return just the city name — neighborhood & zip are sent as separate fields
+  return hlState.cityName || hlState.city || '';
 }
 
 function hlBuildLocationLabel() {

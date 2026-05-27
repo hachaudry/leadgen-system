@@ -449,6 +449,280 @@ const ZIPCODES_BY_CITY = {
   'san-juan-bautista':['95045']
 };
 
+// ── Neighborhood-level ZIP codes ──────────────────────────────────────────
+// Maps neighborhood id → primary ZIP codes for that neighborhood
+
+const ZIPCODES_BY_NEIGHBORHOOD = {
+  // Los Angeles neighborhoods
+  'hollywood':            ['90028','90038','90046','90068'],
+  'west-hollywood':       ['90046','90048','90069'],
+  'silver-lake':          ['90026','90039'],
+  'echo-park':            ['90026'],
+  'los-feliz':            ['90027','90039'],
+  'koreatown':            ['90005','90006','90010','90020'],
+  'downtown-la':          ['90012','90013','90014','90015','90017','90021','90071'],
+  'arts-district':        ['90013','90021'],
+  'little-tokyo':         ['90012'],
+  'chinatown':            ['90012'],
+  'boyle-heights':        ['90023','90033','90063'],
+  'east-la':              ['90022','90023','90032','90063'],
+  'venice':               ['90291'],
+  'brentwood':            ['90049'],
+  'westwood':             ['90024'],
+  'century-city':         ['90067'],
+  'beverly-hills':        ['90210','90211','90212'],
+  'bel-air':              ['90077'],
+  'hancock-park':         ['90004','90020'],
+  'mid-wilshire':         ['90004','90010','90019'],
+  'fairfax':              ['90036','90046','90048'],
+  'west-adams':           ['90016','90018'],
+  'leimert-park':         ['90008','90043'],
+  'culver-city':          ['90230','90232'],
+  'mar-vista':            ['90066'],
+  'marina-del-rey':       ['90292'],
+  'playa-del-rey':        ['90293'],
+  'van-nuys':             ['91401','91402','91405','91406','91411'],
+  'sherman-oaks':         ['91401','91403','91423'],
+  'studio-city':          ['91604'],
+  'encino':               ['91316','91436'],
+  'woodland-hills':       ['91364','91367'],
+  'canoga-park':          ['91303','91304','91306'],
+  'chatsworth':           ['91311'],
+  'granada-hills':        ['91344'],
+  'northridge':           ['91324','91325','91326','91343'],
+  'reseda':               ['91335'],
+  'tarzana':              ['91356'],
+  'sylmar':               ['91342'],
+  'pacoima':              ['91331'],
+  'panorama-city':        ['91402'],
+  'north-hollywood':      ['91601','91602','91605','91606'],
+  // San Francisco neighborhoods
+  'financial-district':   ['94104','94105','94111'],
+  'soma':                 ['94103','94107','94158'],
+  'mission-district':     ['94110','94112'],
+  'castro':               ['94114'],
+  'noe-valley':           ['94114','94131'],
+  'bernal-heights':       ['94110'],
+  'potrero-hill':         ['94107'],
+  'dogpatch':             ['94107'],
+  'bayview':              ['94124'],
+  'excelsior':            ['94112'],
+  'outer-mission':        ['94112'],
+  'glen-park':            ['94131'],
+  'twin-peaks':           ['94114','94131'],
+  'inner-sunset':         ['94122'],
+  'outer-sunset':         ['94116','94122'],
+  'inner-richmond':       ['94118'],
+  'outer-richmond':       ['94121'],
+  'pacific-heights':      ['94115'],
+  'cow-hollow':           ['94123'],
+  'marina':               ['94123'],
+  'north-beach':          ['94133'],
+  'tenderloin':           ['94102'],
+  'civic-center':         ['94102','94103'],
+  'hayes-valley':         ['94102','94103'],
+  'haight-ashbury':       ['94117'],
+  'russian-hill':         ['94109'],
+  'nob-hill':             ['94108','94109'],
+  'union-square':         ['94102','94108'],
+  // San Diego neighborhoods
+  'gaslamp-quarter':      ['92101'],
+  'downtown-san-diego':   ['92101'],
+  'little-italy':         ['92101'],
+  'east-village':         ['92101'],
+  'hillcrest':            ['92103'],
+  'north-park':           ['92104'],
+  'south-park':           ['92102'],
+  'golden-hill':          ['92102'],
+  'normal-heights':       ['92116'],
+  'university-heights':   ['92103'],
+  'mission-hills':        ['92103'],
+  'old-town':             ['92110'],
+  'mission-valley':       ['92108'],
+  'pacific-beach':        ['92109'],
+  'mission-beach':        ['92109'],
+  'ocean-beach':          ['92107'],
+  'point-loma':           ['92106'],
+  'la-jolla':             ['92037'],
+  'mira-mesa':            ['92126'],
+  'rancho-bernardo':      ['92127','92128'],
+  'carmel-valley':        ['92130'],
+  // San Jose neighborhoods
+  'downtown-san-jose':    ['95101','95110','95112','95113'],
+  'willow-glen':          ['95124','95125'],
+  'rose-garden':          ['95126','95128'],
+  'naglee-park':          ['95112'],
+  'alum-rock':            ['95116'],
+  'east-san-jose':        ['95116','95122','95127'],
+  'evergreen':            ['95121','95135'],
+  'blossom-valley':       ['95118','95123','95124'],
+  'almaden-valley':       ['95120'],
+  'santa-teresa':         ['95119','95123'],
+  // Oakland neighborhoods
+  'downtown-oakland':     ['94607','94612'],
+  'uptown':               ['94609','94612'],
+  'lake-merritt':         ['94610'],
+  'grand-lake':           ['94610'],
+  'temescal':             ['94608','94609'],
+  'rockridge':            ['94618'],
+  'piedmont-avenue':      ['94611'],
+  'montclair':            ['94611'],
+  'fruitvale':            ['94601'],
+  'san-antonio':          ['94601','94606'],
+  // Irvine neighborhoods
+  'university-park':      ['92602','92606'],
+  'woodbridge':           ['92604'],
+  'northwood':            ['92604'],
+  'turtle-rock':          ['92603'],
+  'portola-springs':      ['92618'],
+  'great-park-neighborhoods':['92618'],
+  // Fresno
+  'downtown-fresno':      ['93701','93721'],
+  'tower-district':       ['93728'],
+  'fig-garden':           ['93704'],
+  'woodward-park':        ['93710','93720'],
+  'northwest-fresno':     ['93722'],
+  // Sacramento
+  'midtown':              ['95811','95816'],
+  'land-park':            ['95818'],
+  'curtis-park':          ['95818'],
+  'oak-park':             ['95817'],
+  'natomas':              ['95833','95834','95835'],
+  'south-sacramento':     ['95823','95828'],
+  'north-sacramento':     ['95838'],
+  'pocket-greenhaven':    ['95831'],
+  // Sonoma County
+  'southeast-rohnert-park':  ['94928'],
+  'northeast-rohnert-park':  ['94928'],
+  'northwest-rohnert-park':  ['94928'],
+  'southwest-rohnert-park':  ['94928'],
+  'sonoma-state-area':       ['94928'],
+  'downtown-petaluma':       ['94952','94953'],
+  'east-petaluma':           ['94954'],
+  'west-petaluma':           ['94952'],
+  'railroad-square':         ['95401'],
+  'fountaingrove':           ['95403'],
+  'rincon-valley':           ['95409'],
+  'coffey-park':             ['95403'],
+  'roseland':                ['95407'],
+  // Napa
+  'downtown-napa':        ['94559'],
+  'browns-valley':        ['94558'],
+  'alta-heights':         ['94559'],
+  // Pasadena
+  'old-pasadena':         ['91103','91105'],
+  'south-lake':           ['91101'],
+  'bungalow-heaven':      ['91103'],
+  // Burbank
+  'downtown-burbank':     ['91502','91505'],
+  'magnolia-park':        ['91505'],
+  'media-district':       ['91504','91505'],
+  // Glendale
+  'downtown-glendale':    ['91203','91204','91205'],
+  // Newport Beach
+  'balboa-island':        ['92662'],
+  'balboa-peninsula':     ['92663'],
+  'corona-del-mar':       ['92625'],
+  'newport-heights':      ['92663'],
+  'fashion-island':       ['92660'],
+  // Anaheim
+  'downtown-anaheim':     ['92805'],
+  'anaheim-hills':        ['92807','92808'],
+  // Fullerton
+  'downtown-fullerton':   ['92832','92833'],
+  // Orange
+  'downtown-orange':      ['92866','92868'],
+  'old-towne-orange':     ['92866'],
+  // Temecula/Murrieta
+  'old-town-temecula':    ['92590'],
+  'wine-country':         ['92591'],
+  'redhawk':              ['92592'],
+  'vail-ranch':           ['92592'],
+  'downtown-murrieta':    ['92562'],
+  'french-valley':        ['92563'],
+  // Bakersfield
+  'downtown-bakersfield': ['93301','93305'],
+  'oleander-sunset':      ['93305'],
+  'stockdale':            ['93309'],
+  // Riverside
+  'downtown-riverside':   ['92501','92507'],
+  'wood-streets':         ['92501'],
+  'canyon-crest':         ['92507'],
+  // Stockton/Modesto
+  'downtown-stockton':    ['95202'],
+  'victory-park':         ['95204'],
+  'downtown-modesto':     ['95354'],
+  // Ventura/Oxnard/Santa Barbara
+  'downtown-oxnard':      ['93030'],
+  'colonia':              ['93030'],
+  'riverpark':            ['93036'],
+  'silver-strand':        ['93035'],
+  'downtown-ventura':     ['93001','93003'],
+  'funk-zone':            ['93101'],
+  'downtown-santa-barbara':['93101'],
+  'eastside-sb':          ['93103'],
+  'mesa-sb':              ['93109'],
+  'montecito':            ['93108'],
+  // Thousand Oaks / Simi Valley
+  'newbury-park':         ['91320'],
+  'lang-ranch':           ['91362'],
+  'downtown-thousand-oaks':['91360','91361'],
+  'downtown-simi-valley': ['93063','93065'],
+  'wood-ranch':           ['93065'],
+  // Chico/Redding/Vallejo/Concord
+  'downtown-chico':       ['95928'],
+  'downtown-redding':     ['96001','96002'],
+  'downtown-vallejo':     ['94590'],
+  'glen-cove':            ['94592'],
+  'hiddenbrooke':         ['94591'],
+  'downtown-concord':     ['94520'],
+  'monument-corridor':    ['94520'],
+  // Richmond/Antioch/East Bay
+  'downtown-richmond':    ['94801','94804'],
+  'point-richmond':       ['94801'],
+  'iron-triangle':        ['94804'],
+  'marina-bay':           ['94804'],
+  'downtown-antioch':     ['94509'],
+  'prewett':              ['94531'],
+  // Carlsbad/Encinitas/Oceanside
+  'downtown-carlsbad':    ['92008'],
+  'la-costa':             ['92009'],
+  'aviara':               ['92011'],
+  'bressi-ranch':         ['92010'],
+  'downtown-oceanside':   ['92054'],
+  'south-oceanside':      ['92056'],
+  // Chula Vista
+  'downtown-chula-vista': ['91910','91911'],
+  'eastlake':             ['91914','91915'],
+  'otay-ranch':           ['91913'],
+  // Berkeley neighborhoods
+  'elmwood':              ['94705'],
+  'north-berkeley':       ['94707','94708'],
+  'west-berkeley':        ['94702','94710'],
+  'telegraph-avenue':     ['94704'],
+  // San Mateo Peninsula
+  'downtown-palo-alto':   ['94301','94306'],
+  'downtown-mountain-view':['94041'],
+  'downtown-sunnyvale':   ['94086','94087'],
+  'downtown-santa-clara': ['95050','95051'],
+  'downtown-san-jose-area':['95110','95113'],
+  // Misc South Bay / Inland Empire
+  'downtown-ontario':     ['91761','91762','91764'],
+  'downtown-fontana':     ['92335','92336'],
+  'sierra-lakes':         ['92336'],
+  'downtown-hesperia':    ['92345'],
+  'spring-valley-lake':   ['92395'],
+  'downtown-victorville': ['92392','92395'],
+  'downtown-palm-springs':['92262','92264'],
+  'downtown-palm-desert': ['92260'],
+  'downtown-indio':       ['92201','92203'],
+  'downtown-hemet':       ['92543','92544','92545'],
+  'downtown-perris':      ['92570'],
+  'downtown-lake-elsinore':['92530'],
+  'downtown-corona':      ['92879','92882'],
+  'eastlake-chula-vista': ['91914','91915']
+};
+
 // ── Helper functions ───────────────────────────────────────────────────────
 
 function getCounties() {
@@ -486,6 +760,15 @@ function getZipcodes(cityId) {
   }));
 }
 
+function getZipcodesByNeighborhood(neighborhoodId, cityId) {
+  const nbhdZips = ZIPCODES_BY_NEIGHBORHOOD[neighborhoodId] || [];
+  if (nbhdZips.length > 0) {
+    return nbhdZips.map(zip => ({ zip, neighborhoodId, cityId, state: 'CA', source: 'local' }));
+  }
+  // Fall back to city-level ZIPs
+  return getZipcodes(cityId);
+}
+
 // ── Handler ────────────────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
@@ -497,7 +780,7 @@ export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { type, countyId, cityId, cityName } = req.query;
+    const { type, countyId, cityId, cityName, neighborhoodId } = req.query;
 
     // ── COUNTIES ─────────────────────────────────────────────────────────
     if (type === 'counties') {
@@ -550,12 +833,20 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, data: [], source: 'none', count: 0 });
     }
 
-    // ── ZIP CODES BY CITY ─────────────────────────────────────────────────
+    // ── ZIP CODES (neighborhood-first, city fallback) ─────────────────────
     if (type === 'zipcodes') {
       if (!cityId && !cityName) return res.status(400).json({ success: false, error: 'cityId or cityName is required', data: [] });
       const key = cityId || toKey(cityName);
-      const local = getZipcodes(key);
 
+      // Try neighborhood-specific ZIPs first; falls back to city ZIPs automatically
+      if (neighborhoodId) {
+        const nbhdLocal = getZipcodesByNeighborhood(neighborhoodId, key);
+        if (nbhdLocal.length > 0) {
+          return res.status(200).json({ success: true, data: nbhdLocal, source: 'local', count: nbhdLocal.length });
+        }
+      }
+
+      const local = getZipcodes(key);
       if (local.length > 0) {
         return res.status(200).json({ success: true, data: local, source: 'local', count: local.length });
       }
