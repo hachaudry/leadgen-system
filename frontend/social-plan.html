@@ -339,6 +339,18 @@ const PLATFORMS = [
 ];
 
 // ═══════════════════════════════════════════════
+//  PLATFORM COLOR LOOKUP (new schema omits color fields)
+// ═══════════════════════════════════════════════
+function platColor(name) {
+  const map = {
+    'instagram':'#E1306C','facebook':'#1877F2','linkedin':'#0A66C2','tiktok':'#010101',
+    'youtube':'#FF0000','twitter':'#000000','x/twitter':'#000000','x':'#000000',
+    'pinterest':'#E60023','yelp':'#D32323','google business':'#4285F4','threads':'#1c1c1c'
+  };
+  return map[(name||'').toLowerCase()] || '#4A0080';
+}
+
+// ═══════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
@@ -346,18 +358,15 @@ document.addEventListener('DOMContentLoaded', () => {
     [BIZ_NAME, NICHE, CITY, STATE].filter(Boolean).join(' · ');
   document.title = `Social Media Plan — ${BIZ_NAME || 'Business'}`;
 
-  // Pre-fill niche field from URL param
   const nicheInput = document.getElementById('inp-niche');
   if (NICHE) {
     nicheInput.value = NICHE;
   } else {
-    // Niche missing — highlight the field
     document.getElementById('niche-required-badge').style.display = 'inline';
     nicheInput.style.borderColor = '#E65100';
     nicheInput.focus();
   }
 
-  // Check API key
   const key = localStorage.getItem('lg_anthropic') || '';
   if (!key) document.getElementById('key-warning').style.display = 'block';
 
@@ -414,7 +423,6 @@ function loadSaved() {
   if (saved.budget)    document.getElementById('sel-budget').value = saved.budget;
   if (saved.goal)      document.getElementById('sel-goal').value   = saved.goal;
   if (saved.painPoint) document.getElementById('sel-pain').value   = saved.painPoint;
-  // Restore niche from saved if URL param was empty
   if (!NICHE && saved.niche) {
     document.getElementById('inp-niche').value = saved.niche;
     document.getElementById('niche-required-badge').style.display = 'none';
@@ -433,9 +441,7 @@ function saveInputs() {
   };
   localStorage.setItem(LS_INPUTS, JSON.stringify(data));
 
-  // Also persist profiles + observations in shared keys
-  const profiles = {};
-  const obs      = {};
+  const profiles = {}, obs = {};
   PLATFORMS.forEach(p => {
     profiles[p.key] = document.getElementById(`url-${p.key}`)?.value || '';
     obs[p.key]      = document.getElementById(`obs-${p.key}`)?.value || '';
@@ -445,7 +451,99 @@ function saveInputs() {
 }
 
 // ═══════════════════════════════════════════════
-//  GENERATE PLAN — 5 fast section calls
+//  BUILD PROMPT — assembles the Claude prompt
+// ═══════════════════════════════════════════════
+function buildPrompt(planData) {
+  const presentChannels = [];
+  const missingChannels = [];
+  const platforms = ['facebook','instagram','linkedin','tiktok','youtube','twitter','pinterest','yelp','googleBusiness','threads'];
+  platforms.forEach(p => {
+    const url = planData.profiles?.[p] || '';
+    const obs = planData.observations?.[p] || '';
+    if (url) {
+      presentChannels.push(p + ': PRESENT — ' + (obs || 'no observation'));
+    } else {
+      missingChannels.push(p + ': MISSING — ' + (obs || 'not found'));
+    }
+  });
+
+  const biz    = planData.businessName || 'this business';
+  const niche  = planData.niche  || 'local';
+  const city   = planData.city   || 'California';
+  const goal   = planData.goal   || 'more bookings';
+  const budget = planData.budget || '$800-1500/mo';
+
+  return `You are a social media content strategist for ${niche} businesses in California.
+Create a social media posting plan for ${biz} in ${city}. Goal: ${goal}. Budget: ${budget}.
+
+Channels present: ${presentChannels.join(', ') || 'none provided'}
+Channels missing: ${missingChannels.join(', ')}
+
+RULES: Only social media content — no SEO — no website — no packages. AI video content must be featured prominently. Never promise specific % increases. Keep ALL string values under 25 words.
+
+Return ONLY valid JSON starting with { ending with }:
+{
+  "planTitle": "Social Media Plan for ${biz}",
+  "tagline": "short punchy tagline",
+  "openingStatement": "2 sentences about social media opportunity for ${niche} in ${city}",
+  "whyNow": "1 sentence urgency",
+  "channelAssessment": [
+    { "platform": "", "status": "Present or Missing", "priority": "Must Have or High Priority or Recommended", "opportunity": "one sentence" }
+  ],
+  "posting": {
+    "totalMonthlyPieces": 48,
+    "weeklyAverage": 12,
+    "instagram": { "feedPosts": 8, "reels": 12, "stories": 0, "total": 20, "focus": "one line" },
+    "facebook": { "posts": 8, "videos": 2, "total": 10, "focus": "one line" },
+    "tiktok": { "videos": 12, "total": 12, "focus": "one line" },
+    "youtube": { "videos": 2, "shorts": 4, "total": 6, "focus": "one line" },
+    "googleBusiness": { "posts": 4, "photos": 4, "total": 8 }
+  },
+  "aiVideo": {
+    "monthlyVideos": 8,
+    "whyEssential": "2 sentences why AI video is essential for ${niche} in 2026",
+    "types": [
+      { "name": "video type", "count": 3, "description": "what we create", "example": "specific example for ${biz}" },
+      { "name": "video type", "count": 3, "description": "what we create", "example": "specific example" },
+      { "name": "video type", "count": 2, "description": "what we create", "example": "specific example" }
+    ],
+    "tools": ["Google Veo 3", "CapCut"],
+    "advantage": "one sentence competitive advantage"
+  },
+  "contentPillars": [
+    { "name": "pillar name", "description": "one sentence", "monthlyCount": 16, "ideas": ["idea1", "idea2"] },
+    { "name": "pillar name", "description": "one sentence", "monthlyCount": 12, "ideas": ["idea1", "idea2"] },
+    { "name": "pillar name", "description": "one sentence", "monthlyCount": 10, "ideas": ["idea1", "idea2"] }
+  ],
+  "contentIdeas": [
+    { "platform": "Instagram", "type": "Reel", "idea": "specific idea for ${niche}", "caption": "opening line with hashtags" },
+    { "platform": "TikTok", "type": "Video", "idea": "specific idea", "caption": "opening line" },
+    { "platform": "Facebook", "type": "Post", "idea": "specific idea", "caption": "opening line" },
+    { "platform": "Instagram", "type": "Carousel", "idea": "specific idea", "caption": "opening line" },
+    { "platform": "Google Business", "type": "Update", "idea": "specific idea", "caption": "opening line" }
+  ],
+  "weekCalendar": [
+    { "day": "Monday",    "platform": "Instagram",       "type": "Reel",      "idea": "specific idea" },
+    { "day": "Tuesday",   "platform": "TikTok",          "type": "Video",     "idea": "specific idea" },
+    { "day": "Wednesday", "platform": "Facebook",        "type": "Post",      "idea": "specific idea" },
+    { "day": "Thursday",  "platform": "Instagram",       "type": "Story",     "idea": "specific idea" },
+    { "day": "Friday",    "platform": "TikTok",          "type": "Video",     "idea": "specific idea" },
+    { "day": "Saturday",  "platform": "Instagram",       "type": "Feed Post", "idea": "specific idea" },
+    { "day": "Sunday",    "platform": "Google Business", "type": "Post",      "idea": "specific idea" }
+  ],
+  "missingOpportunities": [
+    { "platform": "missing platform name", "audience": "who they miss", "value": "what activating adds" },
+    { "platform": "missing platform name", "audience": "who they miss", "value": "what activating adds" }
+  ],
+  "month1Goals": ["goal1 for ${biz}", "goal2", "goal3"],
+  "month3Goals": ["result1", "result2", "result3"],
+  "nextStep": "single specific action for ${biz}"
+}`;
+}
+
+// ═══════════════════════════════════════════════
+//  GENERATE — direct browser call to Anthropic API
+//  No Vercel serverless function — no 10s timeout
 // ═══════════════════════════════════════════════
 let _lastPlanData = null;
 
@@ -482,28 +580,25 @@ async function retryGenerate() {
   await runGenerate(_lastPlanData, apiKey);
 }
 
-// ─── runGenerate — single fast call to /api/social-audit ──────────────────
+// ─── runGenerate — calls Anthropic directly from the browser ──────────────
+// Anthropic supports CORS from any origin, so no proxy needed.
+// This is the same pattern used by index.html for emails and proposals.
 async function runGenerate(planData, apiKey) {
   document.getElementById('input-panel').style.display = 'none';
   document.getElementById('btn-generate').disabled = true;
 
-  // Show plan display with loading overlay immediately
   const display = document.getElementById('plan-display');
   display.style.display = 'block';
   display.innerHTML = buildLoadingShell(planData);
   document.getElementById('action-bar').classList.add('visible');
   window.scrollTo(0, 0);
 
-  // Cycle progress messages while waiting
+  // Rotating messages — Haiku completes in 3-5 seconds
   const msgs = [
-    'Analysing your 10 social media channels…',
-    'Building channel assessment…',
-    'Calculating posting schedule…',
+    'Analysing your social media channels…',
+    `Building posting schedule for ${planData.businessName || 'your business'}…`,
     'Creating AI video strategy…',
-    `Generating content ideas for ${planData.businessName || 'your business'}…`,
-    'Writing captions and calendar…',
-    'Mapping your 90-day growth journey…',
-    'Almost ready — compiling your plan…'
+    'Almost ready…'
   ];
   let mi = 0;
   const progressEl = document.getElementById('shell-progress-txt');
@@ -511,44 +606,53 @@ async function runGenerate(planData, apiKey) {
   const msgTimer   = setInterval(() => {
     mi++;
     if (progressEl) progressEl.textContent = msgs[mi % msgs.length];
-    if (barEl) barEl.style.width = Math.min(10 + mi * 12, 88) + '%';
-  }, 2500);
+    if (barEl) barEl.style.width = Math.min(10 + mi * 22, 88) + '%';
+  }, 1500);
 
   try {
-    const controller = new AbortController();
-    const to = setTimeout(() => controller.abort(), 25000);
+    const prompt = buildPrompt(planData);
 
-    const r = await fetch('/api/social-audit', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'x-anthropic-key': apiKey },
-      body:    JSON.stringify(planData),
-      signal:  controller.signal
+    // Direct browser call — bypasses Vercel's 10-second serverless limit entirely
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type':      'application/json',
+        'x-api-key':         apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model:      'claude-haiku-4-5',
+        max_tokens: 2000,
+        messages:   [{ role: 'user', content: prompt }]
+      })
     });
-    clearTimeout(to);
+
     clearInterval(msgTimer);
 
-    const text = await r.text();
-    let result;
-    try { result = JSON.parse(text); } catch { throw new Error('Server returned invalid JSON'); }
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message || 'Anthropic API error');
 
-    if (result.success && result.plan) {
-      if (barEl) barEl.style.width = '100%';
-      if (progressEl) progressEl.textContent = 'Done! Loading your plan…';
-      await new Promise(resolve => setTimeout(resolve, 400)); // brief flash of 100%
-      renderPlanIntoDisplay(result.plan, planData);
-    } else {
-      throw new Error(result.error || 'Plan generation failed');
-    }
+    const rawText = (data.content || []).map(b => b.text || '').join('');
+    const clean   = rawText.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+    const start   = clean.indexOf('{');
+    const end     = clean.lastIndexOf('}');
+    if (start === -1 || end === -1) throw new Error('No JSON in response');
+    const plan = JSON.parse(clean.slice(start, end + 1));
+    if (!plan.planTitle && !plan.openingStatement) throw new Error('Response missing required fields');
+
+    if (barEl) barEl.style.width = '100%';
+    if (progressEl) progressEl.textContent = 'Done! Loading your plan…';
+    await new Promise(r => setTimeout(r, 300));
+    renderPlanIntoDisplay(plan, planData);
+
   } catch (err) {
     clearInterval(msgTimer);
-    const isAbort = err.name === 'AbortError';
     display.innerHTML = `
       <div style="padding:3rem 1rem;">
         <div class="error-box">
-          <h3>⚠️ ${isAbort ? 'Taking longer than expected' : 'Generation failed'}</h3>
-          <p style="line-height:1.7;">${isAbort
-            ? `Your plan for <strong>${esc(planData.businessName)}</strong> is being generated. This can take a moment. Click <strong>↺ Retry</strong> — it almost always works on the second attempt.`
-            : esc(err.message)}</p>
+          <h3>⚠️ Generation failed</h3>
+          <p style="line-height:1.7;">${esc(err.message)}</p>
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:1.2rem;">
             <button onclick="retryGenerate()" style="padding:10px 24px;background:#4A0080;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;">↺ Retry</button>
             <button onclick="backToEdit()" style="padding:10px 24px;background:white;color:#4A0080;border:2px solid #4A0080;border-radius:8px;cursor:pointer;font-size:14px;">← Edit &amp; Try Again</button>
@@ -562,9 +666,9 @@ async function runGenerate(planData, apiKey) {
 
 function renderPlanIntoDisplay(plan, planData) {
   const display = document.getElementById('plan-display');
-  const biz   = esc(plan.planTitle || ('Social Media Plan for ' + (planData.businessName || 'Your Business')));
-  const tag   = plan.tagline ? `<p style="font-size:1.1rem;opacity:.8;margin-top:.5rem;">${esc(plan.tagline)}</p>` : '';
-  const meta  = [planData.businessName, planData.niche, [planData.city, planData.state].filter(Boolean).join(', ')].filter(Boolean);
+  const biz  = esc(plan.planTitle || ('Social Media Plan for ' + (planData.businessName || 'Your Business')));
+  const tag  = plan.tagline ? `<p style="font-size:1.1rem;opacity:.8;margin-top:.5rem;">${esc(plan.tagline)}</p>` : '';
+  const meta = [planData.businessName, planData.niche, [planData.city, planData.state].filter(Boolean).join(', ')].filter(Boolean);
 
   const header = `
     <div style="background:linear-gradient(135deg,#4A0080,#1a0030);padding:3rem 2rem;color:white;text-align:center;">
@@ -585,7 +689,7 @@ function renderPlanIntoDisplay(plan, planData) {
     buildS5HTML(plan, planData);
 }
 
-// ─── Loading shell (shown while single API call is in flight) ─────────────
+// ─── Loading shell ─────────────────────────────────────────────────────────
 function buildLoadingShell(planData) {
   const biz   = esc(planData.businessName || 'Your Business');
   const niche = esc(planData.niche || '');
@@ -594,7 +698,7 @@ function buildLoadingShell(planData) {
     <div style="position:sticky;top:0;z-index:200;background:white;padding:10px 1.5rem;border-bottom:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,.06);">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
         <span id="shell-progress-txt" style="font-size:12px;color:#4A0080;font-weight:600;">Analysing your social media channels…</span>
-        <span style="font-size:11px;color:#999;">Usually takes 5–8 seconds</span>
+        <span style="font-size:11px;color:#999;">Usually takes 3–5 seconds</span>
       </div>
       <div style="background:#f0e6ff;border-radius:20px;height:6px;overflow:hidden;">
         <div id="shell-progress-bar" style="height:100%;background:linear-gradient(90deg,#4A0080,#c084fc);border-radius:20px;width:5%;transition:width .8s ease;"></div>
@@ -604,14 +708,14 @@ function buildLoadingShell(planData) {
       <div style="font-size:11px;letter-spacing:2px;opacity:.5;margin-bottom:.5rem;">SOCIAL MEDIA GROWTH PLAN</div>
       <h1 style="font-size:2.2rem;font-weight:800;margin:.5rem 0;">Social Media Plan for ${biz}</h1>
       <div style="margin-top:1rem;display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;font-size:13px;opacity:.75;">
-        ${biz   ? `<span>🏢 ${biz}</span>` : ''}
+        ${biz   ? `<span>🏢 ${biz}</span>`   : ''}
         ${niche ? `<span>🎯 ${niche}</span>` : ''}
-        ${loc   ? `<span>📍 ${loc}</span>` : ''}
+        ${loc   ? `<span>📍 ${loc}</span>`   : ''}
       </div>
     </div>
     <div style="padding:3rem 2rem;display:flex;flex-direction:column;align-items:center;gap:1rem;background:white;">
       <div style="width:56px;height:56px;border:5px solid #f0e6ff;border-top-color:#4A0080;border-radius:50%;animation:spin .9s linear infinite;"></div>
-      <p style="color:#555;font-size:14px;text-align:center;max-width:400px;">Claude AI is analysing every platform and crafting your custom social media strategy.<br>This usually takes 5–8 seconds.</p>
+      <p style="color:#555;font-size:14px;text-align:center;max-width:400px;">Claude AI is crafting your custom social media strategy.<br>This usually takes 3–5 seconds.</p>
       ${[90,65,78,55,82].map(w=>`<div style="height:12px;background:#f0e6ff;border-radius:6px;width:${w}%;max-width:600px;animation:pulse 1.5s ease-in-out infinite;"></div>`).join('')}
     </div>`;
 }
@@ -627,16 +731,20 @@ function backToEdit() {
 }
 
 // ═══════════════════════════════════════════════
-//  SECTION HTML BUILDERS
+//  SECTION BUILDERS
 // ═══════════════════════════════════════════════
+
 // Section 1 — opening statement + channel assessment
 function buildS1HTML(d, planData) {
-  const os = d.openingStatement || {};
-  const niche = esc(planData.niche || '');
+  const os       = d.openingStatement || {};
+  const isStr    = typeof os === 'string';
   const channels = d.channelAssessment || [];
-  const priorityColors = { High:'#dc3545', Medium:'#fd7e14', Low:'#0d6efd', 'Must Have':'#dc3545', 'High Priority':'#fd7e14', Recommended:'#0d6efd', Optional:'#6c757d' };
+  const pColors  = {
+    High:'#dc3545', Medium:'#fd7e14', Low:'#0d6efd',
+    'Must Have':'#dc3545', 'High Priority':'#fd7e14',
+    Recommended:'#0d6efd', Optional:'#6c757d'
+  };
 
-  // Update the header title if planTitle available
   if (d.planTitle) {
     const h1 = document.querySelector('#plan-display h1');
     if (h1) h1.textContent = d.planTitle;
@@ -645,11 +753,13 @@ function buildS1HTML(d, planData) {
   return `
     <div class="plan-section" style="background:white;">
       ${d.tagline ? `<p style="font-size:13px;color:#4A0080;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:.75rem;">${esc(d.tagline)}</p>` : ''}
-      ${os.headline ? `<h2 style="font-size:1.5rem;font-weight:700;color:#1a1a2e;margin-bottom:1rem;">${esc(os.headline)}</h2>` : ''}
-      ${os.body ? `<p style="font-size:1rem;line-height:1.8;color:#333;max-width:800px;margin-bottom:1rem;">${esc(os.body)}</p>` : ''}
-      ${os.agentObservations ? `<div style="background:#f0e6ff;border-left:4px solid #4A0080;padding:.9rem 1.2rem;border-radius:0 8px 8px 0;margin-bottom:1rem;">
-        <strong style="color:#4A0080;font-size:11px;letter-spacing:1px;">AGENT OBSERVATIONS</strong>
-        <p style="font-size:13px;color:#333;margin-top:4px;">${esc(os.agentObservations)}</p></div>` : ''}
+      ${isStr
+        ? `<p style="font-size:1rem;line-height:1.8;color:#333;max-width:800px;margin-bottom:1rem;">${esc(os)}</p>`
+        : `${os.headline ? `<h2 style="font-size:1.5rem;font-weight:700;color:#1a1a2e;margin-bottom:1rem;">${esc(os.headline)}</h2>` : ''}
+           ${os.body ? `<p style="font-size:1rem;line-height:1.8;color:#333;max-width:800px;margin-bottom:1rem;">${esc(os.body)}</p>` : ''}
+           ${os.agentObservations ? `<div style="background:#f0e6ff;border-left:4px solid #4A0080;padding:.9rem 1.2rem;border-radius:0 8px 8px 0;margin-bottom:1rem;">
+             <strong style="color:#4A0080;font-size:11px;letter-spacing:1px;">AGENT OBSERVATIONS</strong>
+             <p style="font-size:13px;color:#333;margin-top:4px;">${esc(os.agentObservations)}</p></div>` : ''}`}
       ${d.whyNow ? `<div style="background:#FFF8F0;border-left:4px solid #E65100;padding:.9rem 1.2rem;border-radius:0 8px 8px 0;">
         <strong style="color:#E65100;font-size:11px;letter-spacing:1px;">WHY ACT NOW</strong>
         <p style="font-size:13px;color:#333;margin-top:4px;">${esc(d.whyNow)}</p></div>` : ''}
@@ -660,9 +770,9 @@ function buildS1HTML(d, planData) {
       <div class="section-title">Social Media Channel Assessment</div>
       <div class="channel-grid">
         ${channels.map(ch => {
-          const isP = (ch.status||'').toLowerCase()==='present';
-          const bg  = isP ? (ch.color||'#4A0080') : '#6c757d';
-          const pc  = priorityColors[ch.priority] || '#6c757d';
+          const isP = (ch.status||'').toLowerCase() === 'present';
+          const bg  = isP ? (ch.color || platColor(ch.platform)) : '#6c757d';
+          const pc  = pColors[ch.priority] || '#6c757d';
           return `<div class="channel-card">
             <div class="channel-card-head" style="background:${bg};">
               <strong>${esc(ch.platform)}</strong>
@@ -685,9 +795,46 @@ function buildS1HTML(d, planData) {
 }
 
 // Section 2 — posting schedule
+// Handles new 'posting' schema AND old 'proposedPostingSchedule' schema
 function buildS2HTML(d) {
-  const sched = d.proposedPostingSchedule || {};
-  const bkdn  = sched.breakdown || [];
+  const posting = d.posting;
+  const sched   = d.proposedPostingSchedule || {};
+
+  if (posting) {
+    // New schema: platform-specific breakdown objects
+    const total  = posting.totalMonthlyPieces || posting.totalPostsPerMonth || 0;
+    const weekly = posting.weeklyAverage || Math.round(total / 4.3);
+    const KEYS   = ['instagram','facebook','tiktok','youtube','googleBusiness'];
+    const NAMES  = { instagram:'Instagram', facebook:'Facebook', tiktok:'TikTok', youtube:'YouTube', googleBusiness:'Google Business' };
+    const ICONS  = { instagram:'📸', facebook:'📘', tiktok:'🎵', youtube:'▶️', googleBusiness:'📍' };
+    return `
+      <div class="plan-section" style="background:white;">
+        <div class="section-label">Content Volume</div>
+        <div class="section-title">Monthly Posting Schedule</div>
+        <div class="schedule-hero">
+          <div class="big-num">${total}</div>
+          <div class="big-label">content pieces published every month</div>
+          ${weekly ? `<div class="summary-line">${weekly} pieces per week across all platforms</div>` : ''}
+        </div>
+        <div class="schedule-grid">
+          ${KEYS.filter(k => posting[k]).map(k => {
+            const p   = posting[k];
+            const tot = p.total || Object.entries(p).filter(([kk,v]) => kk !== 'total' && kk !== 'focus' && typeof v === 'number').reduce((a,[,v]) => a + v, 0);
+            const det = p.focus || Object.entries(p).filter(([kk,v]) => kk !== 'total' && kk !== 'focus' && typeof v === 'number').map(([kk,v]) => `${v} ${kk}`).join(', ');
+            return `<div class="sched-card">
+              <div class="sched-card-head" style="background:${platColor(NAMES[k]||k)};">
+                <span>${ICONS[k]||'📱'} ${NAMES[k]||k}</span>
+                <strong>${tot}</strong>
+              </div>
+              <div class="sched-card-body">${esc(det)}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }
+
+  // Old schema fallback
+  const bkdn = sched.breakdown || [];
   return `
     <div class="plan-section" style="background:white;">
       <div class="section-label">Content Volume</div>
@@ -710,43 +857,57 @@ function buildS2HTML(d) {
 }
 
 // Section 3 — AI video strategy
+// Handles new 'aiVideo' schema AND old 'aiVideoStrategy' schema
 function buildS3HTML(d) {
-  const aiv = d.aiVideoStrategy || {};
+  const aiv        = d.aiVideo || d.aiVideoStrategy || {};
+  const monthlyVid = aiv.monthlyVideos || aiv.videosPerMonth || aiv.monthlyAIVideos;
+  const whyText    = aiv.whyEssential  || aiv.whyItMatters;
+  const hook       = aiv.hook || (whyText ? whyText.split('.')[0] : 'AI Video Is Your Competitive Edge');
+  const types      = aiv.types || aiv.whatWeCreate || [];
+  const advantage  = aiv.advantage || aiv.veo3Advantage || aiv.competitorAdvantage;
+  const sampleIdea = aiv.sampleIdea || (aiv.types && aiv.types[0] && aiv.types[0].example) || '';
+  const tools      = aiv.tools || [];
+  const platforms  = aiv.platforms || [];
+
   return `
     <div class="plan-section aiv-section">
       <div class="aiv-label">CORE SERVICE</div>
-      <div class="aiv-title">${esc(aiv.hook||aiv.headline||'AI Video Content Strategy')}</div>
-      ${aiv.whyItMatters||aiv.whyEssential ? `<p class="aiv-body">${esc(aiv.whyItMatters||aiv.whyEssential)}</p>` : ''}
+      <div class="aiv-title">${esc(hook)}</div>
+      ${whyText ? `<p class="aiv-body">${esc(whyText)}</p>` : ''}
       <div style="display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:1.5rem;">
-        ${aiv.videosPerMonth||aiv.monthlyAIVideos ? `<div>
-          <div style="font-size:3rem;font-weight:800;color:#FFD700;">${aiv.videosPerMonth||aiv.monthlyAIVideos}</div>
+        ${monthlyVid ? `<div>
+          <div style="font-size:3rem;font-weight:800;color:#FFD700;">${monthlyVid}</div>
           <div style="color:#aaa;font-size:13px;">AI videos per month</div></div>` : ''}
         ${aiv.turnaround ? `<div>
           <div style="font-size:1.2rem;font-weight:700;color:#FFD700;">⏱ ${esc(aiv.turnaround)}</div>
           <div style="color:#aaa;font-size:13px;">turnaround per video</div></div>` : ''}
       </div>
-      ${(aiv.whatWeCreate||aiv.aiVideoTypes||[]).length ? `<div class="aiv-types">
-        ${(aiv.whatWeCreate||aiv.aiVideoTypes||[]).map((v,i)=>`<div class="aiv-type-card">
+      ${types.length ? `<div class="aiv-types">
+        ${types.map((v,i)=>`<div class="aiv-type-card">
           <div class="aiv-icon">${['🎬','📱','✨','🎯'][i]||'🎬'}</div>
-          ${typeof v==='string' ? `<strong>${esc(v)}</strong>` : `<strong>${esc(v.type||v.name||'')}</strong><span>${esc(v.description||'')}</span>`}
+          ${typeof v === 'string'
+            ? `<strong>${esc(v)}</strong>`
+            : `<strong>${esc(v.name||v.type||'')}${v.count ? ` (${v.count}/mo)` : ''}</strong><span>${esc(v.description||'')}${v.example ? ' — e.g. ' + esc(v.example) : ''}</span>`}
         </div>`).join('')}
       </div>` : ''}
-      ${aiv.veo3Advantage||aiv.competitorAdvantage ? `<div class="aiv-advantage">
-        <strong style="color:#FFD700;font-size:11px;letter-spacing:1px;">GOOGLE VEO 3 ADVANTAGE</strong>
-        <p style="color:#ccc;margin-top:4px;font-size:13px;">${esc(aiv.veo3Advantage||aiv.competitorAdvantage)}</p></div>` : ''}
-      ${aiv.sampleIdea||aiv.specificIdeas ? `<div class="aiv-sample">
+      ${advantage ? `<div class="aiv-advantage">
+        <strong style="color:#FFD700;font-size:11px;letter-spacing:1px;">COMPETITIVE ADVANTAGE</strong>
+        <p style="color:#ccc;margin-top:4px;font-size:13px;">${esc(advantage)}</p></div>` : ''}
+      ${sampleIdea ? `<div class="aiv-sample">
         <div class="aiv-sample-label">SAMPLE VIDEO IDEA</div>
-        <p style="color:#ccc;font-size:13px;">${esc(typeof aiv.sampleIdea==='string' ? aiv.sampleIdea : (aiv.specificIdeas||[])[0]||'')}</p></div>` : ''}
-      ${(aiv.platforms||[]).length ? `<div class="aiv-platforms">
-        ${aiv.platforms.map(p=>`<span class="aiv-plat-pill">${esc(p)}</span>`).join('')}</div>` : ''}
+        <p style="color:#ccc;font-size:13px;">${esc(sampleIdea)}</p></div>` : ''}
+      ${(tools.length || platforms.length) ? `<div class="aiv-platforms">
+        ${[...tools,...platforms].map(t=>`<span class="aiv-plat-pill">${esc(t)}</span>`).join('')}</div>` : ''}
     </div>`;
 }
 
 // Section 4 — content pillars + ideas + week calendar
+// contentIdeas replaces sampleContentIdeas; weekCalendar replaces sampleWeekCalendar
 function buildS4HTML(d) {
   const pillars = d.contentPillars || [];
-  const ideas   = d.sampleContentIdeas || [];
-  const weekCal = d.sampleWeekCalendar || [];
+  const ideas   = d.contentIdeas   || d.sampleContentIdeas  || [];
+  const weekCal = d.weekCalendar   || d.sampleWeekCalendar  || [];
+
   return `
     ${pillars.length ? `<div class="plan-section" style="background:#f8f9fa;">
       <div class="section-label">Strategy</div>
@@ -760,6 +921,7 @@ function buildS4HTML(d) {
           <div class="pillar-body">
             <p class="pillar-desc">${esc(pl.description||'')}</p>
             ${pl.exampleCaption||pl.captionOpener ? `<p class="pillar-caption">"${esc(pl.exampleCaption||pl.captionOpener)}"</p>` : ''}
+            ${(pl.ideas||[]).length ? `<ul style="font-size:12px;color:#555;padding-left:16px;margin-top:4px;">${pl.ideas.map(id=>`<li>${esc(id)}</li>`).join('')}</ul>` : ''}
             ${(pl.platforms||[]).length ? `<div class="pillar-plats">${pl.platforms.map(p=>`<span class="pillar-plat">${esc(p)}</span>`).join('')}</div>` : ''}
           </div>
         </div>`).join('')}
@@ -771,7 +933,7 @@ function buildS4HTML(d) {
       <div class="ideas-grid">
         ${ideas.map(idea=>`<div class="idea-card">
           <div class="idea-tags">
-            <span class="idea-tag-plat" style="background:${idea.color||'#4A0080'};">${esc(idea.platform)}</span>
+            <span class="idea-tag-plat" style="background:${idea.color||platColor(idea.platform)};">${esc(idea.platform)}</span>
             <span class="idea-tag-type">${esc(idea.contentType||idea.type||'Post')}</span>
           </div>
           <div class="idea-title">${esc(idea.idea||idea.title||'')}</div>
@@ -785,7 +947,7 @@ function buildS4HTML(d) {
       <div class="week-grid">
         ${weekCal.map(day=>`<div class="week-day">
           <div class="week-day-name">${esc(day.day)}</div>
-          <span class="week-plat-badge" style="background:${day.color||'#4A0080'};">${esc(day.platform)}</span>
+          <span class="week-plat-badge" style="background:${day.color||platColor(day.platform)};">${esc(day.platform)}</span>
           <div class="week-ctype">${esc(day.contentType||day.type||'')}</div>
           <div class="week-idea">${esc(day.idea||'')}</div>
         </div>`).join('')}
@@ -794,12 +956,61 @@ function buildS4HTML(d) {
 }
 
 // Section 5 — missing channels + journey + CTA
+// missingOpportunities replaces missingChannelOpportunities
+// month1Goals/month3Goals replace expectedJourney
 function buildS5HTML(d, planData) {
-  const missing  = d.missingChannelOpportunities || [];
-  const ej       = d.expectedJourney || {};
-  const journeys = ['month1','month2','month3'].map(k=>ej[k]).filter(Boolean);
-  const cta      = d.callToAction || {};
+  const missing  = d.missingOpportunities || d.missingChannelOpportunities || [];
   const bizName  = esc(planData?.businessName || '');
+
+  // Journey: new flat goal arrays OR old expectedJourney object
+  let journeyHTML = '';
+  if (d.month1Goals || d.month3Goals) {
+    const months = [];
+    if (d.month1Goals) months.push({ label:'Month 1 — Foundation', color:'#1565c0', goals: d.month1Goals });
+    if (d.month3Goals) months.push({ label:'Month 3 — Results',    color:'#2e7d32', goals: d.month3Goals });
+    if (months.length) {
+      journeyHTML = `
+        <div class="plan-section" style="background:#f8f9fa;">
+          <div class="section-label">Timeline</div>
+          <div class="section-title">Your 90-Day Growth Journey</div>
+          <div class="journey-grid">
+            ${months.map(m=>`<div class="journey-card">
+              <div class="journey-head" style="background:${m.color};">${esc(m.label)}</div>
+              <div class="journey-body">
+                ${(m.goals||[]).map(w=>`<div class="journey-win"><span>✓</span><span>${esc(w)}</span></div>`).join('')}
+              </div>
+            </div>`).join('')}
+          </div>
+        </div>`;
+    }
+  } else {
+    const ej = d.expectedJourney || {};
+    const journeys = ['month1','month2','month3'].map(k=>ej[k]).filter(Boolean);
+    if (journeys.length) {
+      journeyHTML = `
+        <div class="plan-section" style="background:#f8f9fa;">
+          <div class="section-label">Timeline</div>
+          <div class="section-title">Your 90-Day Growth Journey</div>
+          <div class="journey-grid">
+            ${journeys.map(m=>`<div class="journey-card">
+              <div class="journey-head" style="background:${m.color||'#4A0080'};">${esc(m.label||'')}</div>
+              <div class="journey-body">
+                <div class="journey-focus">${esc(m.focus||'')}</div>
+                ${(m.wins||m.designedToAchieve||[]).map(w=>`<div class="journey-win"><span>✓</span><span>${esc(w)}</span></div>`).join('')}
+              </div>
+            </div>`).join('')}
+          </div>
+        </div>`;
+    }
+  }
+
+  const nextStepHTML = d.nextStep ? `
+    <div class="plan-section" style="background:white;text-align:center;padding:2rem;">
+      <div class="section-label">Your Next Step</div>
+      <p style="font-size:1.1rem;font-weight:600;color:#4A0080;max-width:600px;margin:.5rem auto 0;">${esc(d.nextStep)}</p>
+    </div>` : '';
+
+  const cta = d.callToAction || {};
   return `
     ${missing.length ? `<div class="plan-section" style="background:white;">
       <div class="section-label">Growth Gaps</div>
@@ -809,305 +1020,26 @@ function buildS5HTML(d, planData) {
         ${missing.map(ch=>`<div class="missing-card">
           <div class="missing-head">
             <strong>${esc(ch.icon||'📣')} ${esc(ch.platform)}</strong>
-            <span style="font-size:10px;background:rgba(255,255,255,.25);padding:2px 8px;border-radius:20px;">${esc(ch.priority||'Missing')}</span>
+            <span style="font-size:10px;background:rgba(255,255,255,.25);padding:2px 8px;border-radius:20px;">${esc(ch.priority||'Opportunity')}</span>
           </div>
           <div class="missing-body">
-            ${ch.whyNow      ? `<p class="missing-field"><strong>Why now:</strong> ${esc(ch.whyNow)}</p>` : ''}
-            ${ch.opportunity||ch.valueStatement||ch.audienceMissed ? `<p class="missing-field"><strong>Opportunity:</strong> ${esc(ch.opportunity||ch.valueStatement||ch.audienceMissed)}</p>` : ''}
+            ${ch.whyNow   ? `<p class="missing-field"><strong>Why now:</strong> ${esc(ch.whyNow)}</p>` : ''}
+            ${ch.audience ? `<p class="missing-field"><strong>Audience:</strong> ${esc(ch.audience)}</p>` : ''}
+            ${ch.opportunity||ch.value||ch.valueStatement
+              ? `<p class="missing-field"><strong>Opportunity:</strong> ${esc(ch.opportunity||ch.value||ch.valueStatement)}</p>` : ''}
           </div>
         </div>`).join('')}
       </div>
     </div>` : ''}
-    ${journeys.length ? `<div class="plan-section" style="background:#f8f9fa;">
-      <div class="section-label">Timeline</div>
-      <div class="section-title">Your 90-Day Growth Journey</div>
-      <div class="journey-grid">
-        ${journeys.map(m=>`<div class="journey-card">
-          <div class="journey-head" style="background:${m.color||'#4A0080'};">${esc(m.label||'')}</div>
-          <div class="journey-body">
-            <div class="journey-focus">${esc(m.focus||'')}</div>
-            ${(m.wins||m.designedToAchieve||[]).map(w=>`<div class="journey-win"><span>✓</span><span>${esc(w)}</span></div>`).join('')}
-          </div>
-        </div>`).join('')}
-      </div>
-    </div>` : ''}
+    ${journeyHTML}
+    ${nextStepHTML}
     <div class="cta-section">
       <h2 class="cta-headline">${esc(cta.headline||'Ready to Transform Your Social Media?')}</h2>
-      ${cta.subtext ? `<p class="cta-subtext">${esc(cta.subtext)}</p>` : ''}
+      ${cta.subtext
+        ? `<p class="cta-subtext">${esc(cta.subtext)}</p>`
+        : `<p class="cta-subtext">Your competitors are posting every day. Every week you wait is a week they pull further ahead. Let's start building your presence today.</p>`}
       <a href="#" class="cta-btn" onclick="return false;">${esc(cta.buttonText||'Book Your Free Strategy Call')}</a>
     </div>`;
-}
-
-// Keep old buildPlanHTML for any legacy calls (maps to new builders)
-function buildPlanHTML(plan) {
-  const p = plan;
-
-  // ── SECTION 1: HEADER ──
-  const s1 = `
-    <div style="background:linear-gradient(135deg,#4A0080,#1a0030);padding:3rem 2rem;color:white;text-align:center;">
-      <div class="section-label" style="color:rgba(255,255,255,.5);">SOCIAL MEDIA GROWTH PLAN</div>
-      <h1 style="font-size:2.2rem;font-weight:800;margin:0.5rem 0;">${esc(p.planTitle || 'Social Media Growth Plan')}</h1>
-      ${p.tagline ? `<p style="font-size:1.1rem;opacity:.8;margin-top:0.5rem;">${esc(p.tagline)}</p>` : ''}
-      <div style="margin-top:1.5rem;display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;font-size:13px;opacity:.75;">
-        ${BIZ_NAME  ? `<span>🏢 ${esc(BIZ_NAME)}</span>` : ''}
-        ${NICHE     ? `<span>🎯 ${esc(NICHE)}</span>`    : ''}
-        ${CITY      ? `<span>📍 ${esc(CITY)}, ${esc(STATE)}</span>` : ''}
-        ${RATING    ? `<span>⭐ ${esc(RATING)} (${esc(REVIEWS)} reviews)</span>` : ''}
-      </div>
-    </div>`;
-
-  // ── SECTION 2: OPENING STATEMENT ──
-  const os = p.openingStatement || {};
-  const s2 = `
-    <div class="plan-section" style="background:white;">
-      ${os.headline ? `<h2 style="font-size:1.6rem;font-weight:700;color:#1a1a2e;margin-bottom:1rem;">${esc(os.headline)}</h2>` : ''}
-      ${os.body ? `<p style="font-size:1rem;line-height:1.8;color:#333;max-width:800px;margin-bottom:1rem;">${esc(os.body)}</p>` : ''}
-      ${os.agentObservations ? `
-        <div style="background:#f0e6ff;border-left:4px solid #4A0080;padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin-bottom:1rem;">
-          <strong style="color:#4A0080;font-size:12px;letter-spacing:1px;">AGENT OBSERVATIONS</strong>
-          <p style="font-size:13px;color:#333;margin-top:4px;">${esc(os.agentObservations)}</p>
-        </div>` : ''}
-      ${p.whyNow ? `
-        <div style="background:#FFF8F0;border-left:4px solid #E65100;padding:1rem 1.2rem;border-radius:0 8px 8px 0;">
-          <strong style="color:#E65100;font-size:12px;letter-spacing:1px;">WHY ACT NOW</strong>
-          <p style="font-size:13px;color:#333;margin-top:4px;">${esc(p.whyNow)}</p>
-        </div>` : ''}
-    </div>`;
-
-  // ── SECTION 3: CHANNEL ASSESSMENT ──
-  const channels = p.channelAssessment || [];
-  const s3 = channels.length ? `
-    <div class="plan-section" style="background:#f8f9fa;">
-      <div class="section-label">Platform Analysis</div>
-      <div class="section-title">Social Media Channel Assessment</div>
-      <div class="channel-grid">
-        ${channels.map(ch => {
-          const isPresent = (ch.status || '').toLowerCase() === 'present';
-          const headBg = isPresent ? (ch.color || '#4A0080') : '#6c757d';
-          const priorityColors = { High:'#dc3545', Medium:'#fd7e14', Low:'#0d6efd' };
-          const pColor = priorityColors[ch.priority] || '#6c757d';
-          return `
-            <div class="channel-card">
-              <div class="channel-card-head" style="background:${headBg};">
-                <strong>${esc(ch.platform)}</strong>
-                <span class="status-badge">${esc(ch.status || 'Unknown')}</span>
-              </div>
-              <div class="channel-card-body">
-                ${ch.agentObservation ? `<p class="ch-obs">${esc(ch.agentObservation)}</p>` : ''}
-                ${ch.currentState    ? `<p class="ch-state">${esc(ch.currentState)}</p>`   : ''}
-                ${ch.whatWeWillDo   ? `<p class="ch-action"><strong>We'll:</strong> ${esc(ch.whatWeWillDo)}</p>` : ''}
-                <div class="ch-meta">
-                  ${ch.postsPerMonth ? `<span class="ch-posts" style="background:${headBg};">${ch.postsPerMonth} posts/mo</span>` : ''}
-                  ${ch.priority ? `<span class="ch-priority" style="color:${pColor};border-color:${pColor};">${esc(ch.priority)}</span>` : ''}
-                  ${(ch.contentTypes||[]).length ? `<span class="ch-types">${ch.contentTypes.join(', ')}</span>` : ''}
-                </div>
-              </div>
-            </div>`;
-        }).join('')}
-      </div>
-    </div>` : '';
-
-  // ── SECTION 4: PROPOSED POSTING SCHEDULE ──
-  const sched = p.proposedPostingSchedule || {};
-  const breakdown = sched.breakdown || [];
-  const s4 = `
-    <div class="plan-section" style="background:white;">
-      <div class="section-label">Content Volume</div>
-      <div class="section-title">Monthly Posting Schedule</div>
-      <div class="schedule-hero">
-        <div class="big-num">${sched.totalPostsPerMonth || sched.totalMonthlyPieces || 0}</div>
-        <div class="big-label">content pieces published every month</div>
-        ${sched.summaryLine ? `<div class="summary-line">${esc(sched.summaryLine)}</div>` : ''}
-      </div>
-      ${breakdown.length ? `
-        <div class="schedule-grid">
-          ${breakdown.map(b => `
-            <div class="sched-card">
-              <div class="sched-card-head" style="background:${b.color||'#4A0080'};">
-                <span>${b.icon||''} ${esc(b.platform)}</span>
-                <strong>${b.postsPerMonth || 0}</strong>
-              </div>
-              <div class="sched-card-body">${esc(b.detail||'')}</div>
-            </div>`).join('')}
-        </div>` : ''}
-    </div>`;
-
-  // ── SECTION 5: AI VIDEO STRATEGY ──
-  const aiv = p.aiVideoStrategy || {};
-  const s5 = `
-    <div class="plan-section aiv-section">
-      <div class="aiv-label">CORE SERVICE</div>
-      <div class="aiv-title">${esc(aiv.hook || aiv.headline || 'AI Video Content Strategy')}</div>
-      ${aiv.whyItMatters || aiv.whyEssential ? `<p class="aiv-body">${esc(aiv.whyItMatters || aiv.whyEssential)}</p>` : ''}
-      <div style="display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:1.5rem;">
-        ${aiv.videosPerMonth||aiv.monthlyAIVideos ? `
-          <div>
-            <div style="font-size:3rem;font-weight:800;color:#FFD700;">${aiv.videosPerMonth||aiv.monthlyAIVideos}</div>
-            <div style="color:#aaa;font-size:13px;">AI videos per month</div>
-          </div>` : ''}
-        ${aiv.turnaround ? `
-          <div>
-            <div style="font-size:1.2rem;font-weight:700;color:#FFD700;">⏱ ${esc(aiv.turnaround)}</div>
-            <div style="color:#aaa;font-size:13px;">turnaround per video</div>
-          </div>` : ''}
-      </div>
-      ${(aiv.whatWeCreate||aiv.aiVideoTypes||[]).length ? `
-        <div class="aiv-types">
-          ${(aiv.whatWeCreate||aiv.aiVideoTypes||[]).map((v,i) => `
-            <div class="aiv-type-card">
-              <div class="aiv-icon">${['🎬','📱','✨','🎯'][i]||'🎬'}</div>
-              ${typeof v === 'string'
-                ? `<strong>${esc(v)}</strong>`
-                : `<strong>${esc(v.type||v.name||'')}</strong><span>${esc(v.description||'')}</span>`}
-            </div>`).join('')}
-        </div>` : ''}
-      ${aiv.veo3Advantage||aiv.competitorAdvantage ? `
-        <div class="aiv-advantage">
-          <strong style="color:#FFD700;font-size:12px;letter-spacing:1px;">GOOGLE VEO 3 ADVANTAGE</strong>
-          <p style="color:#ccc;margin-top:4px;font-size:13px;">${esc(aiv.veo3Advantage||aiv.competitorAdvantage)}</p>
-        </div>` : ''}
-      ${aiv.sampleIdea||aiv.specificIdeas ? `
-        <div class="aiv-sample">
-          <div class="aiv-sample-label">SAMPLE VIDEO IDEA</div>
-          <p style="color:#ccc;font-size:13px;">${esc(typeof aiv.sampleIdea === 'string' ? aiv.sampleIdea : (aiv.specificIdeas||[])[0]||'')}</p>
-        </div>` : ''}
-      ${(aiv.platforms||[]).length ? `
-        <div class="aiv-platforms">
-          ${aiv.platforms.map(plat => `<span class="aiv-plat-pill">${esc(plat)}</span>`).join('')}
-        </div>` : ''}
-    </div>`;
-
-  // ── SECTION 6: CONTENT PILLARS ──
-  const pillars = p.contentPillars || [];
-  const s6 = pillars.length ? `
-    <div class="plan-section" style="background:#f8f9fa;">
-      <div class="section-label">Strategy</div>
-      <div class="section-title">Content Pillars — Our 5-Theme Framework</div>
-      <div class="pillars-grid">
-        ${pillars.map((pl, i) => `
-          <div class="pillar-card">
-            <div class="pillar-head">
-              <span class="pillar-emoji">${esc(pl.emoji||'📌')}</span>
-              <strong>Pillar ${i+1}: ${esc(pl.name||pl.pillarName||'')}</strong>
-            </div>
-            <div class="pillar-body">
-              <p class="pillar-desc">${esc(pl.description||pl.desc||'')}</p>
-              ${pl.exampleCaption||pl.captionOpener ? `<p class="pillar-caption">"${esc(pl.exampleCaption||pl.captionOpener)}"</p>` : ''}
-              ${(pl.platforms||[]).length ? `
-                <div class="pillar-plats">
-                  ${pl.platforms.map(plat => `<span class="pillar-plat">${esc(plat)}</span>`).join('')}
-                </div>` : ''}
-            </div>
-          </div>`).join('')}
-      </div>
-    </div>` : '';
-
-  // ── SECTION 7: SAMPLE CONTENT IDEAS ──
-  const ideas = p.sampleContentIdeas || [];
-  const s7 = ideas.length ? `
-    <div class="plan-section" style="background:white;">
-      <div class="section-label">Examples</div>
-      <div class="section-title">Sample Content We Will Create</div>
-      <div class="ideas-grid">
-        ${ideas.map(idea => `
-          <div class="idea-card">
-            <div class="idea-tags">
-              <span class="idea-tag-plat" style="background:${idea.color||'#4A0080'};">${esc(idea.platform)}</span>
-              <span class="idea-tag-type">${esc(idea.contentType||idea.type||'Post')}</span>
-            </div>
-            <div class="idea-title">${esc(idea.idea||idea.title||'')}</div>
-            ${idea.caption ? `<p class="idea-caption">${esc(idea.caption)}</p>` : ''}
-          </div>`).join('')}
-      </div>
-    </div>` : '';
-
-  // ── SECTION 8: SAMPLE WEEK CALENDAR ──
-  const weekCal = p.sampleWeekCalendar || p.sampleWeeklyCalendar || [];
-  const s8 = weekCal.length ? `
-    <div class="plan-section" style="background:#f8f9fa;">
-      <div class="section-label">Scheduling</div>
-      <div class="section-title">Sample Week of Posting</div>
-      <div class="week-grid">
-        ${weekCal.map(d => `
-          <div class="week-day">
-            <div class="week-day-name">${esc(d.day)}</div>
-            <span class="week-plat-badge" style="background:${d.color||'#4A0080'};">${esc(d.platform)}</span>
-            <div class="week-ctype">${esc(d.contentType||d.type||'')}</div>
-            <div class="week-idea">${esc(d.idea||'')}</div>
-          </div>`).join('')}
-      </div>
-    </div>` : '';
-
-  // ── SECTION 9: MISSING CHANNEL OPPORTUNITIES ──
-  const missing = p.missingChannelOpportunities || [];
-  const s9 = missing.length ? `
-    <div class="plan-section" style="background:white;">
-      <div class="section-label">Growth Gaps</div>
-      <div class="section-title">Untapped Channel Opportunities</div>
-      <p style="color:#666;margin-bottom:1.5rem;font-size:14px;">These channels weren't found for ${esc(BIZ_NAME)}. Activating them expands your reach significantly.</p>
-      <div class="missing-grid">
-        ${missing.map(ch => `
-          <div class="missing-card">
-            <div class="missing-head">
-              <strong>${(ch.icon||'📣')} ${esc(ch.platform)}</strong>
-              <span style="font-size:10px;background:rgba(255,255,255,.25);padding:2px 8px;border-radius:20px;">${esc(ch.priority||'Missing')}</span>
-            </div>
-            <div class="missing-body">
-              ${ch.whyNow      ? `<p class="missing-field"><strong>Why now:</strong> ${esc(ch.whyNow)}</p>`       : ''}
-              ${ch.opportunity ? `<p class="missing-field"><strong>Opportunity:</strong> ${esc(ch.opportunity)}</p>` : ''}
-            </div>
-          </div>`).join('')}
-      </div>
-    </div>` : '';
-
-  // ── SECTION 10: EXPECTED JOURNEY ──
-  const ej = p.expectedJourney || {};
-  const journeyMonths = ['month1','month2','month3'].map(k => ej[k]).filter(Boolean);
-  const s10 = journeyMonths.length ? `
-    <div class="plan-section" style="background:#f8f9fa;">
-      <div class="section-label">Timeline</div>
-      <div class="section-title">Your 90-Day Growth Journey</div>
-      <div class="journey-grid">
-        ${journeyMonths.map(m => `
-          <div class="journey-card">
-            <div class="journey-head" style="background:${m.color||'#4A0080'};">${esc(m.label||'')}</div>
-            <div class="journey-body">
-              <div class="journey-focus">${esc(m.focus||'')}</div>
-              ${(m.wins||[]).map(w => `<div class="journey-win"><span>✓</span><span>${esc(w)}</span></div>`).join('')}
-            </div>
-          </div>`).join('')}
-      </div>
-    </div>` : '';
-
-  // ── SECTION 11: OUR CONTENT PROCESS ──
-  const process = p.ourContentProcess || p.ourProcess || [];
-  const s11 = process.length ? `
-    <div class="plan-section" style="background:white;">
-      <div class="section-label">How It Works</div>
-      <div class="section-title">Our Content Creation Process</div>
-      <div class="process-steps">
-        ${process.map(step => `
-          <div class="process-step">
-            <div class="process-step-num">${step.step||'?'}</div>
-            <div class="process-step-icon">${step.icon||''}</div>
-            <div class="process-step-content">
-              <strong>${esc(step.title||'')}</strong>
-              <p>${esc(step.description||step.desc||'')}</p>
-            </div>
-          </div>`).join('')}
-      </div>
-    </div>` : '';
-
-  // ── SECTION 12: CALL TO ACTION ──
-  const cta = p.callToAction || {};
-  const s12 = `
-    <div class="cta-section">
-      <h2 class="cta-headline">${esc(cta.headline||'Ready to Transform Your Social Media?')}</h2>
-      ${cta.subtext ? `<p class="cta-subtext">${esc(cta.subtext)}</p>` : ''}
-      <a href="#" class="cta-btn" onclick="return false;">${esc(cta.buttonText||'Book Your Free Strategy Call')}</a>
-    </div>`;
-
-  return [s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12].join('');
 }
 
 // ═══════════════════════════════════════════════
