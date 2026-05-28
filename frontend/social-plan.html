@@ -282,8 +282,11 @@
 <!-- ════════════════ LOADING ════════════════ -->
 <div id="loading-overlay">
   <div class="spinner"></div>
-  <div class="loading-text">Building your social media plan…</div>
-  <div class="loading-sub">Claude AI is analysing every platform and crafting your strategy</div>
+  <div class="loading-text" id="loading-text">Analysing your social media channels…</div>
+  <div class="loading-sub" id="loading-sub">Claude AI is building your custom strategy</div>
+  <div style="margin-top:1.5rem;width:280px;background:rgba(255,255,255,.1);border-radius:20px;height:4px;overflow:hidden;">
+    <div id="loading-bar" style="height:100%;background:#c084fc;border-radius:20px;width:5%;transition:width 0.5s ease;"></div>
+  </div>
 </div>
 
 <!-- ════════════════ PLAN DISPLAY ════════════════ -->
@@ -447,8 +450,48 @@ function saveInputs() {
 }
 
 // ═══════════════════════════════════════════════
+//  LOADING PROGRESS
+// ═══════════════════════════════════════════════
+let _progressInterval = null;
+let _progressBar = null;
+
+function startProgress(bizName) {
+  const messages = [
+    { text: 'Analysing your social media channels…',     sub: 'Scanning 10 platforms for your business', pct: 10 },
+    { text: 'Building your content posting schedule…',   sub: 'Calculating optimal posting frequency',   pct: 25 },
+    { text: 'Creating AI video strategy…',               sub: 'Designing Google Veo 3 content plan',     pct: 40 },
+    { text: `Generating content ideas for ${bizName}…`,  sub: 'Writing captions, pillars and examples',  pct: 58 },
+    { text: 'Mapping your 90-day growth journey…',       sub: 'Setting milestones and expected outcomes',pct: 74 },
+    { text: 'Almost ready — compiling your plan…',       sub: 'Putting it all together',                 pct: 90 }
+  ];
+  let i = 0;
+  const textEl = document.getElementById('loading-text');
+  const subEl  = document.getElementById('loading-sub');
+  const barEl  = document.getElementById('loading-bar');
+
+  function tick() {
+    const m = messages[i % messages.length];
+    textEl.textContent = m.text;
+    subEl.textContent  = m.sub;
+    if (barEl) barEl.style.width = m.pct + '%';
+    i++;
+  }
+  tick();
+  _progressInterval = setInterval(tick, 3500);
+}
+
+function stopProgress() {
+  if (_progressInterval) { clearInterval(_progressInterval); _progressInterval = null; }
+  const barEl = document.getElementById('loading-bar');
+  if (barEl) barEl.style.width = '100%';
+}
+
+// ═══════════════════════════════════════════════
 //  GENERATE PLAN
 // ═══════════════════════════════════════════════
+// Store last planData for retry
+let _lastPlanData = null;
+
 async function generatePlan() {
   const apiKey = localStorage.getItem('lg_anthropic') || '';
   if (!apiKey) {
@@ -467,10 +510,10 @@ async function generatePlan() {
     }
   });
 
-  // Niche: prefer the editable input field (allows manual entry if URL param was empty)
+  // Niche: prefer editable input field (allows manual entry if URL param was empty)
   const nicheValue = (document.getElementById('inp-niche').value || NICHE || '').trim();
 
-  const planData = {
+  _lastPlanData = {
     businessName: BIZ_NAME,
     niche:        nicheValue,
     city:         CITY,
@@ -484,19 +527,36 @@ async function generatePlan() {
     painPoint:    document.getElementById('sel-pain').value
   };
 
-  // Show loader
+  await runGenerate(_lastPlanData, apiKey);
+}
+
+async function retryGenerate() {
+  const apiKey = localStorage.getItem('lg_anthropic') || '';
+  if (!_lastPlanData || !apiKey) { backToEdit(); return; }
+  // Hide error, show input panel briefly then re-run
+  document.getElementById('plan-display').style.display = 'none';
+  document.getElementById('input-panel').style.display  = 'block';
+  await runGenerate(_lastPlanData, apiKey);
+}
+
+async function runGenerate(planData, apiKey) {
+  document.getElementById('input-panel').style.display  = 'none';
+  document.getElementById('plan-display').style.display = 'none';
   document.getElementById('loading-overlay').classList.add('active');
   document.getElementById('btn-generate').disabled = true;
+  startProgress(planData.businessName || 'your business');
+
+  const controller = new AbortController();
+  const timeout    = setTimeout(() => controller.abort(), 57000);
 
   try {
     const response = await fetch('/api/social-audit', {
-      method: 'POST',
-      headers: {
-        'Content-Type':    'application/json',
-        'x-anthropic-key': apiKey
-      },
-      body: JSON.stringify(planData)
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'x-anthropic-key': apiKey },
+      body:    JSON.stringify(planData),
+      signal:  controller.signal
     });
+    clearTimeout(timeout);
 
     const text = await response.text();
     let result;
@@ -504,12 +564,24 @@ async function generatePlan() {
     catch { throw new Error(`Server returned non-JSON: ${text.slice(0, 200)}`); }
 
     if (result.success && result.plan) {
+      stopProgress();
       renderPlan(result.plan);
     } else {
-      showError(result.error || 'Plan generation failed — please try again.');
+      throw new Error(result.error || 'Plan generation failed');
     }
   } catch (err) {
-    showError(err.message || 'Network error — please check your connection and retry.');
+    clearTimeout(timeout);
+    stopProgress();
+    const isTimeout = err.name === 'AbortError' || err.message.includes('timeout') || err.message.includes('Timeout');
+    showError(
+      isTimeout
+        ? 'Taking longer than expected'
+        : 'Generation failed',
+      isTimeout
+        ? `The AI is generating your complete social media plan for <strong>${esc(planData.businessName)}</strong>. This sometimes takes a moment on the first attempt. Click <strong>Retry</strong> — it usually works straight away.`
+        : esc(err.message),
+      isTimeout
+    );
   } finally {
     document.getElementById('loading-overlay').classList.remove('active');
     document.getElementById('btn-generate').disabled = false;
@@ -535,16 +607,25 @@ function backToEdit() {
   window.scrollTo(0, 0);
 }
 
-function showError(msg) {
+function showError(title, detail, showRetry) {
+  const msg = typeof title === 'string' && detail === undefined
+    ? title   // backwards-compat: single-arg call
+    : (detail || title || 'Unknown error');
+  const heading = (detail !== undefined) ? title : '⚠️ Plan Generation Failed';
+  const hasRetry = showRetry !== false && _lastPlanData != null;
+
   document.getElementById('input-panel').style.display  = 'none';
   const display = document.getElementById('plan-display');
   display.style.display = 'block';
   display.innerHTML = `
     <div style="padding:3rem 1rem;">
       <div class="error-box">
-        <h3>⚠️ Plan Generation Failed</h3>
-        <p>${esc(msg)}</p>
-        <button onclick="backToEdit()">← Back &amp; Retry</button>
+        <h3>${heading.startsWith('⚠') ? heading : '⚠️ ' + heading}</h3>
+        <p style="line-height:1.6;">${msg}</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:1rem;">
+          ${hasRetry ? `<button onclick="retryGenerate()" style="padding:10px 24px;background:#4A0080;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;">↺ Retry</button>` : ''}
+          <button onclick="backToEdit()" style="padding:10px 24px;background:white;color:#4A0080;border:2px solid #4A0080;border-radius:8px;cursor:pointer;font-size:14px;">← Edit &amp; Try Again</button>
+        </div>
       </div>
     </div>`;
 }
