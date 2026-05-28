@@ -62,6 +62,8 @@
     #loading-overlay.active { display: flex; }
     .spinner { width: 56px; height: 56px; border: 5px solid rgba(255,255,255,.2); border-top-color: #c084fc; border-radius: 50%; animation: spin 0.9s linear infinite; margin-bottom: 1.5rem; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:.9} }
+    .skeleton-section { min-height: 100px; }
     .loading-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; }
     .loading-sub { font-size: 0.9rem; opacity: 0.7; }
 
@@ -279,15 +281,8 @@
   </button>
 </div>
 
-<!-- ════════════════ LOADING ════════════════ -->
-<div id="loading-overlay">
-  <div class="spinner"></div>
-  <div class="loading-text" id="loading-text">Analysing your social media channels…</div>
-  <div class="loading-sub" id="loading-sub">Claude AI is building your custom strategy</div>
-  <div style="margin-top:1.5rem;width:280px;background:rgba(255,255,255,.1);border-radius:20px;height:4px;overflow:hidden;">
-    <div id="loading-bar" style="height:100%;background:#c084fc;border-radius:20px;width:5%;transition:width 0.5s ease;"></div>
-  </div>
-</div>
+<!-- Loading overlay kept for key-check only; hidden by default -->
+<div id="loading-overlay"></div>
 
 <!-- ════════════════ PLAN DISPLAY ════════════════ -->
 <div id="plan-display"></div>
@@ -450,46 +445,8 @@ function saveInputs() {
 }
 
 // ═══════════════════════════════════════════════
-//  LOADING PROGRESS
+//  GENERATE PLAN — 5 fast section calls
 // ═══════════════════════════════════════════════
-let _progressInterval = null;
-let _progressBar = null;
-
-function startProgress(bizName) {
-  const messages = [
-    { text: 'Analysing your social media channels…',     sub: 'Scanning 10 platforms for your business', pct: 10 },
-    { text: 'Building your content posting schedule…',   sub: 'Calculating optimal posting frequency',   pct: 25 },
-    { text: 'Creating AI video strategy…',               sub: 'Designing Google Veo 3 content plan',     pct: 40 },
-    { text: `Generating content ideas for ${bizName}…`,  sub: 'Writing captions, pillars and examples',  pct: 58 },
-    { text: 'Mapping your 90-day growth journey…',       sub: 'Setting milestones and expected outcomes',pct: 74 },
-    { text: 'Almost ready — compiling your plan…',       sub: 'Putting it all together',                 pct: 90 }
-  ];
-  let i = 0;
-  const textEl = document.getElementById('loading-text');
-  const subEl  = document.getElementById('loading-sub');
-  const barEl  = document.getElementById('loading-bar');
-
-  function tick() {
-    const m = messages[i % messages.length];
-    textEl.textContent = m.text;
-    subEl.textContent  = m.sub;
-    if (barEl) barEl.style.width = m.pct + '%';
-    i++;
-  }
-  tick();
-  _progressInterval = setInterval(tick, 3500);
-}
-
-function stopProgress() {
-  if (_progressInterval) { clearInterval(_progressInterval); _progressInterval = null; }
-  const barEl = document.getElementById('loading-bar');
-  if (barEl) barEl.style.width = '100%';
-}
-
-// ═══════════════════════════════════════════════
-//  GENERATE PLAN
-// ═══════════════════════════════════════════════
-// Store last planData for retry
 let _lastPlanData = null;
 
 async function generatePlan() {
@@ -498,11 +455,9 @@ async function generatePlan() {
     alert('Please enter your Anthropic API key in the main app Settings first.');
     return;
   }
-
   saveInputs();
 
-  const profiles = {};
-  const observations = {};
+  const profiles = {}, observations = {};
   PLATFORMS.forEach(p => {
     if (!document.getElementById(`na-${p.key}`)?.checked) {
       profiles[p.key]     = document.getElementById(`url-${p.key}`)?.value || '';
@@ -510,96 +465,169 @@ async function generatePlan() {
     }
   });
 
-  // Niche: prefer editable input field (allows manual entry if URL param was empty)
   const nicheValue = (document.getElementById('inp-niche').value || NICHE || '').trim();
-
   _lastPlanData = {
-    businessName: BIZ_NAME,
-    niche:        nicheValue,
-    city:         CITY,
-    state:        STATE,
-    rating:       RATING,
-    reviews:      REVIEWS,
-    profiles,
-    observations,
-    budget:       document.getElementById('sel-budget').value,
-    goal:         document.getElementById('sel-goal').value,
-    painPoint:    document.getElementById('sel-pain').value
+    businessName: BIZ_NAME, niche: nicheValue, city: CITY, state: STATE,
+    rating: RATING, reviews: REVIEWS, profiles, observations,
+    budget:    document.getElementById('sel-budget').value,
+    goal:      document.getElementById('sel-goal').value,
+    painPoint: document.getElementById('sel-pain').value
   };
-
   await runGenerate(_lastPlanData, apiKey);
 }
 
 async function retryGenerate() {
   const apiKey = localStorage.getItem('lg_anthropic') || '';
   if (!_lastPlanData || !apiKey) { backToEdit(); return; }
-  // Hide error, show input panel briefly then re-run
-  document.getElementById('plan-display').style.display = 'none';
-  document.getElementById('input-panel').style.display  = 'block';
   await runGenerate(_lastPlanData, apiKey);
 }
 
-async function runGenerate(planData, apiKey) {
-  document.getElementById('input-panel').style.display  = 'none';
-  document.getElementById('plan-display').style.display = 'none';
-  document.getElementById('loading-overlay').classList.add('active');
-  document.getElementById('btn-generate').disabled = true;
-  startProgress(planData.businessName || 'your business');
-
-  const controller = new AbortController();
-  const timeout    = setTimeout(() => controller.abort(), 57000);
-
+// ─── callSection ─────────────────────────────────
+async function callSection(endpoint, planData, apiKey) {
   try {
-    const response = await fetch('/api/social-audit', {
-      method:  'POST',
+    const r = await fetch(endpoint, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-anthropic-key': apiKey },
-      body:    JSON.stringify(planData),
-      signal:  controller.signal
+      body: JSON.stringify(planData),
+      signal: AbortSignal.timeout(25000)
     });
-    clearTimeout(timeout);
-
-    const text = await response.text();
-    let result;
-    try { result = JSON.parse(text); }
-    catch { throw new Error(`Server returned non-JSON: ${text.slice(0, 200)}`); }
-
-    if (result.success && result.plan) {
-      stopProgress();
-      renderPlan(result.plan);
-    } else {
-      throw new Error(result.error || 'Plan generation failed');
-    }
+    const text = await r.text();
+    const result = JSON.parse(text);
+    if (result.success && result.data) return result.data;
+    console.warn(`${endpoint} failed:`, result.error);
+    return null;
   } catch (err) {
-    clearTimeout(timeout);
-    stopProgress();
-    const isTimeout = err.name === 'AbortError' || err.message.includes('timeout') || err.message.includes('Timeout');
-    showError(
-      isTimeout
-        ? 'Taking longer than expected'
-        : 'Generation failed',
-      isTimeout
-        ? `The AI is generating your complete social media plan for <strong>${esc(planData.businessName)}</strong>. This sometimes takes a moment on the first attempt. Click <strong>Retry</strong> — it usually works straight away.`
-        : esc(err.message),
-      isTimeout
-    );
-  } finally {
-    document.getElementById('loading-overlay').classList.remove('active');
-    document.getElementById('btn-generate').disabled = false;
+    console.warn(`${endpoint} error:`, err.message);
+    return null;
   }
 }
 
-// ═══════════════════════════════════════════════
-//  RENDER PLAN
-// ═══════════════════════════════════════════════
-function renderPlan(plan) {
-  document.getElementById('input-panel').style.display  = 'none';
+// ─── runGenerate ─────────────────────────────────
+async function runGenerate(planData, apiKey) {
+  document.getElementById('input-panel').style.display   = 'none';
+  document.getElementById('loading-overlay').classList.remove('active');
+  document.getElementById('btn-generate').disabled = true;
+
+  // Set up plan display with skeleton slots
   const display = document.getElementById('plan-display');
   display.style.display = 'block';
-  display.innerHTML = buildPlanHTML(plan);
+  display.innerHTML = buildSkeleton(planData);
   document.getElementById('action-bar').classList.add('visible');
   window.scrollTo(0, 0);
+
+  setProgress(0, 'Building your channel assessment…');
+
+  // Section 1 — header + opening + channels (most important, show first)
+  const s1 = await callSection('/api/social-section1', planData, apiKey);
+  setProgress(20, 'Calculating your posting schedule…');
+  if (s1) fillSection('slot-s1', buildS1HTML(s1, planData));
+  else     fillSection('slot-s1', sectionError('Channel assessment'));
+
+  // Section 2 — posting schedule
+  const s2 = await callSection('/api/social-section2', planData, apiKey);
+  setProgress(40, 'Creating your AI video strategy…');
+  if (s2) fillSection('slot-s2', buildS2HTML(s2));
+  else     fillSection('slot-s2', sectionError('Posting schedule'));
+
+  // Section 3 — AI video
+  const s3 = await callSection('/api/social-section3', planData, apiKey);
+  setProgress(60, 'Writing content ideas and calendar…');
+  if (s3) fillSection('slot-s3', buildS3HTML(s3));
+  else     fillSection('slot-s3', sectionError('AI video strategy'));
+
+  // Section 4 — pillars + ideas + calendar
+  const s4 = await callSection('/api/social-section4', planData, apiKey);
+  setProgress(80, 'Finalising your growth journey…');
+  if (s4) fillSection('slot-s4', buildS4HTML(s4));
+  else     fillSection('slot-s4', sectionError('Content ideas'));
+
+  // Section 5 — missing channels + journey + CTA
+  const s5 = await callSection('/api/social-section5', planData, apiKey);
+  setProgress(100, 'Done!');
+  if (s5) fillSection('slot-s5', buildS5HTML(s5, planData));
+  else     fillSection('slot-s5', sectionError('Growth opportunities'));
+
+  // Hide progress bar after short delay
+  setTimeout(() => {
+    const pb = document.getElementById('gen-progress-wrap');
+    if (pb) pb.style.display = 'none';
+  }, 1500);
+
+  document.getElementById('btn-generate').disabled = false;
 }
 
+// ─── Progress helpers ─────────────────────────────
+function setProgress(pct, label) {
+  const bar  = document.getElementById('gen-progress-bar');
+  const txt  = document.getElementById('gen-progress-txt');
+  if (bar) bar.style.width = pct + '%';
+  if (txt) txt.textContent = label;
+}
+
+function fillSection(id, html) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.innerHTML = html;
+    el.classList.remove('skeleton-section');
+  }
+}
+
+function sectionError(name) {
+  return `<div style="padding:1.5rem;background:#fff5f5;border-left:4px solid #dc3545;color:#555;font-size:13px;">
+    ⚠️ ${esc(name)} could not be generated.
+    <button onclick="retryGenerate()" style="margin-left:12px;padding:4px 12px;background:#4A0080;color:white;border:none;border-radius:6px;cursor:pointer;font-size:12px;">↺ Retry All</button>
+  </div>`;
+}
+
+// ─── Skeleton ─────────────────────────────────────
+function buildSkeleton(planData) {
+  const biz   = esc(planData.businessName || 'Your Business');
+  const niche = esc(planData.niche || '');
+  const loc   = [planData.city, planData.state].filter(Boolean).map(esc).join(', ');
+  return `
+    <!-- Progress bar -->
+    <div id="gen-progress-wrap" style="position:sticky;top:0;z-index:200;background:white;padding:10px 1.5rem;border-bottom:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,.06);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span id="gen-progress-txt" style="font-size:12px;color:#4A0080;font-weight:600;">Building your plan…</span>
+        <span style="font-size:11px;color:#999;">Sections appear as each one is ready</span>
+      </div>
+      <div style="background:#f0e6ff;border-radius:20px;height:6px;overflow:hidden;">
+        <div id="gen-progress-bar" style="height:100%;background:linear-gradient(90deg,#4A0080,#c084fc);border-radius:20px;width:5%;transition:width .6s ease;"></div>
+      </div>
+    </div>
+    <!-- Fixed header (no API needed) -->
+    <div style="background:linear-gradient(135deg,#4A0080,#1a0030);padding:3rem 2rem;color:white;text-align:center;">
+      <div style="font-size:11px;letter-spacing:2px;opacity:.5;margin-bottom:.5rem;">SOCIAL MEDIA GROWTH PLAN</div>
+      <h1 style="font-size:2.2rem;font-weight:800;margin:0.5rem 0;">Social Media Plan for ${biz}</h1>
+      <div style="margin-top:1rem;display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;font-size:13px;opacity:.75;">
+        ${biz   ? `<span>🏢 ${biz}</span>`    : ''}
+        ${niche ? `<span>🎯 ${niche}</span>`  : ''}
+        ${loc   ? `<span>📍 ${loc}</span>`    : ''}
+      </div>
+    </div>
+    <!-- Section slots -->
+    <div id="slot-s1" class="skeleton-section">${skelBlock('Analysing 10 social media channels…')}</div>
+    <div id="slot-s2" class="skeleton-section">${skelBlock('Calculating posting schedule…')}</div>
+    <div id="slot-s3" class="skeleton-section">${skelBlock('Building AI video strategy…')}</div>
+    <div id="slot-s4" class="skeleton-section">${skelBlock('Writing content ideas and calendar…')}</div>
+    <div id="slot-s5" class="skeleton-section">${skelBlock('Finalising your growth journey…')}</div>`;
+}
+
+function skelBlock(label) {
+  return `<div style="padding:2rem;background:white;border-top:1px solid #eee;">
+    <div style="display:flex;align-items:center;gap:12px;color:#aaa;">
+      <div style="width:24px;height:24px;border:3px solid #e0d0ff;border-top-color:#4A0080;border-radius:50%;animation:spin .9s linear infinite;flex-shrink:0;"></div>
+      <span style="font-size:14px;">${esc(label)}</span>
+    </div>
+    <div style="margin-top:1rem;display:flex;flex-direction:column;gap:8px;">
+      ${[80,60,70,50].map(w=>`<div style="height:12px;background:#f0e6ff;border-radius:6px;width:${w}%;animation:pulse 1.5s ease-in-out infinite;"></div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════
 function backToEdit() {
   document.getElementById('plan-display').style.display  = 'none';
   document.getElementById('input-panel').style.display   = 'block';
@@ -607,32 +635,219 @@ function backToEdit() {
   window.scrollTo(0, 0);
 }
 
-function showError(title, detail, showRetry) {
-  const msg = typeof title === 'string' && detail === undefined
-    ? title   // backwards-compat: single-arg call
-    : (detail || title || 'Unknown error');
-  const heading = (detail !== undefined) ? title : '⚠️ Plan Generation Failed';
-  const hasRetry = showRetry !== false && _lastPlanData != null;
+// ═══════════════════════════════════════════════
+//  SECTION HTML BUILDERS
+// ═══════════════════════════════════════════════
+// Section 1 — opening statement + channel assessment
+function buildS1HTML(d, planData) {
+  const os = d.openingStatement || {};
+  const niche = esc(planData.niche || '');
+  const channels = d.channelAssessment || [];
+  const priorityColors = { High:'#dc3545', Medium:'#fd7e14', Low:'#0d6efd', 'Must Have':'#dc3545', 'High Priority':'#fd7e14', Recommended:'#0d6efd', Optional:'#6c757d' };
 
-  document.getElementById('input-panel').style.display  = 'none';
-  const display = document.getElementById('plan-display');
-  display.style.display = 'block';
-  display.innerHTML = `
-    <div style="padding:3rem 1rem;">
-      <div class="error-box">
-        <h3>${heading.startsWith('⚠') ? heading : '⚠️ ' + heading}</h3>
-        <p style="line-height:1.6;">${msg}</p>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:1rem;">
-          ${hasRetry ? `<button onclick="retryGenerate()" style="padding:10px 24px;background:#4A0080;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;">↺ Retry</button>` : ''}
-          <button onclick="backToEdit()" style="padding:10px 24px;background:white;color:#4A0080;border:2px solid #4A0080;border-radius:8px;cursor:pointer;font-size:14px;">← Edit &amp; Try Again</button>
-        </div>
+  // Update the header title if planTitle available
+  if (d.planTitle) {
+    const h1 = document.querySelector('#plan-display h1');
+    if (h1) h1.textContent = d.planTitle;
+  }
+
+  return `
+    <div class="plan-section" style="background:white;">
+      ${d.tagline ? `<p style="font-size:13px;color:#4A0080;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:.75rem;">${esc(d.tagline)}</p>` : ''}
+      ${os.headline ? `<h2 style="font-size:1.5rem;font-weight:700;color:#1a1a2e;margin-bottom:1rem;">${esc(os.headline)}</h2>` : ''}
+      ${os.body ? `<p style="font-size:1rem;line-height:1.8;color:#333;max-width:800px;margin-bottom:1rem;">${esc(os.body)}</p>` : ''}
+      ${os.agentObservations ? `<div style="background:#f0e6ff;border-left:4px solid #4A0080;padding:.9rem 1.2rem;border-radius:0 8px 8px 0;margin-bottom:1rem;">
+        <strong style="color:#4A0080;font-size:11px;letter-spacing:1px;">AGENT OBSERVATIONS</strong>
+        <p style="font-size:13px;color:#333;margin-top:4px;">${esc(os.agentObservations)}</p></div>` : ''}
+      ${d.whyNow ? `<div style="background:#FFF8F0;border-left:4px solid #E65100;padding:.9rem 1.2rem;border-radius:0 8px 8px 0;">
+        <strong style="color:#E65100;font-size:11px;letter-spacing:1px;">WHY ACT NOW</strong>
+        <p style="font-size:13px;color:#333;margin-top:4px;">${esc(d.whyNow)}</p></div>` : ''}
+    </div>
+    ${channels.length ? `
+    <div class="plan-section" style="background:#f8f9fa;">
+      <div class="section-label">Platform Analysis</div>
+      <div class="section-title">Social Media Channel Assessment</div>
+      <div class="channel-grid">
+        ${channels.map(ch => {
+          const isP = (ch.status||'').toLowerCase()==='present';
+          const bg  = isP ? (ch.color||'#4A0080') : '#6c757d';
+          const pc  = priorityColors[ch.priority] || '#6c757d';
+          return `<div class="channel-card">
+            <div class="channel-card-head" style="background:${bg};">
+              <strong>${esc(ch.platform)}</strong>
+              <span class="status-badge">${esc(ch.status||'Unknown')}</span>
+            </div>
+            <div class="channel-card-body">
+              ${ch.agentObservation||ch.observation ? `<p class="ch-obs">${esc(ch.agentObservation||ch.observation)}</p>` : ''}
+              ${ch.currentState ? `<p class="ch-state">${esc(ch.currentState)}</p>` : ''}
+              ${ch.whatWeWillDo||ch.opportunity ? `<p class="ch-action"><strong>We'll:</strong> ${esc(ch.whatWeWillDo||ch.opportunity)}</p>` : ''}
+              <div class="ch-meta">
+                ${ch.postsPerMonth ? `<span class="ch-posts" style="background:${bg};">${ch.postsPerMonth}/mo</span>` : ''}
+                ${ch.priority ? `<span class="ch-priority" style="color:${pc};border-color:${pc};">${esc(ch.priority)}</span>` : ''}
+                ${(ch.contentTypes||[]).length ? `<span class="ch-types">${ch.contentTypes.join(', ')}</span>` : ''}
+              </div>
+            </div>
+          </div>`;
+        }).join('')}
       </div>
+    </div>` : ''}`;
+}
+
+// Section 2 — posting schedule
+function buildS2HTML(d) {
+  const sched = d.proposedPostingSchedule || {};
+  const bkdn  = sched.breakdown || [];
+  return `
+    <div class="plan-section" style="background:white;">
+      <div class="section-label">Content Volume</div>
+      <div class="section-title">Monthly Posting Schedule</div>
+      <div class="schedule-hero">
+        <div class="big-num">${sched.totalPostsPerMonth || sched.totalMonthlyPieces || 48}</div>
+        <div class="big-label">content pieces published every month</div>
+        ${sched.summaryLine ? `<div class="summary-line">${esc(sched.summaryLine)}</div>` : ''}
+      </div>
+      ${bkdn.length ? `<div class="schedule-grid">
+        ${bkdn.map(b=>`<div class="sched-card">
+          <div class="sched-card-head" style="background:${b.color||'#4A0080'};">
+            <span>${b.icon||''} ${esc(b.platform)}</span>
+            <strong>${b.postsPerMonth||0}</strong>
+          </div>
+          <div class="sched-card-body">${esc(b.detail||'')}</div>
+        </div>`).join('')}
+      </div>` : ''}
     </div>`;
 }
 
-// ═══════════════════════════════════════════════
-//  BUILD PLAN HTML  (12 sections)
-// ═══════════════════════════════════════════════
+// Section 3 — AI video strategy
+function buildS3HTML(d) {
+  const aiv = d.aiVideoStrategy || {};
+  return `
+    <div class="plan-section aiv-section">
+      <div class="aiv-label">CORE SERVICE</div>
+      <div class="aiv-title">${esc(aiv.hook||aiv.headline||'AI Video Content Strategy')}</div>
+      ${aiv.whyItMatters||aiv.whyEssential ? `<p class="aiv-body">${esc(aiv.whyItMatters||aiv.whyEssential)}</p>` : ''}
+      <div style="display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+        ${aiv.videosPerMonth||aiv.monthlyAIVideos ? `<div>
+          <div style="font-size:3rem;font-weight:800;color:#FFD700;">${aiv.videosPerMonth||aiv.monthlyAIVideos}</div>
+          <div style="color:#aaa;font-size:13px;">AI videos per month</div></div>` : ''}
+        ${aiv.turnaround ? `<div>
+          <div style="font-size:1.2rem;font-weight:700;color:#FFD700;">⏱ ${esc(aiv.turnaround)}</div>
+          <div style="color:#aaa;font-size:13px;">turnaround per video</div></div>` : ''}
+      </div>
+      ${(aiv.whatWeCreate||aiv.aiVideoTypes||[]).length ? `<div class="aiv-types">
+        ${(aiv.whatWeCreate||aiv.aiVideoTypes||[]).map((v,i)=>`<div class="aiv-type-card">
+          <div class="aiv-icon">${['🎬','📱','✨','🎯'][i]||'🎬'}</div>
+          ${typeof v==='string' ? `<strong>${esc(v)}</strong>` : `<strong>${esc(v.type||v.name||'')}</strong><span>${esc(v.description||'')}</span>`}
+        </div>`).join('')}
+      </div>` : ''}
+      ${aiv.veo3Advantage||aiv.competitorAdvantage ? `<div class="aiv-advantage">
+        <strong style="color:#FFD700;font-size:11px;letter-spacing:1px;">GOOGLE VEO 3 ADVANTAGE</strong>
+        <p style="color:#ccc;margin-top:4px;font-size:13px;">${esc(aiv.veo3Advantage||aiv.competitorAdvantage)}</p></div>` : ''}
+      ${aiv.sampleIdea||aiv.specificIdeas ? `<div class="aiv-sample">
+        <div class="aiv-sample-label">SAMPLE VIDEO IDEA</div>
+        <p style="color:#ccc;font-size:13px;">${esc(typeof aiv.sampleIdea==='string' ? aiv.sampleIdea : (aiv.specificIdeas||[])[0]||'')}</p></div>` : ''}
+      ${(aiv.platforms||[]).length ? `<div class="aiv-platforms">
+        ${aiv.platforms.map(p=>`<span class="aiv-plat-pill">${esc(p)}</span>`).join('')}</div>` : ''}
+    </div>`;
+}
+
+// Section 4 — content pillars + ideas + week calendar
+function buildS4HTML(d) {
+  const pillars = d.contentPillars || [];
+  const ideas   = d.sampleContentIdeas || [];
+  const weekCal = d.sampleWeekCalendar || [];
+  return `
+    ${pillars.length ? `<div class="plan-section" style="background:#f8f9fa;">
+      <div class="section-label">Strategy</div>
+      <div class="section-title">Content Pillars</div>
+      <div class="pillars-grid">
+        ${pillars.map((pl,i)=>`<div class="pillar-card">
+          <div class="pillar-head">
+            <span class="pillar-emoji">${esc(pl.emoji||'📌')}</span>
+            <strong>Pillar ${i+1}: ${esc(pl.name||pl.pillarName||'')}</strong>
+          </div>
+          <div class="pillar-body">
+            <p class="pillar-desc">${esc(pl.description||'')}</p>
+            ${pl.exampleCaption||pl.captionOpener ? `<p class="pillar-caption">"${esc(pl.exampleCaption||pl.captionOpener)}"</p>` : ''}
+            ${(pl.platforms||[]).length ? `<div class="pillar-plats">${pl.platforms.map(p=>`<span class="pillar-plat">${esc(p)}</span>`).join('')}</div>` : ''}
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>` : ''}
+    ${ideas.length ? `<div class="plan-section" style="background:white;">
+      <div class="section-label">Examples</div>
+      <div class="section-title">Sample Content We Will Create</div>
+      <div class="ideas-grid">
+        ${ideas.map(idea=>`<div class="idea-card">
+          <div class="idea-tags">
+            <span class="idea-tag-plat" style="background:${idea.color||'#4A0080'};">${esc(idea.platform)}</span>
+            <span class="idea-tag-type">${esc(idea.contentType||idea.type||'Post')}</span>
+          </div>
+          <div class="idea-title">${esc(idea.idea||idea.title||'')}</div>
+          ${idea.caption ? `<p class="idea-caption">${esc(idea.caption)}</p>` : ''}
+        </div>`).join('')}
+      </div>
+    </div>` : ''}
+    ${weekCal.length ? `<div class="plan-section" style="background:#f8f9fa;">
+      <div class="section-label">Scheduling</div>
+      <div class="section-title">Sample Week of Posting</div>
+      <div class="week-grid">
+        ${weekCal.map(day=>`<div class="week-day">
+          <div class="week-day-name">${esc(day.day)}</div>
+          <span class="week-plat-badge" style="background:${day.color||'#4A0080'};">${esc(day.platform)}</span>
+          <div class="week-ctype">${esc(day.contentType||day.type||'')}</div>
+          <div class="week-idea">${esc(day.idea||'')}</div>
+        </div>`).join('')}
+      </div>
+    </div>` : ''}`;
+}
+
+// Section 5 — missing channels + journey + CTA
+function buildS5HTML(d, planData) {
+  const missing  = d.missingChannelOpportunities || [];
+  const ej       = d.expectedJourney || {};
+  const journeys = ['month1','month2','month3'].map(k=>ej[k]).filter(Boolean);
+  const cta      = d.callToAction || {};
+  const bizName  = esc(planData?.businessName || '');
+  return `
+    ${missing.length ? `<div class="plan-section" style="background:white;">
+      <div class="section-label">Growth Gaps</div>
+      <div class="section-title">Untapped Channel Opportunities</div>
+      ${bizName ? `<p style="color:#666;margin-bottom:1.5rem;font-size:14px;">These channels weren't found for ${bizName}. Activating them expands your reach significantly.</p>` : ''}
+      <div class="missing-grid">
+        ${missing.map(ch=>`<div class="missing-card">
+          <div class="missing-head">
+            <strong>${esc(ch.icon||'📣')} ${esc(ch.platform)}</strong>
+            <span style="font-size:10px;background:rgba(255,255,255,.25);padding:2px 8px;border-radius:20px;">${esc(ch.priority||'Missing')}</span>
+          </div>
+          <div class="missing-body">
+            ${ch.whyNow      ? `<p class="missing-field"><strong>Why now:</strong> ${esc(ch.whyNow)}</p>` : ''}
+            ${ch.opportunity||ch.valueStatement||ch.audienceMissed ? `<p class="missing-field"><strong>Opportunity:</strong> ${esc(ch.opportunity||ch.valueStatement||ch.audienceMissed)}</p>` : ''}
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>` : ''}
+    ${journeys.length ? `<div class="plan-section" style="background:#f8f9fa;">
+      <div class="section-label">Timeline</div>
+      <div class="section-title">Your 90-Day Growth Journey</div>
+      <div class="journey-grid">
+        ${journeys.map(m=>`<div class="journey-card">
+          <div class="journey-head" style="background:${m.color||'#4A0080'};">${esc(m.label||'')}</div>
+          <div class="journey-body">
+            <div class="journey-focus">${esc(m.focus||'')}</div>
+            ${(m.wins||m.designedToAchieve||[]).map(w=>`<div class="journey-win"><span>✓</span><span>${esc(w)}</span></div>`).join('')}
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>` : ''}
+    <div class="cta-section">
+      <h2 class="cta-headline">${esc(cta.headline||'Ready to Transform Your Social Media?')}</h2>
+      ${cta.subtext ? `<p class="cta-subtext">${esc(cta.subtext)}</p>` : ''}
+      <a href="#" class="cta-btn" onclick="return false;">${esc(cta.buttonText||'Book Your Free Strategy Call')}</a>
+    </div>`;
+}
+
+// Keep old buildPlanHTML for any legacy calls (maps to new builders)
 function buildPlanHTML(plan) {
   const p = plan;
 

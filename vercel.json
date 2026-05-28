@@ -1,7 +1,12 @@
 {
   "version": 2,
   "functions": {
-    "api/social-audit.js": { "maxDuration": 60 }
+    "api/social-audit.js":    { "maxDuration": 60 },
+    "api/social-section1.js": { "maxDuration": 15 },
+    "api/social-section2.js": { "maxDuration": 15 },
+    "api/social-section3.js": { "maxDuration": 15 },
+    "api/social-section4.js": { "maxDuration": 15 },
+    "api/social-section5.js": { "maxDuration": 15 }
   },
   "headers": [
     {
