@@ -6499,7 +6499,7 @@ Conversational tone. Short sentences. Write exactly what to say, including scree
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model:      'claude-haiku-4-5-20251001',
+        model:      'claude-sonnet-4-5',
         max_tokens: 1200,
         messages:   [{ role:'user', content: prompts[type] }]
       })
@@ -6691,7 +6691,7 @@ Generate realistic, specific proposal content. Return ONLY valid JSON:
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
-      body: JSON.stringify({ model:'claude-haiku-4-5-20251001', max_tokens:2400,
+      body: JSON.stringify({ model:'claude-sonnet-4-5', max_tokens:2400,
         messages:[{ role:'user', content:proposalPrompt }] })
     });
     const apiData = await resp.json();
