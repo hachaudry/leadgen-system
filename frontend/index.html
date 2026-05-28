@@ -2654,26 +2654,18 @@ function getStatusClass(s) {
 }
 
 // ── Social Media Plan — opens standalone page in new tab ──────────────────
+// No niche validation — social-plan.html handles missing niche gracefully
 function openSocialPlan(idx) {
   const lead = filteredLeads[idx];
   if (!lead) return;
-  const niche = (lead.niche || lead.businessType || '').trim();
-  if (!niche) {
-    const warn = document.getElementById(`niche-warn-${idx}`);
-    if (warn) {
-      warn.innerHTML = '<div style="color:#c62828;font-size:12px;margin-bottom:6px;">⚠️ Please set a niche/business type before running Social Media analysis.</div>';
-      setTimeout(() => { if (warn) warn.innerHTML = ''; }, 4000);
-    }
-    return;
-  }
   const params = new URLSearchParams({
-    businessName: lead.name        || '',
-    niche:        niche,
-    city:         lead.city        || '',
-    state:        lead.state       || 'CA',
-    rating:       lead.rating      || '',
-    reviews:      lead.reviews     || lead.reviewCount || '',
-    prospectId:   lead.id          || idx
+    businessName: lead.name             || '',
+    niche:        lead.niche            || lead.businessType || lead.type || '',
+    city:         lead.city             || '',
+    state:        lead.state            || 'CA',
+    rating:       lead.rating           || '',
+    reviews:      lead.reviews          || lead.reviewCount || '',
+    prospectId:   lead.id               || lead.place_id || idx
   });
   window.open('/social-plan.html?' + params.toString(), '_blank');
 }

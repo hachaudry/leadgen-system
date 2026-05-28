@@ -222,6 +222,19 @@
   <!-- Dropdowns -->
   <div class="ip-section">
     <h3>Campaign Context</h3>
+
+    <!-- Niche field — highlighted when missing from URL params -->
+    <div id="niche-field-row" style="margin-bottom:1.2rem;">
+      <label style="display:block;font-size:12px;font-weight:700;color:#4A0080;margin-bottom:6px;">
+        Business Type / Niche
+        <span id="niche-required-badge" style="display:none;margin-left:6px;background:#E65100;color:white;font-size:10px;padding:1px 7px;border-radius:20px;vertical-align:middle;">FILL IN FOR BEST RESULTS</span>
+      </label>
+      <input type="text" id="inp-niche"
+        placeholder="e.g. Hair Salon, HVAC, Dental Office, Restaurant…"
+        style="width:100%;padding:10px 14px;border:2px solid #4A0080;border-radius:8px;font-size:14px;color:#1a1a2e;"
+        onchange="saveInputs()" />
+    </div>
+
     <div class="dropdowns-grid">
       <div class="drop-group">
         <label>Budget Range</label>
@@ -335,6 +348,17 @@ document.addEventListener('DOMContentLoaded', () => {
     [BIZ_NAME, NICHE, CITY, STATE].filter(Boolean).join(' · ');
   document.title = `Social Media Plan — ${BIZ_NAME || 'Business'}`;
 
+  // Pre-fill niche field from URL param
+  const nicheInput = document.getElementById('inp-niche');
+  if (NICHE) {
+    nicheInput.value = NICHE;
+  } else {
+    // Niche missing — highlight the field
+    document.getElementById('niche-required-badge').style.display = 'inline';
+    nicheInput.style.borderColor = '#E65100';
+    nicheInput.focus();
+  }
+
   // Check API key
   const key = localStorage.getItem('lg_anthropic') || '';
   if (!key) document.getElementById('key-warning').style.display = 'block';
@@ -388,16 +412,22 @@ function toggleNA(key) {
 }
 
 function loadSaved() {
-  // Dropdowns
   const saved = JSON.parse(localStorage.getItem(LS_INPUTS) || '{}');
   if (saved.budget)    document.getElementById('sel-budget').value = saved.budget;
   if (saved.goal)      document.getElementById('sel-goal').value   = saved.goal;
   if (saved.painPoint) document.getElementById('sel-pain').value   = saved.painPoint;
+  // Restore niche from saved if URL param was empty
+  if (!NICHE && saved.niche) {
+    document.getElementById('inp-niche').value = saved.niche;
+    document.getElementById('niche-required-badge').style.display = 'none';
+    document.getElementById('inp-niche').style.borderColor = '#4A0080';
+  }
 }
 
 function saveInputs() {
   const notPresent = PLATFORMS.filter(p => document.getElementById(`na-${p.key}`)?.checked).map(p => p.key);
   const data = {
+    niche:      document.getElementById('inp-niche').value,
     budget:     document.getElementById('sel-budget').value,
     goal:       document.getElementById('sel-goal').value,
     painPoint:  document.getElementById('sel-pain').value,
@@ -437,9 +467,12 @@ async function generatePlan() {
     }
   });
 
+  // Niche: prefer the editable input field (allows manual entry if URL param was empty)
+  const nicheValue = (document.getElementById('inp-niche').value || NICHE || '').trim();
+
   const planData = {
     businessName: BIZ_NAME,
-    niche:        NICHE,
+    niche:        nicheValue,
     city:         CITY,
     state:        STATE,
     rating:       RATING,
