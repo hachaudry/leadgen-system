@@ -444,88 +444,61 @@ function parseClaudeJSON(rawText) {
 }
 
 // ═══════════════════════════════════════════════
-//  BUILD PROMPT
+//  BUILD PROMPT — ultra-compact for speed
 // ═══════════════════════════════════════════════
 function buildPrompt(planData) {
   const present = [], missing = [];
   ['facebook','instagram','linkedin','tiktok','youtube','twitter','pinterest','yelp','googleBusiness','threads']
     .forEach(p => {
-      const url = planData.profiles?.[p] || '';
-      const obs = planData.observations?.[p] || '';
-      if (url) present.push(p + ': PRESENT. ' + (obs || 'no notes'));
-      else     missing.push(p + ': MISSING. ' + (obs || 'not found'));
+      if (planData.profiles?.[p]) present.push(p);
+      else missing.push(p);
     });
 
-  const biz    = planData.businessName || 'this business';
-  const niche  = planData.niche  || 'local business';
-  const city   = planData.city   || 'California';
-  const goal   = planData.goal   || 'more bookings';
-  const budget = planData.budget || '800 to 1500 per month';
+  const biz   = planData.businessName || 'this business';
+  const niche = planData.niche  || 'local business';
+  const city  = planData.city   || 'California';
+  const goal  = planData.goal   || 'more bookings';
 
-  return `You are a social media content strategist.
-Create a social media plan for ${biz} (${niche}) in ${city}. Goal: ${goal}. Budget: ${budget}.
-Present channels: ${present.join(' | ') || 'none'}
-Missing channels: ${missing.join(' | ')}
+  return `You are a social media strategist. Create a posting plan for ${biz}, a ${niche} in ${city} California.
+Goal: ${goal}. Present channels: ${present.join(', ') || 'none'}. Missing: ${missing.join(', ')}.
 
-CRITICAL JSON RULES: Return ONLY a valid JSON object. No text before or after the JSON. No markdown. No apostrophes anywhere in string values - write "do not" instead of "don't" and "it is" instead of "it's". No special characters. No newlines inside string values. Every string value must be under 20 words. All arrays must have proper commas between every item. No trailing commas.
+RULES: Social media only. No SEO. No packages. AI video must be featured. No apostrophes in any string value. Max 15 words per string value.
 
-Return this exact JSON structure:
+Return ONLY valid JSON (no markdown, no text before or after):
 {
-  "planTitle": "Social Media Plan for ${biz}",
-  "tagline": "short punchy tagline under 8 words",
-  "openingStatement": "Two sentences about social media opportunity for ${niche} in ${city}. No apostrophes.",
-  "whyNow": "One sentence urgency. No apostrophes.",
-  "channelAssessment": [
-    { "platform": "Facebook", "status": "Present or Missing", "priority": "Must Have", "opportunity": "one sentence action" },
-    { "platform": "Instagram", "status": "Present or Missing", "priority": "Must Have", "opportunity": "one sentence action" },
-    { "platform": "TikTok", "status": "Present or Missing", "priority": "High Priority", "opportunity": "one sentence action" },
-    { "platform": "YouTube", "status": "Present or Missing", "priority": "Recommended", "opportunity": "one sentence action" },
-    { "platform": "Google Business", "status": "Present or Missing", "priority": "Must Have", "opportunity": "one sentence action" }
-  ],
-  "posting": {
-    "totalMonthlyPieces": 48,
-    "weeklyAverage": 12,
-    "instagram": { "total": 20, "focus": "Reels and feed posts" },
-    "facebook": { "total": 10, "focus": "Posts and videos" },
-    "tiktok": { "total": 12, "focus": "Short videos" },
-    "youtube": { "total": 6, "focus": "Shorts and long form" },
-    "googleBusiness": { "total": 8, "focus": "Updates and photos" }
-  },
-  "aiVideo": {
-    "monthlyVideos": 8,
-    "whyEssential": "Two sentences why AI video matters for ${niche} in 2026. No apostrophes.",
-    "aiVideoTypes": ["Type one name: what we create for ${biz} - 3 per month", "Type two name: what we create - 3 per month", "Type three name: what we create - 2 per month"],
-    "tools": ["Google Veo 3", "CapCut"],
-    "advantage": "One sentence competitive advantage. No apostrophes."
-  },
-  "contentPillars": [
-    "Pillar 1 name: description of this content theme - 16 posts per month",
-    "Pillar 2 name: description of this content theme - 12 posts per month",
-    "Pillar 3 name: description of this content theme - 10 posts per month"
-  ],
-  "contentIdeas": [
-    "Instagram Reel: specific idea for ${niche} in ${city}",
-    "TikTok Video: specific idea related to ${biz}",
-    "Facebook Post: specific idea for local audience",
-    "Instagram Carousel: specific idea showing ${niche} expertise",
-    "Google Business Update: specific local update for ${biz}"
-  ],
-  "weekCalendar": [
-    "Monday: Instagram Reel - specific idea for ${niche}",
-    "Tuesday: TikTok Video - specific idea",
-    "Wednesday: Facebook Post - specific idea",
-    "Thursday: Instagram Story - specific idea",
-    "Friday: TikTok Video - specific idea",
-    "Saturday: Instagram Feed Post - specific idea",
-    "Sunday: Google Business Post - specific idea"
-  ],
-  "missingOpportunities": [
-    "Platform name: specific opportunity description for ${niche}",
-    "Platform name: specific opportunity description"
-  ],
-  "month1Goals": ["First month goal for ${biz}", "Second month 1 goal", "Third month 1 goal"],
-  "month3Goals": ["First 90 day result", "Second 90 day result", "Third 90 day result"],
-  "nextStep": "Single specific action ${biz} should take this week"
+"planTitle": "Social Media Plan for ${biz}",
+"tagline": "short punchy subtitle",
+"openingStatement": "Two sentences about social media opportunity for ${niche} in ${city}.",
+"channelAssessment": [
+  {"platform":"Facebook","status":"Present or Missing","priority":"Must Have or Recommended","opportunity":"one sentence"},
+  {"platform":"Instagram","status":"Present or Missing","priority":"Must Have or Recommended","opportunity":"one sentence"},
+  {"platform":"TikTok","status":"Present or Missing","priority":"Must Have or Recommended","opportunity":"one sentence"},
+  {"platform":"YouTube","status":"Present or Missing","priority":"Must Have or Recommended","opportunity":"one sentence"},
+  {"platform":"Google Business","status":"Present or Missing","priority":"Must Have or Recommended","opportunity":"one sentence"}
+],
+"posting": {
+  "totalMonthlyPieces": 48,
+  "weeklyAverage": 12,
+  "instagram": {"feedPosts":8,"reels":12,"stories":4,"total":24,"focus":"Reels and engagement"},
+  "facebook": {"posts":8,"videos":2,"total":10,"focus":"Community and reach"},
+  "tiktok": {"videos":12,"total":12,"focus":"Short viral videos"},
+  "youtube": {"videos":2,"shorts":4,"total":6,"focus":"Tutorials and shorts"},
+  "googleBusiness": {"posts":4,"photos":4,"total":8}
+},
+"aiVideo": {
+  "monthlyVideos": 8,
+  "whyEssential": "Two sentences on AI video for ${niche} in 2026.",
+  "types": ["Type one: what we make for ${biz} - 3 per month","Type two: what we make - 3 per month","Type three: what we make - 2 per month"],
+  "tools": ["Google Veo 3","CapCut"],
+  "advantage": "One sentence on competitive edge."
+},
+"contentPillars": ["Pillar one name: description - 16 posts per month","Pillar two name: description - 12 posts per month","Pillar three name: description - 10 posts per month"],
+"contentIdeas": ["Instagram Reel: idea for ${niche}","TikTok Video: idea for ${biz}","Facebook Post: idea for local audience","Instagram Carousel: idea showing expertise","Google Business: local update idea"],
+"weekCalendar": ["Monday: Instagram Reel - idea","Tuesday: TikTok Video - idea","Wednesday: Facebook Post - idea","Thursday: Instagram Story - idea","Friday: TikTok Video - idea","Saturday: Instagram Post - idea","Sunday: Google Business Post - idea"],
+"missingOpportunities": ["Platform: opportunity for ${niche}","Platform: opportunity description"],
+"month1Goals": ["goal one for ${biz}","goal two","goal three"],
+"month3Goals": ["result one","result two","result three"],
+"nextStep": "single specific action for ${biz} this week"
 }`;
 }
 
@@ -579,9 +552,9 @@ async function runGenerate(planData, apiKey) {
   window.scrollTo(0, 0);
 
   const msgs = [
-    'Analysing your social media channels…',
-    `Building posting schedule for ${planData.businessName || 'your business'}…`,
-    'Creating AI video strategy…',
+    'Building your social media plan…',
+    'Calculating posting schedule…',
+    'Creating content ideas…',
     'Almost ready…'
   ];
   let mi = 0;
@@ -590,11 +563,18 @@ async function runGenerate(planData, apiKey) {
   const msgTimer   = setInterval(() => {
     mi++;
     if (progressEl) progressEl.textContent = msgs[mi % msgs.length];
-    if (barEl) barEl.style.width = Math.min(10 + mi * 22, 88) + '%';
-  }, 1500);
+    if (barEl) barEl.style.width = Math.min(10 + mi * 20, 88) + '%';
+  }, 2000);
 
-  // Declare rawText outside try so error handler can inspect it
+  // rawText declared outside try so error handler can show a preview
   let rawText = '';
+
+  // 30-second timeout — AbortController aborts the fetch
+  const controller = new AbortController();
+  const timeoutId  = setTimeout(() => controller.abort(), 30000);
+
+  console.log('API key found:', apiKey.substring(0, 10) + '...');
+  console.log('Starting API call:', new Date().toISOString());
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -607,37 +587,48 @@ async function runGenerate(planData, apiKey) {
       },
       body: JSON.stringify({
         model:      'claude-haiku-4-5',
-        max_tokens: 1500,
+        max_tokens: 1200,
         messages:   [{ role: 'user', content: buildPrompt(planData) }]
-      })
+      }),
+      signal: controller.signal
     });
 
+    clearTimeout(timeoutId);
     clearInterval(msgTimer);
+    console.log('API responded:', new Date().toISOString());
 
     const data = await response.json();
     if (data.error) throw new Error('API error: ' + (data.error.message || JSON.stringify(data.error)));
 
     rawText = (data.content || []).map(b => b.text || '').join('');
     const plan = parseClaudeJSON(rawText);
+    console.log('JSON parsed:', new Date().toISOString());
     if (!plan.planTitle && !plan.openingStatement) throw new Error('Response missing planTitle and openingStatement');
 
     if (barEl) barEl.style.width = '100%';
     if (progressEl) progressEl.textContent = 'Done! Loading your plan…';
-    await new Promise(r => setTimeout(r, 300));
+    await new Promise(r => setTimeout(r, 250));
     renderPlanIntoDisplay(plan, planData);
+    console.log('Plan rendered:', new Date().toISOString());
 
   } catch (err) {
+    clearTimeout(timeoutId);
     clearInterval(msgTimer);
-    const preview = rawText ? rawText.substring(0, 300) : 'No response received';
+    const isAbort  = err.name === 'AbortError';
+    const preview  = rawText ? rawText.substring(0, 300) : 'No response received';
+    const headline = isAbort ? 'Taking too long' : 'Generation failed';
+    const body     = isAbort
+      ? 'The plan is taking longer than expected. Click Retry to try again.'
+      : esc(err.message);
     display.innerHTML = `
       <div style="padding:3rem 1rem;">
         <div class="error-box">
-          <h3>⚠️ Generation failed</h3>
-          <p style="line-height:1.7;">${esc(err.message)}</p>
-          <details style="margin-top:.75rem;text-align:left;">
+          <h3>⚠️ ${headline}</h3>
+          <p style="line-height:1.7;">${body}</p>
+          ${!isAbort ? `<details style="margin-top:.75rem;text-align:left;">
             <summary style="cursor:pointer;font-size:12px;color:#dc3545;font-weight:600;">Debug: raw response preview</summary>
             <pre style="margin-top:.5rem;font-size:11px;color:#666;white-space:pre-wrap;word-break:break-all;background:#f8f8f8;padding:.75rem;border-radius:6px;">${esc(preview)}</pre>
-          </details>
+          </details>` : ''}
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:1.2rem;">
             <button onclick="retryGenerate()" style="padding:10px 24px;background:#4A0080;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;">↺ Retry</button>
             <button onclick="backToEdit()" style="padding:10px 24px;background:white;color:#4A0080;border:2px solid #4A0080;border-radius:8px;cursor:pointer;font-size:14px;">← Edit &amp; Try Again</button>
