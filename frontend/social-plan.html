@@ -482,147 +482,138 @@ async function retryGenerate() {
   await runGenerate(_lastPlanData, apiKey);
 }
 
-// ─── callSection ─────────────────────────────────
-async function callSection(endpoint, planData, apiKey) {
-  try {
-    const r = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-anthropic-key': apiKey },
-      body: JSON.stringify(planData),
-      signal: AbortSignal.timeout(25000)
-    });
-    const text = await r.text();
-    const result = JSON.parse(text);
-    if (result.success && result.data) return result.data;
-    console.warn(`${endpoint} failed:`, result.error);
-    return null;
-  } catch (err) {
-    console.warn(`${endpoint} error:`, err.message);
-    return null;
-  }
-}
-
-// ─── runGenerate ─────────────────────────────────
+// ─── runGenerate — single fast call to /api/social-audit ──────────────────
 async function runGenerate(planData, apiKey) {
-  document.getElementById('input-panel').style.display   = 'none';
-  document.getElementById('loading-overlay').classList.remove('active');
+  document.getElementById('input-panel').style.display = 'none';
   document.getElementById('btn-generate').disabled = true;
 
-  // Set up plan display with skeleton slots
+  // Show plan display with loading overlay immediately
   const display = document.getElementById('plan-display');
   display.style.display = 'block';
-  display.innerHTML = buildSkeleton(planData);
+  display.innerHTML = buildLoadingShell(planData);
   document.getElementById('action-bar').classList.add('visible');
   window.scrollTo(0, 0);
 
-  setProgress(0, 'Building your channel assessment…');
+  // Cycle progress messages while waiting
+  const msgs = [
+    'Analysing your 10 social media channels…',
+    'Building channel assessment…',
+    'Calculating posting schedule…',
+    'Creating AI video strategy…',
+    `Generating content ideas for ${planData.businessName || 'your business'}…`,
+    'Writing captions and calendar…',
+    'Mapping your 90-day growth journey…',
+    'Almost ready — compiling your plan…'
+  ];
+  let mi = 0;
+  const progressEl = document.getElementById('shell-progress-txt');
+  const barEl      = document.getElementById('shell-progress-bar');
+  const msgTimer   = setInterval(() => {
+    mi++;
+    if (progressEl) progressEl.textContent = msgs[mi % msgs.length];
+    if (barEl) barEl.style.width = Math.min(10 + mi * 12, 88) + '%';
+  }, 2500);
 
-  // Section 1 — header + opening + channels (most important, show first)
-  const s1 = await callSection('/api/social-section1', planData, apiKey);
-  setProgress(20, 'Calculating your posting schedule…');
-  if (s1) fillSection('slot-s1', buildS1HTML(s1, planData));
-  else     fillSection('slot-s1', sectionError('Channel assessment'));
+  try {
+    const controller = new AbortController();
+    const to = setTimeout(() => controller.abort(), 25000);
 
-  // Section 2 — posting schedule
-  const s2 = await callSection('/api/social-section2', planData, apiKey);
-  setProgress(40, 'Creating your AI video strategy…');
-  if (s2) fillSection('slot-s2', buildS2HTML(s2));
-  else     fillSection('slot-s2', sectionError('Posting schedule'));
+    const r = await fetch('/api/social-audit', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'x-anthropic-key': apiKey },
+      body:    JSON.stringify(planData),
+      signal:  controller.signal
+    });
+    clearTimeout(to);
+    clearInterval(msgTimer);
 
-  // Section 3 — AI video
-  const s3 = await callSection('/api/social-section3', planData, apiKey);
-  setProgress(60, 'Writing content ideas and calendar…');
-  if (s3) fillSection('slot-s3', buildS3HTML(s3));
-  else     fillSection('slot-s3', sectionError('AI video strategy'));
+    const text = await r.text();
+    let result;
+    try { result = JSON.parse(text); } catch { throw new Error('Server returned invalid JSON'); }
 
-  // Section 4 — pillars + ideas + calendar
-  const s4 = await callSection('/api/social-section4', planData, apiKey);
-  setProgress(80, 'Finalising your growth journey…');
-  if (s4) fillSection('slot-s4', buildS4HTML(s4));
-  else     fillSection('slot-s4', sectionError('Content ideas'));
-
-  // Section 5 — missing channels + journey + CTA
-  const s5 = await callSection('/api/social-section5', planData, apiKey);
-  setProgress(100, 'Done!');
-  if (s5) fillSection('slot-s5', buildS5HTML(s5, planData));
-  else     fillSection('slot-s5', sectionError('Growth opportunities'));
-
-  // Hide progress bar after short delay
-  setTimeout(() => {
-    const pb = document.getElementById('gen-progress-wrap');
-    if (pb) pb.style.display = 'none';
-  }, 1500);
-
-  document.getElementById('btn-generate').disabled = false;
-}
-
-// ─── Progress helpers ─────────────────────────────
-function setProgress(pct, label) {
-  const bar  = document.getElementById('gen-progress-bar');
-  const txt  = document.getElementById('gen-progress-txt');
-  if (bar) bar.style.width = pct + '%';
-  if (txt) txt.textContent = label;
-}
-
-function fillSection(id, html) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.innerHTML = html;
-    el.classList.remove('skeleton-section');
+    if (result.success && result.plan) {
+      if (barEl) barEl.style.width = '100%';
+      if (progressEl) progressEl.textContent = 'Done! Loading your plan…';
+      await new Promise(resolve => setTimeout(resolve, 400)); // brief flash of 100%
+      renderPlanIntoDisplay(result.plan, planData);
+    } else {
+      throw new Error(result.error || 'Plan generation failed');
+    }
+  } catch (err) {
+    clearInterval(msgTimer);
+    const isAbort = err.name === 'AbortError';
+    display.innerHTML = `
+      <div style="padding:3rem 1rem;">
+        <div class="error-box">
+          <h3>⚠️ ${isAbort ? 'Taking longer than expected' : 'Generation failed'}</h3>
+          <p style="line-height:1.7;">${isAbort
+            ? `Your plan for <strong>${esc(planData.businessName)}</strong> is being generated. This can take a moment. Click <strong>↺ Retry</strong> — it almost always works on the second attempt.`
+            : esc(err.message)}</p>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:1.2rem;">
+            <button onclick="retryGenerate()" style="padding:10px 24px;background:#4A0080;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;">↺ Retry</button>
+            <button onclick="backToEdit()" style="padding:10px 24px;background:white;color:#4A0080;border:2px solid #4A0080;border-radius:8px;cursor:pointer;font-size:14px;">← Edit &amp; Try Again</button>
+          </div>
+        </div>
+      </div>`;
+  } finally {
+    document.getElementById('btn-generate').disabled = false;
   }
 }
 
-function sectionError(name) {
-  return `<div style="padding:1.5rem;background:#fff5f5;border-left:4px solid #dc3545;color:#555;font-size:13px;">
-    ⚠️ ${esc(name)} could not be generated.
-    <button onclick="retryGenerate()" style="margin-left:12px;padding:4px 12px;background:#4A0080;color:white;border:none;border-radius:6px;cursor:pointer;font-size:12px;">↺ Retry All</button>
-  </div>`;
+function renderPlanIntoDisplay(plan, planData) {
+  const display = document.getElementById('plan-display');
+  const biz   = esc(plan.planTitle || ('Social Media Plan for ' + (planData.businessName || 'Your Business')));
+  const tag   = plan.tagline ? `<p style="font-size:1.1rem;opacity:.8;margin-top:.5rem;">${esc(plan.tagline)}</p>` : '';
+  const meta  = [planData.businessName, planData.niche, [planData.city, planData.state].filter(Boolean).join(', ')].filter(Boolean);
+
+  const header = `
+    <div style="background:linear-gradient(135deg,#4A0080,#1a0030);padding:3rem 2rem;color:white;text-align:center;">
+      <div style="font-size:11px;letter-spacing:2px;opacity:.5;margin-bottom:.5rem;">SOCIAL MEDIA GROWTH PLAN</div>
+      <h1 style="font-size:2.2rem;font-weight:800;margin:.5rem 0;">${biz}</h1>
+      ${tag}
+      <div style="margin-top:1rem;display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;font-size:13px;opacity:.75;">
+        ${meta.map((m,i) => `<span>${['🏢','🎯','📍'][i]||'•'} ${esc(m)}</span>`).join('')}
+      </div>
+    </div>`;
+
+  display.innerHTML =
+    header +
+    buildS1HTML(plan, planData) +
+    buildS2HTML(plan) +
+    buildS3HTML(plan) +
+    buildS4HTML(plan) +
+    buildS5HTML(plan, planData);
 }
 
-// ─── Skeleton ─────────────────────────────────────
-function buildSkeleton(planData) {
+// ─── Loading shell (shown while single API call is in flight) ─────────────
+function buildLoadingShell(planData) {
   const biz   = esc(planData.businessName || 'Your Business');
   const niche = esc(planData.niche || '');
   const loc   = [planData.city, planData.state].filter(Boolean).map(esc).join(', ');
   return `
-    <!-- Progress bar -->
-    <div id="gen-progress-wrap" style="position:sticky;top:0;z-index:200;background:white;padding:10px 1.5rem;border-bottom:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,.06);">
+    <div style="position:sticky;top:0;z-index:200;background:white;padding:10px 1.5rem;border-bottom:1px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,.06);">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <span id="gen-progress-txt" style="font-size:12px;color:#4A0080;font-weight:600;">Building your plan…</span>
-        <span style="font-size:11px;color:#999;">Sections appear as each one is ready</span>
+        <span id="shell-progress-txt" style="font-size:12px;color:#4A0080;font-weight:600;">Analysing your social media channels…</span>
+        <span style="font-size:11px;color:#999;">Usually takes 5–8 seconds</span>
       </div>
       <div style="background:#f0e6ff;border-radius:20px;height:6px;overflow:hidden;">
-        <div id="gen-progress-bar" style="height:100%;background:linear-gradient(90deg,#4A0080,#c084fc);border-radius:20px;width:5%;transition:width .6s ease;"></div>
+        <div id="shell-progress-bar" style="height:100%;background:linear-gradient(90deg,#4A0080,#c084fc);border-radius:20px;width:5%;transition:width .8s ease;"></div>
       </div>
     </div>
-    <!-- Fixed header (no API needed) -->
     <div style="background:linear-gradient(135deg,#4A0080,#1a0030);padding:3rem 2rem;color:white;text-align:center;">
       <div style="font-size:11px;letter-spacing:2px;opacity:.5;margin-bottom:.5rem;">SOCIAL MEDIA GROWTH PLAN</div>
-      <h1 style="font-size:2.2rem;font-weight:800;margin:0.5rem 0;">Social Media Plan for ${biz}</h1>
+      <h1 style="font-size:2.2rem;font-weight:800;margin:.5rem 0;">Social Media Plan for ${biz}</h1>
       <div style="margin-top:1rem;display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;font-size:13px;opacity:.75;">
-        ${biz   ? `<span>🏢 ${biz}</span>`    : ''}
-        ${niche ? `<span>🎯 ${niche}</span>`  : ''}
-        ${loc   ? `<span>📍 ${loc}</span>`    : ''}
+        ${biz   ? `<span>🏢 ${biz}</span>` : ''}
+        ${niche ? `<span>🎯 ${niche}</span>` : ''}
+        ${loc   ? `<span>📍 ${loc}</span>` : ''}
       </div>
     </div>
-    <!-- Section slots -->
-    <div id="slot-s1" class="skeleton-section">${skelBlock('Analysing 10 social media channels…')}</div>
-    <div id="slot-s2" class="skeleton-section">${skelBlock('Calculating posting schedule…')}</div>
-    <div id="slot-s3" class="skeleton-section">${skelBlock('Building AI video strategy…')}</div>
-    <div id="slot-s4" class="skeleton-section">${skelBlock('Writing content ideas and calendar…')}</div>
-    <div id="slot-s5" class="skeleton-section">${skelBlock('Finalising your growth journey…')}</div>`;
-}
-
-function skelBlock(label) {
-  return `<div style="padding:2rem;background:white;border-top:1px solid #eee;">
-    <div style="display:flex;align-items:center;gap:12px;color:#aaa;">
-      <div style="width:24px;height:24px;border:3px solid #e0d0ff;border-top-color:#4A0080;border-radius:50%;animation:spin .9s linear infinite;flex-shrink:0;"></div>
-      <span style="font-size:14px;">${esc(label)}</span>
-    </div>
-    <div style="margin-top:1rem;display:flex;flex-direction:column;gap:8px;">
-      ${[80,60,70,50].map(w=>`<div style="height:12px;background:#f0e6ff;border-radius:6px;width:${w}%;animation:pulse 1.5s ease-in-out infinite;"></div>`).join('')}
-    </div>
-  </div>`;
+    <div style="padding:3rem 2rem;display:flex;flex-direction:column;align-items:center;gap:1rem;background:white;">
+      <div style="width:56px;height:56px;border:5px solid #f0e6ff;border-top-color:#4A0080;border-radius:50%;animation:spin .9s linear infinite;"></div>
+      <p style="color:#555;font-size:14px;text-align:center;max-width:400px;">Claude AI is analysing every platform and crafting your custom social media strategy.<br>This usually takes 5–8 seconds.</p>
+      ${[90,65,78,55,82].map(w=>`<div style="height:12px;background:#f0e6ff;border-radius:6px;width:${w}%;max-width:600px;animation:pulse 1.5s ease-in-out infinite;"></div>`).join('')}
+    </div>`;
 }
 
 // ═══════════════════════════════════════════════
