@@ -6,7 +6,8 @@
   <title>Social Media Plan</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f0f0; color: #1a1a2e; }
+    html { background: #ffffff; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #ffffff; color: #1a1a2e; }
 
     /* ── INPUT PANEL ── */
     #input-panel { max-width: 900px; margin: 0 auto; padding: 2rem 1rem 6rem; display: none; }
@@ -202,7 +203,7 @@
     /* ── UNTAPPED CHANNELS ── */
     .missing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
     .missing-card { border: 2px dashed #ef4444; border-radius: 10px; background: white; overflow: hidden; }
-    .missing-card-head { padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #fee2e2; background: #fff5f5; }
+    .missing-card-head { padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #fee2e2; background: #fef2f2; }
     .missing-card-head strong { color: #dc2626; font-size: 14px; }
     .not-found-badge { background: #dc2626; color: white; font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 20px; letter-spacing: .5px; flex-shrink: 0; }
     .missing-card-body { padding: 10px 14px; font-size: 13px; color: #555; }
@@ -254,7 +255,15 @@
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
       #action-bar, #input-panel, #plan-regen-bar { display: none !important; }
       #plan-display { display: block !important; }
-      .aiv-section, .aiv-pkg-section { background: #0D1B2A !important; }
+
+      /* white base */
+      html, body { background: #ffffff !important; }
+      .plan-section { background: #ffffff !important; }
+
+      /* restore dark sections that must stay dark */
+      .aiv-section { background: #0D1B2A !important; }
+      .aiv-pkg-section { background: #0a1628 !important; }
+      .cta-section { background: linear-gradient(135deg, #4A0080, #1a0030) !important; }
 
       /* page flow */
       #sec-s2 { page-break-before: always; }
@@ -1000,7 +1009,7 @@ function buildS1HTML(d) {
         <p style="font-size:13px;color:#333;margin-top:4px;">${esc(d.whyNow)}</p></div>` : ''}
     </div>
     ${chans.length ? `
-    <div class="plan-section" style="background:#f8f9fa;">
+    <div class="plan-section" style="background:#ffffff;">
       <div class="section-label">Platform Analysis</div>
       <div class="section-title">Channel Assessment</div>
       <div class="channel-grid">
@@ -1178,7 +1187,7 @@ function buildS4HTML(d) {
   const pillarColors = ['#4A0080','#1e3a8a','#0f766e','#7c3aed','#b45309'];
 
   if (pillars.length) {
-    html += `<div class="plan-section" style="background:#f8f9fa;">
+    html += `<div class="plan-section" style="background:#ffffff;">
       <div class="section-label">Strategy</div>
       <div class="section-title">Content Pillars</div>
       <div class="pillars-grid">
@@ -1260,7 +1269,7 @@ function buildS4HTML(d) {
   }
 
   if (week.length) {
-    html += `<div class="plan-section" style="background:#f8f9fa;">
+    html += `<div class="plan-section" style="background:#ffffff;">
       <div class="section-label">Scheduling</div>
       <div class="section-title">Your Weekly Posting Schedule</div>
       <div class="week-grid">
@@ -1307,7 +1316,7 @@ function buildS5HTML(d, planData) {
   let html = '';
 
   if (missing.length) {
-    html += `<div class="plan-section" style="background:#fff5f5;">
+    html += `<div class="plan-section" style="background:#ffffff;">
       <div class="section-label">Growth Gaps</div>
       <div class="section-title">Untapped Revenue Opportunities</div>
       ${bizName ? `<p style="color:#666;margin-bottom:1.5rem;font-size:14px;">These platforms were not found for ${bizName} — each represents an untapped audience.</p>` : ''}
