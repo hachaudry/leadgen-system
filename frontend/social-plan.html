@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Social Media Plan</title>
   <style>
+    /* ── NUCLEAR PRINT COLOR FIX — must be first ── */
+    html, body, * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { background: #ffffff; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #ffffff; color: #1a1a2e; }
@@ -250,28 +256,104 @@
     .error-box h3 { color: #dc3545; margin-bottom: .5rem; }
     .error-box p { color: #555; font-size: 14px; margin-bottom: 1rem; }
 
+    /* ── COVER HEADER — solid fallback for print ── */
+    .cover-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    /* ── NO-PRINT HELPER HINTS ── */
+    .no-print { display: block; }
+
     /* ── PRINT ── */
     @media print {
-      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-      #action-bar, #input-panel, #plan-regen-bar { display: none !important; }
+      @page { margin: 0.75in; }
+
+      /* redundant declaration for maximum browser compatibility */
+      html, body, * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+
+      /* hide UI chrome */
+      #action-bar, #input-panel, #plan-regen-bar, .no-print, #print-help-modal { display: none !important; }
       #plan-display { display: block !important; }
 
-      /* white base */
+      /* ── white base ── */
       html, body { background: #ffffff !important; }
       .plan-section { background: #ffffff !important; }
 
-      /* restore dark sections that must stay dark */
-      .aiv-section { background: #0D1B2A !important; }
-      .aiv-pkg-section { background: #0a1628 !important; }
-      .cta-section { background: linear-gradient(135deg, #4A0080, #1a0030) !important; }
+      /* ── cover — solid purple (gradient unreliable in print) ── */
+      .cover-header {
+        background-color: #4A0080 !important;
+        background-image: none !important;
+      }
 
-      /* page flow */
+      /* ── AI video dark sections — solid colors (no gradient) ── */
+      .aiv-section {
+        background-color: #0D1B2A !important;
+        background-image: none !important;
+      }
+      .aiv-pkg-section {
+        background-color: #0a1628 !important;
+        background-image: none !important;
+      }
+
+      /* ── CTA — solid purple ── */
+      .cta-section {
+        background-color: #4A0080 !important;
+        background-image: none !important;
+      }
+
+      /* ── package card headers — solid instead of gradient ── */
+      .aiv-pkg-head-starter { background-color: #4A0080 !important; background-image: none !important; }
+      .aiv-pkg-head-growth  { background-color: #FFD700 !important; background-image: none !important; }
+      .aiv-pkg-head-premium { background-color: #0a1628 !important; background-image: none !important; }
+
+      /* ── package card bodies ── */
+      .aiv-pkg-starter { background-color: #1e1040 !important; }
+      .aiv-pkg-premium { background-color: #0D1B2A !important; }
+
+      /* ── AI video text colors preserved ── */
+      .aiv-section .aiv-label,
+      .aiv-section .aiv-title,
+      .aiv-count-num,
+      .aiv-plat-pill,
+      .aiv-pkg-footer strong { color: #FFD700 !important; }
+      .aiv-plat-pill { background-color: #FFD700 !important; }
+
+      /* ── channel cards ── */
+      .channel-card.ch-present { background-color: #f0fdf4 !important; }
+      .channel-card.ch-missing { background-color: #fef2f2 !important; }
+      .channel-card.ch-present .channel-card-head { background-color: #dcfce7 !important; }
+      .channel-card.ch-missing .channel-card-head { background-color: #fee2e2 !important; }
+
+      /* ── status + priority badges ── */
+      .ch-status-present { background-color: #16a34a !important; color: white !important; }
+      .ch-status-missing { background-color: #dc2626 !important; color: white !important; }
+      .ch-pr-must { background-color: #dc2626 !important; color: white !important; }
+      .ch-pr-high { background-color: #ea580c !important; color: white !important; }
+      .ch-pr-rec  { background-color: #2563eb !important; color: white !important; }
+      .ch-pr-opt  { background-color: #6b7280 !important; color: white !important; }
+      .not-found-badge { background-color: #dc2626 !important; color: white !important; }
+
+      /* ── schedule numbers ── */
+      .schedule-total-num { color: #4A0080 !important; }
+
+      /* ── timeline circles ── */
+      .tc-blue   { background-color: #3b82f6 !important; color: white !important; }
+      .tc-purple { background-color: #7c3aed !important; color: white !important; }
+      .tc-green  { background-color: #16a34a !important; color: white !important; }
+      .timeline-milestone { background-color: #4A0080 !important; color: white !important; }
+      .tmh-blue   { background-color: #eff6ff !important; color: #1d4ed8 !important; }
+      .tmh-purple { background-color: #f5f3ff !important; color: #7c3aed !important; }
+      .tmh-green  { background-color: #f0fdf4 !important; color: #15803d !important; }
+
+      /* ── page flow ── */
       #sec-s2 { page-break-before: always; }
       #sec-s3 { page-break-before: always; }
       .aiv-pkg-section { page-break-before: always; page-break-inside: avoid; }
       .cta-section { page-break-inside: avoid; }
 
-      /* cards never split */
+      /* ── cards never split ── */
       .plan-section  { page-break-inside: avoid; }
       .channel-card  { page-break-inside: avoid; }
       .sched-card    { page-break-inside: avoid; }
@@ -283,10 +365,10 @@
       .timeline-item { page-break-inside: avoid; }
       .aiv-pkg-card  { page-break-inside: avoid; }
 
-      /* section headers stay with content */
+      /* ── section headers stay with content ── */
       h2, h3, .section-label, .section-title { page-break-after: avoid; }
 
-      /* stack packages vertically so all 3 fit on one print page */
+      /* ── stack packages vertically for print ── */
       .aiv-pkg-grid {
         display: flex !important;
         flex-direction: column !important;
@@ -382,7 +464,40 @@
 
 <div id="action-bar">
   <button class="action-btn action-btn-outline" onclick="backToEdit()">← Edit Plan</button>
-  <button class="action-btn action-btn-primary" onclick="window.print()">🖨 Print / Save PDF</button>
+  <button class="action-btn action-btn-primary" onclick="printWithHelp()">🖨 Print / Save PDF</button>
+  <p class="no-print" style="font-size:11px;color:#888;width:100%;text-align:center;margin-top:2px;">
+    For full colors: enable <strong>Background graphics</strong> in the print dialog
+  </p>
+</div>
+
+<!-- ════ PRINT HELP MODAL ════ -->
+<div id="print-help-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:white;border-radius:16px;padding:2rem;max-width:460px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,.45);">
+    <div style="font-size:10px;letter-spacing:2px;color:#4A0080;font-weight:700;margin-bottom:.4rem;text-transform:uppercase;">Best PDF Quality</div>
+    <h2 style="font-size:1.25rem;font-weight:800;color:#1a1a2e;margin-bottom:1.25rem;line-height:1.3;">Enable Full Colors in Your PDF</h2>
+    <div style="display:flex;flex-direction:column;gap:.85rem;margin-bottom:1.5rem;">
+      <div style="display:flex;gap:.75rem;align-items:flex-start;">
+        <div style="width:26px;height:26px;border-radius:50%;background:#4A0080;color:white;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">1</div>
+        <div style="font-size:14px;color:#333;line-height:1.5;">In the print dialog click <strong>More settings</strong></div>
+      </div>
+      <div style="display:flex;gap:.75rem;align-items:flex-start;">
+        <div style="width:26px;height:26px;border-radius:50%;background:#4A0080;color:white;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">2</div>
+        <div style="font-size:14px;color:#333;line-height:1.5;">Check <strong>Background graphics</strong></div>
+      </div>
+      <div style="display:flex;gap:.75rem;align-items:flex-start;">
+        <div style="width:26px;height:26px;border-radius:50%;background:#4A0080;color:white;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">3</div>
+        <div style="font-size:14px;color:#333;line-height:1.5;">Set <strong>Headers and footers</strong> to <strong>None</strong></div>
+      </div>
+      <div style="display:flex;gap:.75rem;align-items:flex-start;">
+        <div style="width:26px;height:26px;border-radius:50%;background:#4A0080;color:white;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">4</div>
+        <div style="font-size:14px;color:#333;line-height:1.5;">Click <strong>Save as PDF</strong></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+      <button onclick="closePrintModal();window.print();" style="flex:2;padding:13px;background:#4A0080;color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;min-width:160px;">Got it — Print Now</button>
+      <button onclick="closePrintModal();window.print();" style="flex:1;padding:13px;background:white;color:#4A0080;border:2px solid #d0b0f0;border-radius:8px;font-size:13px;cursor:pointer;min-width:80px;">Skip</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -711,7 +826,7 @@ function buildPrompt(planData) {
   const goal  = planData.goal  || 'more customers';
 
   return `Social media plan for ${biz}, ${niche}, ${city} CA. Goal: ${goal}. Present: ${presentList}. Missing: ${missingList}.
-RULES: Social media only. No SEO. AI video required. Max 10 words per string. No apostrophes.
+RULES: Social media only. No SEO. AI video required. Max 10 words per string. No apostrophes. Never use the word Sample.
 Complete this JSON exactly:
 {"planTitle":"title here","tagline":"subtitle here","opening":"two short sentences about opportunity","channels":["Instagram:Present:Must Have","Facebook:Present:Must Have","TikTok:Missing:High Priority"],"instagram":{"feed":8,"reels":12,"stories":20,"total":40,"focus":"food and behind scenes"},"facebook":{"posts":12,"videos":4,"total":16,"focus":"community and events"},"tiktok":{"videos":16,"total":16,"focus":"short cooking videos"},"youtube":{"videos":2,"shorts":8,"total":10,"focus":"restaurant tours"},"gmb":{"posts":8,"photos":12,"total":20},"total":102,"weekly":25,"aiVideos":8,"aiWhy":"two sentences why AI video matters for this niche","aiTypes":["Showcase videos: 3 per month","Promo clips: 2 per month","Story videos: 3 per month"],"tools":["HeyGen","Pictory"],"advantage":"one sentence competitive edge","pillars":["Food showcase: daily specials 10 per month","Behind scenes: kitchen stories 8 per month","Community: local events 6 per month"],"ideas":["Instagram reel: chef preparing signature dish","Facebook post: weekly special announcement","TikTok video: 30 second recipe reveal","Instagram carousel: menu highlights","YouTube short: cafe tour"],"week":["Monday: Instagram reel chef special","Tuesday: Facebook post weekly offer","Wednesday: TikTok cooking video","Thursday: Google Business photo update","Friday: Instagram story weekend special","Saturday: YouTube short cafe highlights","Sunday: Facebook community post"],"missing":["TikTok: reach younger local audience","YouTube: build brand authority with video"],"m1":["Launch TikTok with 3 videos per week","Establish posting schedule across all channels","Set up Google Business posting routine"],"m3":["Consistent daily posting across 5 platforms","AI video content running weekly","Community of engaged local followers growing"],"cta":"Schedule a 15-minute social media strategy call this week"}
 Complete this JSON with real values for ${biz}. Return ONLY valid complete JSON starting with { ending with }.`;
@@ -928,6 +1043,7 @@ function removeEmptySections() {
 }
 
 function renderProgressively(plan, planData) {
+  plan = cleanPlanText(plan);
   document.getElementById('sec-header').innerHTML = buildHeaderHTML(plan, planData)
     + (plan._partialWarning ? `<div style="background:#fff3cd;border:1px solid #ffc107;padding:.75rem 1.5rem;font-size:13px;color:#856404;">
         ⚠️ Some sections could not be loaded — <button onclick="clearCacheAndRegenerate()" style="background:none;border:none;color:#4A0080;font-weight:700;cursor:pointer;text-decoration:underline;font-size:13px;">click Regenerate for full plan</button>
@@ -971,7 +1087,7 @@ function buildHeaderHTML(plan, planData) {
   const loc     = esc([planData.city, planData.state].filter(Boolean).join(', '));
   const agency  = agencyUrl(planData.niche);
   return `
-    <div style="background:linear-gradient(135deg,#4A0080,#1a0030);padding:3.5rem 2rem 3rem;color:white;text-align:center;">
+    <div class="cover-header" style="background:linear-gradient(135deg,#4A0080,#1a0030);padding:3.5rem 2rem 3rem;color:white;text-align:center;">
       <div style="font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.55);margin-bottom:.75rem;font-weight:700;">SOCIAL MEDIA GROWTH PLAN</div>
       <h1 style="font-size:2.4rem;font-weight:800;color:#FFFFFF;margin:.25rem 0 .5rem;line-height:1.2;">${title}</h1>
       ${tagline}
@@ -1496,6 +1612,37 @@ function backToEdit() {
   document.getElementById('plan-display').style.display = 'none';
   document.getElementById('action-bar').classList.remove('visible');
   showInputPanel();
+}
+
+// ═══════════════════════════════════════════════
+//  PRINT HELPER
+// ═══════════════════════════════════════════════
+function printWithHelp() {
+  const modal = document.getElementById('print-help-modal');
+  modal.style.display = 'flex';
+}
+
+function closePrintModal() {
+  document.getElementById('print-help-modal').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════
+//  PLAN SANITIZER — strips any "Sample" text returned by Claude
+// ═══════════════════════════════════════════════
+function cleanPlanText(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(cleanPlanText);
+  const clean = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (typeof v === 'string') {
+      clean[k] = v.replace(/\bSample\s*/gi, '').replace(/\s{2,}/g, ' ').trim();
+    } else if (typeof v === 'object') {
+      clean[k] = cleanPlanText(v);
+    } else {
+      clean[k] = v;
+    }
+  }
+  return clean;
 }
 
 // ═══════════════════════════════════════════════
