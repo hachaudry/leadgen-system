@@ -86,86 +86,154 @@
 
     .plan-section { padding: 2.5rem 2rem; }
     .plan-section + .plan-section { border-top: 1px solid #eee; }
-    .section-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; opacity: 0.6; margin-bottom: 0.5rem; }
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #4A0080; margin-bottom: 0.5rem; }
     .section-title { font-size: 1.5rem; font-weight: 700; color: #1a1a2e; margin-bottom: 1rem; }
 
-    /* Channel cards */
-    .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
-    .channel-card { border-radius: 10px; overflow: hidden; border: 1px solid #e0e0e0; background: white; }
-    .channel-card-head { padding: 10px 14px; color: white; display: flex; justify-content: space-between; align-items: center; }
-    .channel-card-head strong { font-size: 14px; }
-    .status-badge { font-size: 10px; padding: 2px 8px; background: rgba(255,255,255,.25); border-radius: 20px; font-weight: 700; }
-    .channel-card-body { padding: 12px 14px; }
-    .ch-action { font-size: 12px; color: #333; margin-bottom: 8px; }
-    .ch-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-    .ch-priority { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; border: 1px solid; }
+    /* ── CHANNEL CARDS ── */
+    .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+    .channel-card { border-radius: 10px; overflow: hidden; border: 1px solid #e0e0e0; background: white; box-shadow: 0 2px 8px rgba(0,0,0,.08); border-left: 4px solid #e0e0e0; }
+    .channel-card.ch-present { border-left-color: #22c55e; background: #f0fdf4; }
+    .channel-card.ch-missing { border-left-color: #ef4444; background: #fef2f2; }
+    .channel-card-head { padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,.06); }
+    .channel-card.ch-present .channel-card-head { background: #dcfce7; }
+    .channel-card.ch-missing .channel-card-head { background: #fee2e2; }
+    .channel-card-head strong { font-size: 14px; color: #1a1a2e; }
+    .ch-status-badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 700; color: white; }
+    .ch-status-present { background: #16a34a; }
+    .ch-status-missing { background: #dc2626; }
+    .channel-card-body { padding: 10px 14px; }
+    .ch-action { font-size: 13px; color: #444; margin-bottom: 8px; }
+    .ch-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+    .ch-priority-badge { font-size: 10px; font-weight: 700; padding: 2px 10px; border-radius: 20px; color: white; }
+    .ch-pr-must { background: #dc2626; }
+    .ch-pr-high { background: #ea580c; }
+    .ch-pr-rec  { background: #2563eb; }
+    .ch-pr-opt  { background: #6b7280; }
 
-    /* Schedule */
-    .schedule-hero { border-radius: 12px; padding: 2rem; color: white; text-align: center; margin-bottom: 1.5rem; background: linear-gradient(135deg, #4A0080, #7B2D8B); }
-    .schedule-hero .big-num { font-size: 4rem; font-weight: 800; line-height: 1; }
-    .schedule-hero .big-label { font-size: 1rem; opacity: 0.9; margin-top: 0.25rem; }
-    .schedule-hero .summary-line { font-size: 0.9rem; opacity: 0.75; margin-top: 0.5rem; }
-    .schedule-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1rem; }
-    .sched-card { background: white; border-radius: 10px; overflow: hidden; border: 1px solid #e0e0e0; }
-    .sched-card-head { padding: 10px 14px; color: white; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-    .sched-card-body { padding: 10px 14px; font-size: 12px; color: #555; }
+    /* ── POSTING SCHEDULE ── */
+    .schedule-total-block { text-align: center; padding: 2rem 1rem 1.5rem; border-bottom: 1px solid #f0f0f0; margin-bottom: 1.5rem; }
+    .schedule-total-num { font-size: 5rem; font-weight: 900; color: #4A0080; line-height: 1; }
+    .schedule-total-label { font-size: 1rem; color: #555; margin-top: .25rem; }
+    .schedule-total-sub { font-size: .85rem; color: #999; margin-top: .25rem; }
+    .schedule-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 1rem; }
+    .sched-card { background: white; border-radius: 10px; overflow: hidden; border: 1px solid #e0e0e0; box-shadow: 0 2px 6px rgba(0,0,0,.06); border-left: 4px solid #e0e0e0; }
+    .sched-card-inner { padding: 14px; }
+    .sched-plat-name { font-size: 13px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .sched-count { font-size: 2.5rem; font-weight: 900; line-height: 1; margin: 4px 0; }
+    .sched-focus { font-size: 12px; color: #666; }
 
-    /* AI Video */
+    /* ── AI VIDEO ── */
     .aiv-section { background: #0D1B2A; color: white; }
     .aiv-label { font-size: 11px; letter-spacing: 2px; color: #FFD700; margin-bottom: 0.5rem; font-weight: 700; }
     .aiv-title { font-size: 1.8rem; font-weight: 700; color: #FFD700; margin-bottom: 1rem; }
     .aiv-body { color: #ccc; line-height: 1.7; margin-bottom: 1.5rem; max-width: 800px; }
+    .aiv-count-num { font-size: 5rem; font-weight: 900; color: #FFD700; line-height: 1; }
+    .aiv-count-label { font-size: 13px; color: #aaa; margin-top: 4px; margin-bottom: 1.5rem; }
     .aiv-types { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-    .aiv-type-card { background: rgba(255,255,255,.05); border: 1px solid rgba(255,215,0,.2); border-radius: 8px; padding: 1rem; }
+    .aiv-type-card { background: rgba(255,255,255,.04); border: 1px solid #FFD700; border-radius: 8px; padding: 1rem; }
     .aiv-type-card .aiv-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
     .aiv-type-card strong { color: white; font-size: 13px; display: block; margin-bottom: 4px; }
     .aiv-type-card span { font-size: 12px; color: #aaa; }
     .aiv-advantage { background: rgba(255,215,0,.1); border-left: 4px solid #FFD700; padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; }
     .aiv-platforms { display: flex; gap: 8px; flex-wrap: wrap; margin-top: .75rem; }
-    .aiv-plat-pill { background: rgba(255,255,255,.1); color: #ccc; font-size: 11px; padding: 3px 10px; border-radius: 20px; }
+    .aiv-plat-pill { background: #FFD700; color: #1a0030; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
 
-    /* Pillars */
+    /* ── AI VIDEO PACKAGES ── */
+    .aiv-pkg-section { background: #0a1628; padding: 2.5rem 2rem; border-top: 1px solid rgba(255,215,0,.15); }
+    .aiv-pkg-label { font-size: 11px; letter-spacing: 2px; color: #FFD700; font-weight: 700; margin-bottom: .5rem; text-transform: uppercase; }
+    .aiv-pkg-title { font-size: 1.4rem; font-weight: 700; color: white; margin-bottom: .75rem; }
+    .aiv-pkg-intro { color: #bbb; font-size: 13px; line-height: 1.7; max-width: 780px; margin-bottom: 2rem; }
+    .aiv-pkg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+    .aiv-pkg-card { border-radius: 12px; overflow: hidden; position: relative; }
+    .aiv-pkg-starter { background: #1e1040; border: 1px solid rgba(255,255,255,.1); }
+    .aiv-pkg-growth  { background: white; border: 2px solid #FFD700; }
+    .aiv-pkg-premium { background: #0D1B2A; border: 1px solid rgba(255,255,255,.15); }
+    .aiv-pkg-head { padding: 1.25rem 1.25rem 1rem; position: relative; }
+    .aiv-pkg-head-starter { background: #4A0080; }
+    .aiv-pkg-head-growth  { background: linear-gradient(135deg, #FFD700, #FFA500); }
+    .aiv-pkg-head-premium { background: linear-gradient(135deg, #0a1628, #1e3a5f); border-bottom: 1px solid rgba(255,255,255,.1); }
+    .aiv-most-popular { position: absolute; top: 10px; right: 10px; background: #FFD700; color: #1a0030; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 20px; letter-spacing: .5px; text-transform: uppercase; }
+    .aiv-pkg-name  { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .aiv-pkg-count { font-size: 2rem; font-weight: 900; margin-bottom: 2px; line-height: 1; }
+    .aiv-pkg-price { font-size: 12px; font-weight: 600; margin-top: 4px; opacity: .9; }
+    .aiv-pkg-starter .aiv-pkg-name,.aiv-pkg-starter .aiv-pkg-count,.aiv-pkg-starter .aiv-pkg-price { color: white; }
+    .aiv-pkg-growth  .aiv-pkg-name,.aiv-pkg-growth  .aiv-pkg-count,.aiv-pkg-growth  .aiv-pkg-price { color: #1a0030; }
+    .aiv-pkg-premium .aiv-pkg-name,.aiv-pkg-premium .aiv-pkg-count,.aiv-pkg-premium .aiv-pkg-price { color: white; }
+    .aiv-pkg-body { padding: 1rem 1.25rem; }
+    .aiv-pkg-item { font-size: 12px; padding: 3px 0 3px 18px; position: relative; line-height: 1.5; }
+    .aiv-pkg-item::before { content: '✓'; position: absolute; left: 0; font-weight: 700; }
+    .aiv-pkg-starter .aiv-pkg-item,.aiv-pkg-premium .aiv-pkg-item { color: #ccc; }
+    .aiv-pkg-starter .aiv-pkg-item::before,.aiv-pkg-premium .aiv-pkg-item::before { color: #FFD700; }
+    .aiv-pkg-growth  .aiv-pkg-item { color: #333; }
+    .aiv-pkg-growth  .aiv-pkg-item::before { color: #16a34a; }
+    .aiv-pkg-btn { display: block; width: calc(100% - 2.5rem); margin: 0 1.25rem 1.25rem; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; text-align: center; }
+    .aiv-pkg-starter .aiv-pkg-btn,.aiv-pkg-premium .aiv-pkg-btn { background: #FFD700; color: #1a0030; }
+    .aiv-pkg-growth  .aiv-pkg-btn { background: #4A0080; color: white; }
+    .aiv-pkg-footer { color: #888; font-size: 12px; line-height: 1.7; }
+    .aiv-pkg-footer strong { color: #FFD700; }
+
+    /* ── CONTENT PILLARS ── */
     .pillars-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
-    .pillar-card { background: white; border-radius: 10px; overflow: hidden; border: 1px solid #e0e0e0; }
-    .pillar-head { background: #4A0080; color: white; padding: 10px 14px; display: flex; gap: 10px; align-items: center; }
-    .pillar-body { padding: 12px 14px; font-size: 13px; color: #444; }
+    .pillar-card { background: white; border-radius: 10px; overflow: hidden; border: 1px solid #e0e0e0; box-shadow: 0 2px 6px rgba(0,0,0,.06); }
+    .pillar-top-bar { height: 4px; }
+    .pillar-head { padding: 12px 14px; display: flex; gap: 10px; align-items: center; }
+    .pillar-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: white; flex-shrink: 0; }
+    .pillar-body { padding: 2px 14px 14px; font-size: 13px; color: #444; line-height: 1.6; }
+    .pillar-count-pill { display: inline-block; font-size: 10px; font-weight: 700; color: white; padding: 2px 10px; border-radius: 20px; margin-top: 8px; }
 
-    /* Ideas */
-    .ideas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
-    .idea-card { border: 1px solid #e0e0e0; border-radius: 10px; padding: 1rem; background: white; }
-    .idea-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: .75rem; }
-    .idea-tag-plat { color: white; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
+    /* ── CONTENT IDEAS ── */
+    .ideas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+    .idea-card { border-radius: 10px; overflow: hidden; background: white; border: 1px solid #e0e0e0; box-shadow: 0 2px 6px rgba(0,0,0,.06); }
+    .idea-card-top { height: 4px; }
+    .idea-card-body { padding: 12px 14px; }
+    .idea-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: .5rem; }
+    .idea-tag-plat { color: white; font-size: 11px; padding: 2px 10px; border-radius: 20px; font-weight: 600; }
     .idea-tag-type { background: #f0f0f0; color: #555; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
-    .idea-title { font-size: 13px; font-weight: 600; color: #1a1a2e; }
+    .idea-title { font-size: 14px; font-weight: 700; color: #1a1a2e; }
 
-    /* Week */
+    /* ── WEEKLY SCHEDULE ── */
     .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
     @media (max-width: 700px) { .week-grid { grid-template-columns: repeat(2, 1fr); } }
-    .week-day { background: white; border-radius: 8px; padding: 10px; border: 1px solid #e0e0e0; min-height: 90px; }
+    .week-day { background: white; border-radius: 8px; padding: 10px; border: 1px solid #e0e0e0; min-height: 140px; border-left: 4px solid #e0e0e0; }
     .week-day-name { font-size: 10px; font-weight: 700; color: #4A0080; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-    .week-plat-badge { display: inline-block; font-size: 10px; color: white; padding: 2px 6px; border-radius: 4px; margin-bottom: 4px; }
-    .week-idea { font-size: 11px; color: #555; }
+    .week-plat-badge { display: inline-block; font-size: 10px; color: white; padding: 2px 6px; border-radius: 4px; margin-bottom: 4px; font-weight: 600; }
+    .week-idea { font-size: 12px; font-weight: 700; color: #1a1a2e; margin-top: 4px; }
 
-    /* Missing */
+    /* ── UNTAPPED CHANNELS ── */
     .missing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
-    .missing-card { border: 2px solid #dc3545; border-radius: 10px; background: white; overflow: hidden; }
-    .missing-head { background: #dc3545; color: white; padding: 10px 14px; font-weight: 600; }
-    .missing-body { padding: 12px 14px; font-size: 12px; color: #444; }
+    .missing-card { border: 2px dashed #ef4444; border-radius: 10px; background: white; overflow: hidden; }
+    .missing-card-head { padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #fee2e2; background: #fff5f5; }
+    .missing-card-head strong { color: #dc2626; font-size: 14px; }
+    .not-found-badge { background: #dc2626; color: white; font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 20px; letter-spacing: .5px; flex-shrink: 0; }
+    .missing-card-body { padding: 10px 14px; font-size: 13px; color: #555; }
 
-    /* Journey */
-    .journey-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
-    .journey-card { background: white; border-radius: 10px; overflow: hidden; border: 1px solid #e0e0e0; }
-    .journey-head { color: white; padding: 10px 14px; font-weight: 600; font-size: 14px; }
-    .journey-body { padding: 12px 14px; }
-    .journey-win { font-size: 12px; color: #2e7d32; padding: 3px 0; display: flex; gap: 6px; }
+    /* ── 90-DAY TIMELINE ── */
+    .timeline-outer { position: relative; padding-left: 60px; }
+    .timeline-spine { position: absolute; left: 23px; top: 6px; bottom: 6px; width: 2px; background: #e5e7eb; }
+    .timeline-item { position: relative; margin-bottom: 1.5rem; }
+    .timeline-circle { position: absolute; left: -48px; top: 2px; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: white; z-index: 1; }
+    .tc-blue   { background: #3b82f6; }
+    .tc-purple { background: #7c3aed; }
+    .tc-green  { background: #16a34a; }
+    .timeline-week-label { font-size: 14px; font-weight: 800; color: #1a1a2e; margin-bottom: 5px; }
+    .timeline-bullets { list-style: none; padding: 0; margin: 0 0 6px; }
+    .timeline-bullets li { font-size: 13px; color: #555; padding: 2px 0 2px 16px; position: relative; line-height: 1.5; }
+    .timeline-bullets li::before { content: '—'; position: absolute; left: 0; color: #bbb; }
+    .timeline-milestone { display: inline-block; background: #4A0080; color: white; font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 6px; margin-top: 4px; }
+    .timeline-month-header { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; padding: 6px 14px; border-radius: 6px; display: inline-block; margin-bottom: 1rem; }
+    .tmh-blue   { background: #eff6ff; color: #1d4ed8; }
+    .tmh-purple { background: #f5f3ff; color: #7c3aed; }
+    .tmh-green  { background: #f0fdf4; color: #15803d; }
+    .timeline-disclaimer { font-size: 11px; font-style: italic; color: #999; margin-top: 1.5rem; line-height: 1.7; padding-top: 1rem; border-top: 1px solid #eee; }
 
-    /* CTA */
+    /* ── CTA ── */
     .cta-section { background: linear-gradient(135deg, #4A0080, #1a0030); color: white; padding: 3rem 2rem; text-align: center; }
     .cta-headline { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; }
     .cta-subtext { font-size: 1rem; opacity: 0.85; max-width: 600px; margin: 0 auto 1.5rem; line-height: 1.7; }
-    .cta-btn { display: inline-block; background: #FFD700; color: #1a0030; font-size: 1rem; font-weight: 700; padding: 14px 32px; border-radius: 30px; text-decoration: none; }
+    .cta-btn { display: inline-block; background: white; color: #4A0080; font-size: 1rem; font-weight: 700; padding: 14px 32px; border-radius: 8px; text-decoration: none; border: none; cursor: pointer; }
+    .cta-btn:hover { background: #f0e6ff; }
 
-    /* Action bar */
+    /* ── ACTION BAR ── */
     #action-bar {
       position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 12px 1.5rem;
       border-top: 1px solid #e0e0e0; box-shadow: 0 -3px 12px rgba(0,0,0,.1);
@@ -176,15 +244,19 @@
     .action-btn-primary { background: #4A0080; color: white; }
     .action-btn-outline { background: white; color: #4A0080; border-color: #4A0080; }
 
-    /* Error */
+    /* ── ERROR ── */
     .error-box { background: #fff5f5; border: 2px solid #dc3545; border-radius: 10px; padding: 1.5rem; margin: 2rem auto; max-width: 640px; text-align: center; }
     .error-box h3 { color: #dc3545; margin-bottom: .5rem; }
     .error-box p { color: #555; font-size: 14px; margin-bottom: 1rem; }
 
+    /* ── PRINT ── */
     @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
       #action-bar, #input-panel, #plan-regen-bar { display: none !important; }
       #plan-display { display: block !important; }
-      .aiv-section { background: #0D1B2A !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .aiv-section, .aiv-pkg-section { background: #0D1B2A !important; }
+      #sec-s2, #sec-s3 { page-break-before: always; }
+      .plan-section { page-break-inside: avoid; }
     }
   </style>
 </head>
@@ -829,18 +901,31 @@ function renderProgressively(plan, planData) {
 // ═══════════════════════════════════════════════
 //  HTML BUILDERS
 // ═══════════════════════════════════════════════
+function agencyUrl(niche) {
+  const n = (niche || '').toLowerCase();
+  if (n.includes('restaurant') || n.includes('cafe') || n.includes('food') || n.includes('bar') || n.includes('dining')) return 'restaurantmarketingca.com';
+  if (n.includes('spa') || n.includes('med spa') || n.includes('aesthetic') || n.includes('medspa') || n.includes('laser') || n.includes('botox')) return 'aestheticsmarketingca.com';
+  if (n.includes('limo') || n.includes('limousine') || n.includes('car service') || n.includes('transportation')) return 'calimomarketing.com';
+  if (n.includes('auto body') || n.includes('auto repair') || n.includes('body shop') || n.includes('collision')) return 'autobodymarketingca.com';
+  return 'digitalmarketingca.com';
+}
+
 function buildHeaderHTML(plan, planData) {
-  const biz  = esc(plan.planTitle || ('Social Media Plan for ' + (planData.businessName || 'Your Business')));
-  const tag  = plan.tagline ? `<p style="font-size:1.1rem;opacity:.8;margin-top:.5rem;">${esc(plan.tagline)}</p>` : '';
-  const meta = [planData.businessName, planData.niche, [planData.city, planData.state].filter(Boolean).join(', ')].filter(Boolean);
+  const title   = esc(plan.planTitle || ('Social Media Plan for ' + (planData.businessName || 'Your Business')));
+  const tagline = plan.tagline ? `<p style="font-style:italic;font-size:1rem;color:white;opacity:.85;margin-top:.4rem;">${esc(plan.tagline)}</p>` : '';
+  const bizName = esc(planData.businessName || '');
+  const niche   = esc(planData.niche || '');
+  const loc     = esc([planData.city, planData.state].filter(Boolean).join(', '));
+  const agency  = agencyUrl(planData.niche);
   return `
-    <div style="background:linear-gradient(135deg,#4A0080,#1a0030);padding:3rem 2rem;color:white;text-align:center;">
-      <div style="font-size:11px;letter-spacing:2px;opacity:.5;margin-bottom:.5rem;">SOCIAL MEDIA GROWTH PLAN</div>
-      <h1 style="font-size:2.2rem;font-weight:800;margin:.5rem 0;">${biz}</h1>
-      ${tag}
-      <div style="margin-top:1rem;display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;font-size:13px;opacity:.75;">
-        ${meta.map((m,i)=>`<span>${['🏢','🎯','📍'][i]||'•'} ${esc(m)}</span>`).join('')}
-      </div>
+    <div style="background:linear-gradient(135deg,#4A0080,#1a0030);padding:3.5rem 2rem 3rem;color:white;text-align:center;">
+      <div style="font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.55);margin-bottom:.75rem;font-weight:700;">SOCIAL MEDIA GROWTH PLAN</div>
+      <h1 style="font-size:2.4rem;font-weight:800;color:#FFFFFF;margin:.25rem 0 .5rem;line-height:1.2;">${title}</h1>
+      ${tagline}
+      <div style="width:60px;height:2px;background:#FFD700;margin:1.25rem auto;border-radius:2px;"></div>
+      ${bizName ? `<div style="font-size:1.2rem;font-weight:700;color:white;letter-spacing:.5px;margin-bottom:.3rem;">${bizName}</div>` : ''}
+      ${(niche || loc) ? `<div style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:.4rem;">${[niche,loc].filter(Boolean).join(' &middot; ')}</div>` : ''}
+      <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:.25rem;">${esc(agency)}</div>
     </div>`;
 }
 
@@ -880,16 +965,15 @@ function buildS1HTML(d) {
           const status   = ch.s || ch.status   || '';
           const note     = ch.note || ch.opportunity || ch.whatWeWillDo || '';
           const isP      = status.toLowerCase().includes('present');
-          const bg       = isP ? platColor(platform) : '#6c757d';
-          const pc       = pColors[ch.priority] || '#6c757d';
-          return `<div class="channel-card">
-            <div class="channel-card-head" style="background:${bg};">
+          const priBadge = { 'Must Have':'ch-pr-must','High Priority':'ch-pr-high','Recommended':'ch-pr-rec','Optional':'ch-pr-opt' }[ch.priority] || 'ch-pr-rec';
+          return `<div class="channel-card ${isP ? 'ch-present' : 'ch-missing'}">
+            <div class="channel-card-head">
               <strong>${esc(platform)}</strong>
-              <span class="status-badge">${esc(status)}</span>
+              <span class="ch-status-badge ${isP ? 'ch-status-present' : 'ch-status-missing'}">${isP ? 'Present' : 'Missing'}</span>
             </div>
             <div class="channel-card-body">
               ${note ? `<p class="ch-action">${esc(note)}</p>` : ''}
-              ${ch.priority ? `<div class="ch-meta"><span class="ch-priority" style="color:${pc};border-color:${pc};">${esc(ch.priority)}</span></div>` : ''}
+              ${ch.priority ? `<div class="ch-meta"><span class="ch-priority-badge ${priBadge}">${esc(ch.priority)}</span></div>` : ''}
             </div>
           </div>`;
         }).join('')}
@@ -917,21 +1001,23 @@ function buildS2HTML(d) {
     { name:'Google Business', icon:'📍', color:'#4285F4', t: GMB.total ||(GMB.posts||0)+(GMB.photos||0),              focus: GMB.focus ||`${GMB.posts||0} posts` }
   ].filter(p => p.t > 0);
 
+  const grandTotal = total || plats.reduce((a,p)=>a+p.t,0);
   return `
     <div class="plan-section" style="background:white;">
       <div class="section-label">Content Volume</div>
       <div class="section-title">Monthly Posting Schedule</div>
-      <div class="schedule-hero">
-        <div class="big-num">${total || plats.reduce((a,p)=>a+p.t,0)}</div>
-        <div class="big-label">content pieces every month</div>
-        ${weekly ? `<div class="summary-line">${weekly} pieces per week</div>` : ''}
+      <div class="schedule-total-block">
+        <div class="schedule-total-num">${grandTotal}</div>
+        <div class="schedule-total-label">content pieces every month</div>
+        ${weekly ? `<div class="schedule-total-sub">${weekly} pieces per week across all platforms</div>` : ''}
       </div>
       <div class="schedule-grid">
-        ${plats.map(p=>`<div class="sched-card">
-          <div class="sched-card-head" style="background:${p.color};">
-            <span>${p.icon} ${p.name}</span><strong>${p.t}</strong>
+        ${plats.map(p=>`<div class="sched-card" style="border-left-color:${p.color};">
+          <div class="sched-card-inner">
+            <div class="sched-plat-name"><span>${p.icon}</span><span>${esc(p.name)}</span></div>
+            <div class="sched-count" style="color:${p.color};">${p.t}</div>
+            <div class="sched-focus">${esc(p.focus)}</div>
           </div>
-          <div class="sched-card-body">${esc(p.focus)}</div>
         </div>`).join('')}
       </div>
     </div>`;
@@ -954,10 +1040,7 @@ function buildS3HTML(d) {
       <div class="aiv-label">CORE SERVICE</div>
       <div class="aiv-title">${esc(hook)}</div>
       ${why ? `<p class="aiv-body">${esc(why)}</p>` : ''}
-      ${monthly ? `<div style="margin-bottom:1.5rem;">
-        <div style="font-size:3rem;font-weight:800;color:#FFD700;">${monthly}</div>
-        <div style="color:#aaa;font-size:13px;">AI videos per month</div>
-      </div>` : ''}
+      ${monthly ? `<div class="aiv-count-num">${monthly}</div><div class="aiv-count-label">AI videos per month</div>` : ''}
       ${types.length ? `<div class="aiv-types">
         ${types.map((v,i)=>{
           const icons = ['🎬','📱','✨','🎯'];
@@ -973,8 +1056,64 @@ function buildS3HTML(d) {
       ${edge ? `<div class="aiv-advantage">
         <strong style="color:#FFD700;font-size:11px;letter-spacing:1px;">COMPETITIVE ADVANTAGE</strong>
         <p style="color:#ccc;margin-top:4px;font-size:13px;">${esc(edge)}</p></div>` : ''}
-      ${tools.length ? `<div class="aiv-platforms">
-        ${tools.map(t=>`<span class="aiv-plat-pill">${esc(t)}</span>`).join('')}</div>` : ''}
+      ${tools.length ? `<div class="aiv-platforms">${tools.map(t=>`<span class="aiv-plat-pill">${esc(t)}</span>`).join('')}</div>` : ''}
+    </div>
+    <div class="aiv-pkg-section">
+      <div class="aiv-pkg-label">Add-On Service</div>
+      <div class="aiv-pkg-title">AI Video Production Packages</div>
+      <p class="aiv-pkg-intro">AI video content is no longer optional for local businesses in 2026. Your competitors are already using AI to produce professional videos at a fraction of traditional costs. Here is how we can supercharge your social media with AI video production:</p>
+      <div class="aiv-pkg-grid">
+        <div class="aiv-pkg-card aiv-pkg-starter">
+          <div class="aiv-pkg-head aiv-pkg-head-starter">
+            <div class="aiv-pkg-name">Starter AI Video</div>
+            <div class="aiv-pkg-count">4</div>
+            <div class="aiv-pkg-price">from $297/month add-on</div>
+          </div>
+          <div class="aiv-pkg-body">
+            <div class="aiv-pkg-item">4 AI-produced videos per month</div>
+            <div class="aiv-pkg-item">2 platform versions per video (vertical &amp; square)</div>
+            <div class="aiv-pkg-item">Brand voice &amp; visual consistency</div>
+            <div class="aiv-pkg-item">Suitable for: Instagram Reels, TikTok, Facebook</div>
+            <div class="aiv-pkg-item" style="margin-top:4px;font-style:italic;">Best for: Businesses starting with video content</div>
+          </div>
+          <button class="aiv-pkg-btn" onclick="return false;">Add to Your Plan</button>
+        </div>
+        <div class="aiv-pkg-card aiv-pkg-growth">
+          <div class="aiv-pkg-head aiv-pkg-head-growth">
+            <span class="aiv-most-popular">Most Popular</span>
+            <div class="aiv-pkg-name">Growth AI Video</div>
+            <div class="aiv-pkg-count">8</div>
+            <div class="aiv-pkg-price">from $497/month add-on</div>
+          </div>
+          <div class="aiv-pkg-body">
+            <div class="aiv-pkg-item">8 AI-produced videos per month</div>
+            <div class="aiv-pkg-item">3 platform versions per video</div>
+            <div class="aiv-pkg-item">Custom AI avatar option available</div>
+            <div class="aiv-pkg-item">Promotional video templates included</div>
+            <div class="aiv-pkg-item">Suitable for: Instagram, TikTok, YouTube Shorts, Facebook</div>
+            <div class="aiv-pkg-item" style="margin-top:4px;font-style:italic;">Best for: Businesses ready to scale video</div>
+          </div>
+          <button class="aiv-pkg-btn" onclick="return false;">Add to Your Plan</button>
+        </div>
+        <div class="aiv-pkg-card aiv-pkg-premium">
+          <div class="aiv-pkg-head aiv-pkg-head-premium">
+            <div class="aiv-pkg-name">Premium AI Video</div>
+            <div class="aiv-pkg-count">16</div>
+            <div class="aiv-pkg-price">from $797/month add-on</div>
+          </div>
+          <div class="aiv-pkg-body">
+            <div class="aiv-pkg-item">16 AI-produced videos per month</div>
+            <div class="aiv-pkg-item">All platform versions included</div>
+            <div class="aiv-pkg-item">Dedicated AI avatar trained on your brand</div>
+            <div class="aiv-pkg-item">Weekly video strategy sessions</div>
+            <div class="aiv-pkg-item">Priority turnaround — 24 hours</div>
+            <div class="aiv-pkg-item">Suitable for: All platforms including YouTube</div>
+            <div class="aiv-pkg-item" style="margin-top:4px;font-style:italic;">Best for: Businesses wanting to dominate with video</div>
+          </div>
+          <button class="aiv-pkg-btn" onclick="return false;">Add to Your Plan</button>
+        </div>
+      </div>
+      <p class="aiv-pkg-footer"><strong>All AI videos include:</strong> Script writing, voice over, visual production, platform optimization, and brand consistency. Videos are submitted for your approval before publishing.</p>
     </div>`;
 }
 
@@ -989,23 +1128,39 @@ function buildS4HTML(d) {
 
   let html = '';
 
+  const pillarColors = ['#4A0080','#1e3a8a','#0f766e','#7c3aed','#b45309'];
+
   if (pillars.length) {
     html += `<div class="plan-section" style="background:#f8f9fa;">
       <div class="section-label">Strategy</div>
       <div class="section-title">Content Pillars</div>
       <div class="pillars-grid">
         ${pillars.map((pl,i)=>{
+          const col = pillarColors[i] || '#4A0080';
           if (typeof pl === 'string') {
-            const ci = pl.indexOf(':');
+            const ci   = pl.indexOf(':');
             const name = ci>-1 ? pl.slice(0,ci).trim() : `Pillar ${i+1}`;
             const rest = ci>-1 ? pl.slice(ci+1).trim() : pl;
+            // Extract "X/mo" count if present
+            const moMatch = rest.match(/(\d+)\s*(?:\/mo|per month)/i);
+            const desc    = moMatch ? rest.replace(moMatch[0],'').replace(/[-–—]\s*$/,'').trim() : rest;
             return `<div class="pillar-card">
-              <div class="pillar-head"><span style="font-size:1.3rem;">📌</span><strong>Pillar ${i+1}: ${esc(name)}</strong></div>
-              <div class="pillar-body">${esc(rest)}</div>
+              <div class="pillar-top-bar" style="background:${col};"></div>
+              <div class="pillar-head">
+                <div class="pillar-circle" style="background:${col};">${i+1}</div>
+                <strong style="font-size:14px;color:#1a1a2e;">Pillar ${i+1}: ${esc(name)}</strong>
+              </div>
+              <div class="pillar-body">${esc(desc)}
+                ${moMatch?`<div><span class="pillar-count-pill" style="background:${col};">${moMatch[0]}</span></div>`:''}
+              </div>
             </div>`;
           }
           return `<div class="pillar-card">
-            <div class="pillar-head"><span style="font-size:1.3rem;">${esc(pl.emoji||'📌')}</span><strong>Pillar ${i+1}: ${esc(pl.name||'')}</strong></div>
+            <div class="pillar-top-bar" style="background:${col};"></div>
+            <div class="pillar-head">
+              <div class="pillar-circle" style="background:${col};">${i+1}</div>
+              <strong style="font-size:14px;color:#1a1a2e;">Pillar ${i+1}: ${esc(pl.name||'')}</strong>
+            </div>
             <div class="pillar-body">${esc(pl.description||'')}
               ${(pl.ideas||[]).length?`<ul style="padding-left:16px;margin-top:6px;">${pl.ideas.map(x=>`<li style="font-size:12px;color:#555;">${esc(x)}</li>`).join('')}</ul>`:''}
             </div>
@@ -1018,31 +1173,39 @@ function buildS4HTML(d) {
   if (ideas.length) {
     html += `<div class="plan-section" style="background:white;">
       <div class="section-label">Examples</div>
-      <div class="section-title">Sample Content We Will Create</div>
+      <div class="section-title">Content We Will Create For You</div>
       <div class="ideas-grid">
         ${ideas.map(idea=>{
           if (typeof idea === 'string') {
-            const ci = idea.indexOf(':');
+            const ci      = idea.indexOf(':');
             const platPart = ci>-1 ? idea.slice(0,ci).trim() : 'Social';
             const content  = ci>-1 ? idea.slice(ci+1).trim() : idea;
             const words = platPart.split(' ');
             const plat  = words[0] || 'Social';
             const type  = words.slice(1).join(' ') || 'Post';
+            const col   = platColor(plat);
             return `<div class="idea-card">
-              <div class="idea-tags">
-                <span class="idea-tag-plat" style="background:${platColor(plat)};">${esc(plat)}</span>
-                <span class="idea-tag-type">${esc(type)}</span>
+              <div class="idea-card-top" style="background:${col};"></div>
+              <div class="idea-card-body">
+                <div class="idea-tags">
+                  <span class="idea-tag-plat" style="background:${col};">${esc(plat)}</span>
+                  <span class="idea-tag-type">${esc(type)}</span>
+                </div>
+                <div class="idea-title">${esc(content)}</div>
               </div>
-              <div class="idea-title">${esc(content)}</div>
             </div>`;
           }
+          const col = idea.color || platColor(idea.platform||'');
           return `<div class="idea-card">
-            <div class="idea-tags">
-              <span class="idea-tag-plat" style="background:${idea.color||platColor(idea.platform||'')};">${esc(idea.platform||'')}</span>
-              <span class="idea-tag-type">${esc(idea.contentType||idea.type||'Post')}</span>
+            <div class="idea-card-top" style="background:${col};"></div>
+            <div class="idea-card-body">
+              <div class="idea-tags">
+                <span class="idea-tag-plat" style="background:${col};">${esc(idea.platform||'')}</span>
+                <span class="idea-tag-type">${esc(idea.contentType||idea.type||'Post')}</span>
+              </div>
+              <div class="idea-title">${esc(idea.idea||idea.title||'')}</div>
+              ${idea.caption?`<p style="font-size:12px;color:#4A0080;font-style:italic;border-left:3px solid #4A0080;padding-left:8px;margin-top:6px;">${esc(idea.caption)}</p>`:''}
             </div>
-            <div class="idea-title">${esc(idea.idea||idea.title||'')}</div>
-            ${idea.caption?`<p style="font-size:12px;color:#4A0080;font-style:italic;border-left:3px solid #4A0080;padding-left:8px;margin-top:6px;">${esc(idea.caption)}</p>`:''}
           </div>`;
         }).join('')}
       </div>
@@ -1052,28 +1215,29 @@ function buildS4HTML(d) {
   if (week.length) {
     html += `<div class="plan-section" style="background:#f8f9fa;">
       <div class="section-label">Scheduling</div>
-      <div class="section-title">Sample Week of Posting</div>
+      <div class="section-title">Your Weekly Posting Schedule</div>
       <div class="week-grid">
         ${week.map((day,i)=>{
           if (typeof day === 'string') {
-            // "Mon: Instagram - idea" or "Monday: Instagram Reel - idea"
-            const ci = day.indexOf(':');
-            const dayLabel = ci>-1 ? day.slice(0,ci).trim() : (DAYS[i]||`Day ${i+1}`);
-            const rest     = ci>-1 ? day.slice(ci+1).trim() : day;
-            const dashIdx  = rest.search(/\s[-—]\s/);
-            const platType = dashIdx>-1 ? rest.slice(0,dashIdx).trim() : rest;
-            const ideaTxt  = dashIdx>-1 ? rest.slice(dashIdx+3).trim() : '';
-            const plat     = platType.split(' ')[0] || 'Social';
-            return `<div class="week-day">
+            const ci      = day.indexOf(':');
+            const dayLabel= ci>-1 ? day.slice(0,ci).trim() : (DAYS[i]||`Day ${i+1}`);
+            const rest    = ci>-1 ? day.slice(ci+1).trim() : day;
+            const dashIdx = rest.search(/\s[-—]\s/);
+            const platType= dashIdx>-1 ? rest.slice(0,dashIdx).trim() : rest;
+            const ideaTxt = dashIdx>-1 ? rest.slice(dashIdx+3).trim() : '';
+            const plat    = platType.split(' ')[0] || 'Social';
+            const col     = platColor(plat);
+            return `<div class="week-day" style="border-left-color:${col};">
               <div class="week-day-name">${esc(dayLabel)}</div>
-              <span class="week-plat-badge" style="background:${platColor(plat)};">${esc(plat)}</span>
-              <div class="week-idea" style="margin-top:4px;">${esc(ideaTxt || platType)}</div>
+              <span class="week-plat-badge" style="background:${col};">${esc(plat)}</span>
+              <div class="week-idea">${esc(ideaTxt || platType)}</div>
             </div>`;
           }
-          return `<div class="week-day">
+          const col = day.color || platColor(day.platform||'');
+          return `<div class="week-day" style="border-left-color:${col};">
             <div class="week-day-name">${esc(day.day||DAYS[i]||'')}</div>
-            <span class="week-plat-badge" style="background:${day.color||platColor(day.platform||'')};">${esc(day.platform||'')}</span>
-            <div style="font-size:11px;font-weight:600;color:#333;margin:3px 0;">${esc(day.contentType||day.type||'')}</div>
+            <span class="week-plat-badge" style="background:${col};">${esc(day.platform||'')}</span>
+            <div style="font-size:11px;font-weight:700;color:#1a1a2e;margin:3px 0;">${esc(day.contentType||day.type||'')}</div>
             <div class="week-idea">${esc(day.idea||'')}</div>
           </div>`;
         }).join('')}
@@ -1096,66 +1260,162 @@ function buildS5HTML(d, planData) {
   let html = '';
 
   if (missing.length) {
-    html += `<div class="plan-section" style="background:white;">
+    html += `<div class="plan-section" style="background:#fff5f5;">
       <div class="section-label">Growth Gaps</div>
-      <div class="section-title">Untapped Channels</div>
-      ${bizName ? `<p style="color:#666;margin-bottom:1.5rem;font-size:14px;">These channels were not found for ${bizName}.</p>` : ''}
+      <div class="section-title">Untapped Revenue Opportunities</div>
+      ${bizName ? `<p style="color:#666;margin-bottom:1.5rem;font-size:14px;">These platforms were not found for ${bizName} — each represents an untapped audience.</p>` : ''}
       <div class="missing-grid">
         ${missing.map(ch=>{
           if (typeof ch === 'string') {
-            const ci = ch.indexOf(':');
+            const ci   = ch.indexOf(':');
             const plat = ci>-1 ? ch.slice(0,ci).trim() : ch;
             const opp  = ci>-1 ? ch.slice(ci+1).trim() : '';
             return `<div class="missing-card">
-              <div class="missing-head">📣 ${esc(plat)}</div>
-              <div class="missing-body">${esc(opp)}</div>
+              <div class="missing-card-head"><strong>📣 ${esc(plat)}</strong><span class="not-found-badge">NOT FOUND</span></div>
+              <div class="missing-card-body">${esc(opp)}</div>
             </div>`;
           }
           return `<div class="missing-card">
-            <div class="missing-head">${esc(ch.icon||'📣')} ${esc(ch.platform||ch.p||'')}</div>
-            <div class="missing-body">${esc(ch.opportunity||ch.value||ch.note||ch.whyNow||'')}</div>
+            <div class="missing-card-head"><strong>${esc(ch.icon||'📣')} ${esc(ch.platform||ch.p||'')}</strong><span class="not-found-badge">NOT FOUND</span></div>
+            <div class="missing-card-body">${esc(ch.opportunity||ch.value||ch.note||ch.whyNow||'')}</div>
           </div>`;
         }).join('')}
       </div>
     </div>`;
   }
 
-  if (m1.length || m3.length) {
-    const months = [];
-    if (m1.length) months.push({ label:'Month 1 — Foundation', color:'#1565c0', goals:m1 });
-    if (m3.length) months.push({ label:'Month 3 — Results',    color:'#2e7d32', goals:m3 });
-    html += `<div class="plan-section" style="background:#f8f9fa;">
-      <div class="section-label">Timeline</div>
-      <div class="section-title">Your 90-Day Growth Journey</div>
-      <div class="journey-grid">
-        ${months.map(m=>`<div class="journey-card">
-          <div class="journey-head" style="background:${m.color};">${esc(m.label)}</div>
-          <div class="journey-body">
-            ${(m.goals||[]).map(w=>`<div class="journey-win"><span>✓</span><span>${esc(w)}</span></div>`).join('')}
-          </div>
-        </div>`).join('')}
-      </div>
-    </div>`;
-  } else {
-    // Old schema fallback
-    const ej = d.expectedJourney || {};
-    const journeys = ['month1','month2','month3'].map(k=>ej[k]).filter(Boolean);
-    if (journeys.length) {
-      html += `<div class="plan-section" style="background:#f8f9fa;">
-        <div class="section-label">Timeline</div>
-        <div class="section-title">Your 90-Day Growth Journey</div>
-        <div class="journey-grid">
-          ${journeys.map(m=>`<div class="journey-card">
-            <div class="journey-head" style="background:${m.color||'#4A0080'};">${esc(m.label||'')}</div>
-            <div class="journey-body">
-              ${m.focus?`<div style="font-size:13px;font-weight:600;color:#1a1a2e;margin-bottom:8px;">${esc(m.focus)}</div>`:''}
-              ${(m.wins||[]).map(w=>`<div class="journey-win"><span>✓</span><span>${esc(w)}</span></div>`).join('')}
-            </div>
-          </div>`).join('')}
+  // ── 90-DAY TIMELINE (always shown, hardcoded process) ──
+  html += `<div class="plan-section" style="background:white;">
+    <div class="section-label">Timeline</div>
+    <div class="section-title">Your 90-Day Growth Journey</div>
+    <div class="timeline-outer">
+      <div class="timeline-spine"></div>
+
+      <div class="timeline-month-header tmh-blue">MONTH 1 — WEEKS 1–4 — FOUNDATION</div>
+
+      <div class="timeline-item">
+        <div class="timeline-circle tc-blue">1</div>
+        <div class="timeline-content">
+          <div class="timeline-week-label">Week 1 — Discovery &amp; Setup</div>
+          <ul class="timeline-bullets">
+            <li>Day 1–2: Onboarding call — we learn your brand voice, goals, target customer, and content preferences</li>
+            <li>Day 3–4: Brand audit — we review all existing social profiles and content</li>
+            <li>Day 5–7: Content strategy document delivered — your unique content pillars, tone guide, hashtag strategy, and posting schedule</li>
+          </ul>
+          <span class="timeline-milestone">✓ Milestone: You know exactly what we will post and why</span>
         </div>
-      </div>`;
-    }
-  }
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-circle tc-blue">2</div>
+        <div class="timeline-content">
+          <div class="timeline-week-label">Week 2 — Foundation Launch</div>
+          <ul class="timeline-bullets">
+            <li>Create and optimize all missing social media profiles</li>
+            <li>Set up content creation workflow and approval process</li>
+            <li>Produce first batch of content: 5 Instagram posts, 3 Reels, 3 Facebook posts</li>
+            <li>Submit for your approval before publishing</li>
+          </ul>
+          <span class="timeline-milestone">✓ Milestone: All platforms active and first content approved</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-circle tc-blue">3</div>
+        <div class="timeline-content">
+          <div class="timeline-week-label">Week 3 — First Content Live</div>
+          <ul class="timeline-bullets">
+            <li>First week of content goes live across all platforms</li>
+            <li>Daily posting begins on schedule</li>
+            <li>Community management starts — responding to comments and messages within 2 hours</li>
+            <li>Google Business profile updated with first posts and photos</li>
+            <li>First AI video content produced and published on TikTok and Instagram Reels</li>
+          </ul>
+          <span class="timeline-milestone">✓ Milestone: Your brand is actively posting every day</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-circle tc-blue">4</div>
+        <div class="timeline-content">
+          <div class="timeline-week-label">Week 4 — Optimization</div>
+          <ul class="timeline-bullets">
+            <li>First week performance review — which content performed best</li>
+            <li>Adjust content mix based on early engagement data</li>
+            <li>Introduce Stories content on Instagram and Facebook</li>
+            <li>Begin hashtag performance tracking</li>
+          </ul>
+          <span class="timeline-milestone">✓ Milestone: Data-driven adjustments made for Month 2</span>
+        </div>
+      </div>
+
+      <div class="timeline-month-header tmh-purple" style="margin-top:1.5rem;">MONTH 2 — WEEKS 5–8 — MOMENTUM BUILDING</div>
+
+      <div class="timeline-item">
+        <div class="timeline-circle tc-purple">5</div>
+        <div class="timeline-content">
+          <div class="timeline-week-label">Week 5 — TikTok Acceleration</div>
+          <ul class="timeline-bullets"><li>TikTok content strategy accelerated — increase to daily posting</li></ul>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-circle tc-purple">6</div>
+        <div class="timeline-content">
+          <div class="timeline-week-label">Week 6 — YouTube Launch</div>
+          <ul class="timeline-bullets"><li>YouTube channel launches — first long-form video and 4 Shorts published</li></ul>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-circle tc-purple">7</div>
+        <div class="timeline-content">
+          <div class="timeline-week-label">Week 7 — AI Video Scale-Up</div>
+          <ul class="timeline-bullets"><li>AI video production scaled — 2 new AI videos per week across platforms</li></ul>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-circle tc-purple">8</div>
+        <div class="timeline-content">
+          <div class="timeline-week-label">Week 8 — Community Growth Campaign</div>
+          <ul class="timeline-bullets"><li>Local collaborations and engagement drives to grow audience</li></ul>
+          <span class="timeline-milestone">✓ Milestone: Consistent presence across all platforms — audience growing</span>
+        </div>
+      </div>
+
+      <div class="timeline-month-header tmh-green" style="margin-top:1.5rem;">MONTH 3 — WEEKS 9–12 — RESULTS &amp; SCALE</div>
+
+      <div class="timeline-item">
+        <div class="timeline-circle tc-green">9</div>
+        <div class="timeline-content">
+          <div class="timeline-week-label">Week 9 — Performance Deep Dive</div>
+          <ul class="timeline-bullets"><li>Content performance analysis — identify top performing formats and topics</li></ul>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-circle tc-green">10</div>
+        <div class="timeline-content">
+          <div class="timeline-week-label">Week 10 — Scale What Works</div>
+          <ul class="timeline-bullets"><li>More of the content types driving the highest engagement and inquiries</li></ul>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-circle tc-green">11</div>
+        <div class="timeline-content">
+          <div class="timeline-week-label">Week 11 — Promotional Campaign</div>
+          <ul class="timeline-bullets"><li>Seasonal and promotional content campaign tied to upcoming local events</li></ul>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-circle tc-green">12</div>
+        <div class="timeline-content">
+          <div class="timeline-week-label">Week 12 — Results Report</div>
+          <ul class="timeline-bullets"><li>Month 3 results report — engagement growth, reach increase, and booking inquiry increase</li></ul>
+          <span class="timeline-milestone">✓ Milestone: Measurable growth in social engagement and booking inquiries</span>
+        </div>
+      </div>
+
+      <p class="timeline-disclaimer">Timeline activities represent our standard process. Actual posting volumes and specific activities are customized based on your brand, content approval speed, and platform performance data.</p>
+    </div>
+  </div>`;
 
   if (ctaText) {
     html += `<div class="plan-section" style="background:white;text-align:center;">
@@ -1167,7 +1427,7 @@ function buildS5HTML(d, planData) {
   html += `<div class="cta-section">
     <h2 class="cta-headline">Ready to Transform Your Social Media?</h2>
     <p class="cta-subtext">Your competitors are posting every day. Every week you wait is a week they pull further ahead. Let us start building your presence today.</p>
-    <a href="#" class="cta-btn" onclick="return false;">Book Your Free Strategy Call</a>
+    <button class="cta-btn" onclick="return false;">Book Your Free Strategy Call</button>
   </div>`;
 
   return html;
