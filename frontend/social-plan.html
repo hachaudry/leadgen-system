@@ -255,8 +255,35 @@
       #action-bar, #input-panel, #plan-regen-bar { display: none !important; }
       #plan-display { display: block !important; }
       .aiv-section, .aiv-pkg-section { background: #0D1B2A !important; }
-      #sec-s2, #sec-s3 { page-break-before: always; }
-      .plan-section { page-break-inside: avoid; }
+
+      /* page flow */
+      #sec-s2 { page-break-before: always; }
+      #sec-s3 { page-break-before: always; }
+      .aiv-pkg-section { page-break-before: always; page-break-inside: avoid; }
+      .cta-section { page-break-inside: avoid; }
+
+      /* cards never split */
+      .plan-section  { page-break-inside: avoid; }
+      .channel-card  { page-break-inside: avoid; }
+      .sched-card    { page-break-inside: avoid; }
+      .aiv-type-card { page-break-inside: avoid; }
+      .pillar-card   { page-break-inside: avoid; }
+      .idea-card     { page-break-inside: avoid; }
+      .week-day      { page-break-inside: avoid; }
+      .missing-card  { page-break-inside: avoid; }
+      .timeline-item { page-break-inside: avoid; }
+      .aiv-pkg-card  { page-break-inside: avoid; }
+
+      /* section headers stay with content */
+      h2, h3, .section-label, .section-title { page-break-after: avoid; }
+
+      /* stack packages vertically so all 3 fit on one print page */
+      .aiv-pkg-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+      }
+      .aiv-pkg-card { width: 100% !important; }
     }
   </style>
 </head>
@@ -876,6 +903,21 @@ function skelSectionDark(n) {
 // ═══════════════════════════════════════════════
 //  PROGRESSIVE RENDER — rAF between each section
 // ═══════════════════════════════════════════════
+function removeEmptySections() {
+  // Hide any top-level section containers that rendered no visible content
+  document.querySelectorAll('#plan-display > div').forEach(el => {
+    if (el.id === 'plan-regen-bar') return; // always keep the regen bar
+    const text = (el.innerText || '').trim();
+    const hasImages = el.querySelectorAll('img').length > 0;
+    if (!text && !hasImages) el.style.display = 'none';
+  });
+  // Also hide any .plan-section divs that ended up with no content
+  document.querySelectorAll('.plan-section').forEach(el => {
+    const text = (el.innerText || '').trim();
+    if (!text) el.style.display = 'none';
+  });
+}
+
 function renderProgressively(plan, planData) {
   document.getElementById('sec-header').innerHTML = buildHeaderHTML(plan, planData)
     + (plan._partialWarning ? `<div style="background:#fff3cd;border:1px solid #ffc107;padding:.75rem 1.5rem;font-size:13px;color:#856404;">
@@ -891,6 +933,8 @@ function renderProgressively(plan, planData) {
           document.getElementById('sec-s4').innerHTML = buildS4HTML(plan);
           requestAnimationFrame(() => {
             document.getElementById('sec-s5').innerHTML = buildS5HTML(plan, planData);
+            // Final pass — hide any section containers that rendered empty
+            requestAnimationFrame(removeEmptySections);
           });
         });
       });
@@ -1035,8 +1079,11 @@ function buildS3HTML(d) {
   const edge    = d.aiEdge  || d.advantage || aiv.advantage || aiv.veo3Advantage || '';
   const hook    = why ? why.split('.')[0] : 'AI Video Is Your Competitive Edge';
 
+  // Only render the dark strategy block if Claude returned real AI-video data
+  const hasAIData = !!(monthly || why || types.length || edge);
+
   return `
-    <div class="plan-section aiv-section">
+    ${hasAIData ? `<div class="plan-section aiv-section">
       <div class="aiv-label">CORE SERVICE</div>
       <div class="aiv-title">${esc(hook)}</div>
       ${why ? `<p class="aiv-body">${esc(why)}</p>` : ''}
@@ -1057,7 +1104,7 @@ function buildS3HTML(d) {
         <strong style="color:#FFD700;font-size:11px;letter-spacing:1px;">COMPETITIVE ADVANTAGE</strong>
         <p style="color:#ccc;margin-top:4px;font-size:13px;">${esc(edge)}</p></div>` : ''}
       ${tools.length ? `<div class="aiv-platforms">${tools.map(t=>`<span class="aiv-plat-pill">${esc(t)}</span>`).join('')}</div>` : ''}
-    </div>
+    </div>` : ''}
     <div class="aiv-pkg-section">
       <div class="aiv-pkg-label">Add-On Service</div>
       <div class="aiv-pkg-title">AI Video Production Packages</div>
