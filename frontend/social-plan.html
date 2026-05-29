@@ -551,30 +551,71 @@ function isResponseTruncated(rawText) {
   return openBraces !== closeBraces;
 }
 
+function safeParseJSON(rawText) {
+  // First try the full robust parser
+  try {
+    const data = parseClaudeResponse(rawText);
+    return { success: true, data };
+  } catch (_) {}
+
+  // Fall back to extracting key fields via regex if JSON is still broken
+  const partial = {};
+  const grab = (re) => { const m = rawText.match(re); return m ? m[1] : null; };
+
+  const title = grab(/"planTitle"\s*:\s*"([^"]+)"/);
+  if (title) partial.planTitle = title;
+  const tag   = grab(/"tagline"\s*:\s*"([^"]+)"/);
+  if (tag)   partial.tagline   = tag;
+  const open  = grab(/"opening"\s*:\s*"([^"]+)"/);
+  if (open)  partial.opening   = open;
+  const total = grab(/"total"\s*:\s*(\d+)/);
+  if (total) partial.total     = parseInt(total);
+  const weekly = grab(/"weekly"\s*:\s*(\d+)/);
+  if (weekly) partial.weekly   = parseInt(weekly);
+  const aiVid = grab(/"aiVideos"\s*:\s*(\d+)/);
+  if (aiVid) partial.aiVideos  = parseInt(aiVid);
+  const aiWhy = grab(/"aiWhy"\s*:\s*"([^"]+)"/);
+  if (aiWhy) partial.aiWhy     = aiWhy;
+  const cta   = grab(/"cta"\s*:\s*"([^"]+)"/);
+  if (cta)   partial.cta       = cta;
+
+  if (partial.planTitle) {
+    return { success: true, data: partial, partial: true };
+  }
+  return { success: false, error: 'Could not parse response. Raw preview: ' + rawText.substring(0, 300) };
+}
+
 // ═══════════════════════════════════════════════
-//  BUILD PROMPT — absolute minimum for speed
+//  BUILD PROMPT
 // ═══════════════════════════════════════════════
 function buildPrompt(planData) {
-  const present = [], missing = [];
-  ['facebook','instagram','linkedin','tiktok','youtube','twitter','pinterest','yelp','googleBusiness','threads']
-    .forEach(p => { if (planData.profiles?.[p]) present.push(p); else missing.push(p); });
+  const presentList = Object.entries(planData.profiles || {})
+    .filter(([, v]) => v)
+    .map(([k]) => k)
+    .join(', ') || 'none';
+  const missingList = ['facebook','instagram','linkedin','tiktok','youtube','twitter','pinterest','yelp','googleBusiness','threads']
+    .filter(p => !planData.profiles?.[p])
+    .join(', ');
 
-  const biz  = planData.businessName || 'this business';
-  const niche= planData.niche  || 'local business';
-  const city = planData.city   || 'California';
-  const goal = planData.goal   || 'more bookings';
+  const biz   = planData.businessName || 'this business';
+  const niche = planData.niche || 'local business';
+  const city  = planData.city  || 'California';
+  const goal  = planData.goal  || 'more customers';
 
-  return `Social media posting plan for ${biz}, ${niche}, ${city} CA. Goal: ${goal}. Present: ${present.join(',') || 'none'}. Missing: ${missing.join(',')}.
-JSON only, no markdown, short strings, no apostrophes:
-{"planTitle":"","tagline":"","opening":"","channels":[{"p":"","s":"Present/Missing","priority":"Must Have/Recommended","note":""}],"instagram":{"feed":0,"reels":0,"stories":0},"facebook":{"posts":0,"videos":0},"tiktok":{"videos":0},"youtube":{"videos":0,"shorts":0},"gmb":{"posts":0},"total":0,"weekly":0,"aiVideos":0,"aiWhy":"","aiTypes":["type: desc - X/mo"],"aiTools":["tool"],"aiEdge":"","pillars":["Pillar: desc - X/mo"],"ideas":["Platform Type: idea"],"week":["Mon: Platform - idea","Tue: Platform - idea","Wed: Platform - idea","Thu: Platform - idea","Fri: Platform - idea","Sat: Platform - idea","Sun: Platform - idea"],"missing":["Platform: opportunity"],"m1":["goal"],"m3":["result"],"cta":"next step"}`;
+  return `Social media plan for ${biz}, ${niche}, ${city} CA. Goal: ${goal}. Present: ${presentList}. Missing: ${missingList}.
+RULES: Social media only. No SEO. AI video required. Max 10 words per string. No apostrophes.
+Complete this JSON exactly:
+{"planTitle":"title here","tagline":"subtitle here","opening":"two short sentences about opportunity","channels":["Instagram:Present:Must Have","Facebook:Present:Must Have","TikTok:Missing:High Priority"],"instagram":{"feed":8,"reels":12,"stories":20,"total":40,"focus":"food and behind scenes"},"facebook":{"posts":12,"videos":4,"total":16,"focus":"community and events"},"tiktok":{"videos":16,"total":16,"focus":"short cooking videos"},"youtube":{"videos":2,"shorts":8,"total":10,"focus":"restaurant tours"},"gmb":{"posts":8,"photos":12,"total":20},"total":102,"weekly":25,"aiVideos":8,"aiWhy":"two sentences why AI video matters for this niche","aiTypes":["Showcase videos: 3 per month","Promo clips: 2 per month","Story videos: 3 per month"],"tools":["HeyGen","Pictory"],"advantage":"one sentence competitive edge","pillars":["Food showcase: daily specials 10 per month","Behind scenes: kitchen stories 8 per month","Community: local events 6 per month"],"ideas":["Instagram reel: chef preparing signature dish","Facebook post: weekly special announcement","TikTok video: 30 second recipe reveal","Instagram carousel: menu highlights","YouTube short: cafe tour"],"week":["Monday: Instagram reel chef special","Tuesday: Facebook post weekly offer","Wednesday: TikTok cooking video","Thursday: Google Business photo update","Friday: Instagram story weekend special","Saturday: YouTube short cafe highlights","Sunday: Facebook community post"],"missing":["TikTok: reach younger local audience","YouTube: build brand authority with video"],"m1":["Launch TikTok with 3 videos per week","Establish posting schedule across all channels","Set up Google Business posting routine"],"m3":["Consistent daily posting across 5 platforms","AI video content running weekly","Community of engaged local followers growing"],"cta":"Schedule a 15-minute social media strategy call this week"}
+Complete this JSON with real values for ${biz}. Return ONLY valid complete JSON starting with { ending with }.`;
 }
 
 function buildShortPrompt(planData) {
   const biz   = planData.businessName || 'this business';
   const niche = planData.niche || 'local business';
   const city  = planData.city  || 'California';
-  return `Social media plan for ${biz}, ${niche}, ${city}. JSON only:
-{"planTitle":"","tagline":"","opening":"","channels":[{"p":"","s":"","priority":""}],"instagram":{"feed":0,"reels":0,"stories":0},"facebook":{"posts":0,"videos":0},"tiktok":{"videos":0},"total":0,"weekly":0,"aiVideos":0,"aiWhy":"","aiTypes":[""],"pillars":[""],"ideas":[""],"week":["Mon:","Tue:","Wed:","Thu:","Fri:","Sat:","Sun:"],"m1":[""],"m3":[""],"cta":""}`;
+  return `Social media plan for ${biz}, ${niche}, ${city}. Max 10 words per string. No apostrophes. Return ONLY valid JSON:
+{"planTitle":"","tagline":"","opening":"","channels":["Instagram:Present:Must Have","Facebook:Present:Must Have"],"instagram":{"feed":8,"reels":12,"stories":20,"total":40,"focus":""},"facebook":{"posts":12,"videos":4,"total":16,"focus":""},"tiktok":{"videos":16,"total":16,"focus":""},"total":72,"weekly":18,"aiVideos":6,"aiWhy":"","aiTypes":[""],"tools":[""],"advantage":"","pillars":[""],"ideas":[""],"week":["Monday:","Tuesday:","Wednesday:","Thursday:","Friday:","Saturday:","Sunday:"],"missing":[""],"m1":[""],"m3":[""],"cta":""}
+Complete with real values for ${biz}. Return ONLY valid complete JSON starting with { ending with }.`;
 }
 
 // ═══════════════════════════════════════════════
@@ -647,16 +688,22 @@ async function runGenerate(planData, apiKey) {
   let rawText = '';
 
   try {
-    rawText = await callClaude(buildPrompt(planData), 1500, apiKey, controller.signal);
+    rawText = await callClaude(buildPrompt(planData), 2500, apiKey, controller.signal);
 
     let plan;
     if (isResponseTruncated(rawText)) {
       const retryEl = document.getElementById('skel-msg');
       if (retryEl) retryEl.textContent = 'Response was incomplete. Retrying with shorter prompt…';
-      rawText = await callClaude(buildShortPrompt(planData), 1000, apiKey);
-      plan = parseClaudeResponse(rawText);
+      rawText = await callClaude(buildShortPrompt(planData), 2000, apiKey);
+    }
+    const parsed = safeParseJSON(rawText);
+    if (parsed.success) {
+      plan = parsed.data;
+      if (parsed.partial) {
+        plan._partialWarning = true;
+      }
     } else {
-      plan = parseClaudeResponse(rawText);
+      throw new Error(parsed.error);
     }
 
     renderProgressively(plan, planData);
@@ -758,7 +805,10 @@ function skelSectionDark(n) {
 //  PROGRESSIVE RENDER — rAF between each section
 // ═══════════════════════════════════════════════
 function renderProgressively(plan, planData) {
-  document.getElementById('sec-header').innerHTML = buildHeaderHTML(plan, planData);
+  document.getElementById('sec-header').innerHTML = buildHeaderHTML(plan, planData)
+    + (plan._partialWarning ? `<div style="background:#fff3cd;border:1px solid #ffc107;padding:.75rem 1.5rem;font-size:13px;color:#856404;">
+        ⚠️ Some sections could not be loaded — <button onclick="clearCacheAndRegenerate()" style="background:none;border:none;color:#4A0080;font-weight:700;cursor:pointer;text-decoration:underline;font-size:13px;">click Regenerate for full plan</button>
+      </div>` : '');
   requestAnimationFrame(() => {
     document.getElementById('sec-s1').innerHTML = buildS1HTML(plan);
     requestAnimationFrame(() => {
@@ -794,12 +844,23 @@ function buildHeaderHTML(plan, planData) {
     </div>`;
 }
 
+// Normalise channels — handles string format "Name:Status:Priority" and old object format
+function normalizeChannels(arr) {
+  return (arr || []).map(ch => {
+    if (typeof ch === 'string') {
+      const parts = ch.split(':');
+      return { p: parts[0] || '', s: parts[1] || 'Unknown', priority: parts[2] || 'Recommended' };
+    }
+    return ch;
+  });
+}
+
 // Section 1 — opening + channels
-// Supports short field names (p/s/note) and old field names (platform/status/opportunity)
+// Supports new string format "Name:Status:Priority", short field names (p/s/note), and old field names
 function buildS1HTML(d) {
   const opening = typeof d.opening === 'string' ? d.opening
     : (typeof d.openingStatement === 'string' ? d.openingStatement : d.openingStatement?.body || '');
-  const chans   = d.channels || d.channelAssessment || [];
+  const chans   = normalizeChannels(d.channels || d.channelAssessment || []);
   const pColors = { 'Must Have':'#dc3545', 'High Priority':'#fd7e14', 'Recommended':'#0d6efd', 'Optional':'#6c757d' };
 
   return `
@@ -884,8 +945,8 @@ function buildS3HTML(d) {
   const monthly = d.aiVideos || aiv.monthlyVideos || aiv.videosPerMonth || 0;
   const why     = d.aiWhy   || aiv.whyEssential  || aiv.whyItMatters  || '';
   const types   = d.aiTypes || aiv.aiVideoTypes  || aiv.types         || [];
-  const tools   = d.aiTools || aiv.tools         || [];
-  const edge    = d.aiEdge  || aiv.advantage     || aiv.veo3Advantage || '';
+  const tools   = d.aiTools || d.tools  || aiv.tools         || [];
+  const edge    = d.aiEdge  || d.advantage || aiv.advantage || aiv.veo3Advantage || '';
   const hook    = why ? why.split('.')[0] : 'AI Video Is Your Competitive Edge';
 
   return `
