@@ -514,18 +514,41 @@ function clearCacheAndRegenerate() {
 }
 
 // ═══════════════════════════════════════════════
-//  JSON PARSER — 3-pass robust cleanup
+//  JSON PARSER — robust cleanup with truncation check
 // ═══════════════════════════════════════════════
-function parseClaudeJSON(raw) {
-  let t = raw.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
-  const s = t.indexOf('{'), e = t.lastIndexOf('}');
-  if (s === -1 || e === -1) throw new Error('No JSON found');
-  t = t.slice(s, e + 1);
-  try { return JSON.parse(t); } catch(_) {}
-  try { return JSON.parse(t.replace(/[\x00-\x1F\x7F-\x9F]/g,' ').replace(/,(\s*[}\]])/g,'$1')); } catch(_) {}
-  try { return JSON.parse(t.replace(/[\x00-\x1F\x7F-\x9F]/g,' ').replace(/,(\s*[}\]])/g,'$1').replace(/([{,]\s*)([a-zA-Z_]\w*)(\s*:)/g,'$1"$2"$3')); } catch(e3) {
-    throw new Error('JSON parse failed: ' + e3.message);
+function parseClaudeResponse(rawText) {
+  let text = rawText;
+  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenceMatch) {
+    text = fenceMatch[1].trim();
+  } else {
+    text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
   }
+  const firstBrace = text.indexOf('{');
+  const lastBrace  = text.lastIndexOf('}');
+  if (firstBrace === -1) {
+    throw new Error('No JSON object found in response. Raw: ' + text.substring(0, 200));
+  }
+  if (lastBrace === -1 || lastBrace <= firstBrace) {
+    throw new Error('JSON appears truncated — response was cut off. Try increasing max_tokens.');
+  }
+  text = text.slice(firstBrace, lastBrace + 1);
+  try { return JSON.parse(text); } catch (e1) {
+    text = text
+      .replace(/[\x00-\x1F\x7F]/g, ' ')
+      .replace(/,(\s*[}\]])/g, '$1')
+      .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)(\s*:)/g, '$1"$2"$3');
+    try { return JSON.parse(text); } catch (e2) {
+      throw new Error('JSON parse failed: ' + e2.message + ' | Preview: ' + text.substring(0, 300));
+    }
+  }
+}
+
+function isResponseTruncated(rawText) {
+  const text = rawText.trim();
+  const openBraces  = (text.match(/{/g) || []).length;
+  const closeBraces = (text.match(/}/g) || []).length;
+  return openBraces !== closeBraces;
 }
 
 // ═══════════════════════════════════════════════
@@ -544,6 +567,40 @@ function buildPrompt(planData) {
   return `Social media posting plan for ${biz}, ${niche}, ${city} CA. Goal: ${goal}. Present: ${present.join(',') || 'none'}. Missing: ${missing.join(',')}.
 JSON only, no markdown, short strings, no apostrophes:
 {"planTitle":"","tagline":"","opening":"","channels":[{"p":"","s":"Present/Missing","priority":"Must Have/Recommended","note":""}],"instagram":{"feed":0,"reels":0,"stories":0},"facebook":{"posts":0,"videos":0},"tiktok":{"videos":0},"youtube":{"videos":0,"shorts":0},"gmb":{"posts":0},"total":0,"weekly":0,"aiVideos":0,"aiWhy":"","aiTypes":["type: desc - X/mo"],"aiTools":["tool"],"aiEdge":"","pillars":["Pillar: desc - X/mo"],"ideas":["Platform Type: idea"],"week":["Mon: Platform - idea","Tue: Platform - idea","Wed: Platform - idea","Thu: Platform - idea","Fri: Platform - idea","Sat: Platform - idea","Sun: Platform - idea"],"missing":["Platform: opportunity"],"m1":["goal"],"m3":["result"],"cta":"next step"}`;
+}
+
+function buildShortPrompt(planData) {
+  const biz   = planData.businessName || 'this business';
+  const niche = planData.niche || 'local business';
+  const city  = planData.city  || 'California';
+  return `Social media plan for ${biz}, ${niche}, ${city}. JSON only:
+{"planTitle":"","tagline":"","opening":"","channels":[{"p":"","s":"","priority":""}],"instagram":{"feed":0,"reels":0,"stories":0},"facebook":{"posts":0,"videos":0},"tiktok":{"videos":0},"total":0,"weekly":0,"aiVideos":0,"aiWhy":"","aiTypes":[""],"pillars":[""],"ideas":[""],"week":["Mon:","Tue:","Wed:","Thu:","Fri:","Sat:","Sun:"],"m1":[""],"m3":[""],"cta":""}`;
+}
+
+// ═══════════════════════════════════════════════
+//  CLAUDE API HELPER
+// ═══════════════════════════════════════════════
+async function callClaude(prompt, maxTokens, key, signal) {
+  const opts = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5',
+      max_tokens: maxTokens,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  };
+  if (signal) opts.signal = signal;
+  const response = await fetch('https://api.anthropic.com/v1/messages', opts);
+  const data = await response.json();
+  if (data.error) throw new Error('API error: ' + (data.error.message || JSON.stringify(data.error)));
+  if (!data.content || !data.content[0]) throw new Error('Empty response from API');
+  return (data.content || []).map(b => b.text || '').join('');
 }
 
 // ═══════════════════════════════════════════════
@@ -577,7 +634,6 @@ async function retryGenerate() {
 }
 
 async function runGenerate(planData, apiKey) {
-  // Start rotating skeleton message
   const skelMsgs = ['Building your social media plan…','Calculating posting schedule…','Creating content ideas…','Almost ready…'];
   let skelMi = 0;
   const skelTimer = setInterval(() => {
@@ -586,47 +642,29 @@ async function runGenerate(planData, apiKey) {
     if (el) el.textContent = skelMsgs[skelMi % skelMsgs.length];
   }, 2000);
 
-  let rawText = '';
   const controller = new AbortController();
   const timeoutId  = setTimeout(() => controller.abort(), 30000);
+  let rawText = '';
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type':      'application/json',
-        'x-api-key':         apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model:      'claude-haiku-4-5',
-        max_tokens: 800,
-        messages:   [{ role: 'user', content: buildPrompt(planData) }]
-      }),
-      signal: controller.signal
-    });
+    rawText = await callClaude(buildPrompt(planData), 1500, apiKey, controller.signal);
 
-    clearTimeout(timeoutId);
-    clearInterval(skelTimer);
+    let plan;
+    if (isResponseTruncated(rawText)) {
+      const retryEl = document.getElementById('skel-msg');
+      if (retryEl) retryEl.textContent = 'Response was incomplete. Retrying with shorter prompt…';
+      rawText = await callClaude(buildShortPrompt(planData), 1000, apiKey);
+      plan = parseClaudeResponse(rawText);
+    } else {
+      plan = parseClaudeResponse(rawText);
+    }
 
-    const data = await response.json();
-    if (data.error) throw new Error('API error: ' + (data.error.message || JSON.stringify(data.error)));
-
-    rawText = (data.content || []).map(b => b.text || '').join('');
-    const plan = parseClaudeJSON(rawText);
-
-    // Render progressively — fills sections with rAF between each
     renderProgressively(plan, planData);
-
-    // Cache after successful render
     cachePlan(plan, planData);
     document.getElementById('plan-regen-age').textContent = 'Plan just generated';
     document.getElementById('plan-regen-bar').classList.add('visible');
 
   } catch (err) {
-    clearTimeout(timeoutId);
-    clearInterval(skelTimer);
     const isAbort = err.name === 'AbortError';
     const preview = rawText ? rawText.substring(0, 300) : 'No response received';
     document.getElementById('sec-header').innerHTML = `
@@ -648,6 +686,8 @@ async function runGenerate(planData, apiKey) {
       const el = document.getElementById(id); if (el) el.innerHTML = '';
     });
   } finally {
+    clearTimeout(timeoutId);
+    clearInterval(skelTimer);
     document.getElementById('btn-generate').disabled = false;
   }
 }
