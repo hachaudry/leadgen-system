@@ -313,15 +313,7 @@ function setLoadMsg(msg) {
   if (el) el.textContent = msg;
 }
 
-function printWithHelp() {
-  document.getElementById('print-help-modal').style.display = 'flex';
-}
-function closePrintModal() {
-  document.getElementById('print-help-modal').style.display = 'none';
-  setTimeout(() => window.print(), 200);
-}
-
-// ── Platform Presence HTML Builder — used in SEO report and seo-proposal.html
+function printWithHelp// ── Platform Presence HTML Builder — used in SEO report and seo-proposal.html
 function buildPlatformPresenceHtml(bizName, niche, city, scores, proposalMode) {
   const overall  = +(scores?.overall    ?? 0);
   const schemaS  = +(scores?.Schema     ?? 50);
@@ -332,15 +324,17 @@ function buildPlatformPresenceHtml(bizName, niche, city, scores, proposalMode) {
   const geoScore = Math.min(100, Math.round(0.6 * contentS + 0.4 * schemaS));
   const aeoScore = Math.min(100, Math.round(0.5 * contentS + 0.5 * onpageS));
 
-  // HARD RULE: All platforms show MISSING unless overall >= 80
-  const allVisible = overall >= 80;
-  const googleRank = allVisible ? 'top3' : 'absent';
-  const aioVis     = allVisible;
-  const chatVis    = allVisible;
-  const gemVis     = allVisible;
-  const clVis      = allVisible;
-  const bingVis    = allVisible;
-  const visCount   = allVisible ? 6 : 0;
+  // HARD RULE: >= 85 required for ANY platform to show appearing/visible.
+  // Google gets a narrow amber "weak" band at 70-84.  All AI platforms are
+  // red/missing below 85 — typical local businesses score 30-65.
+  const allVisible  = overall >= 85;
+  const googleWeak  = !allVisible && overall >= 70;   // amber only — not green
+  const googleRank  = allVisible ? 'top3' : googleWeak ? 'weak' : 'absent';
+  const aioVis      = allVisible;
+  const chatVis     = allVisible;
+  const gemVis      = allVisible;
+  const clVis       = allVisible;
+  const bingVis     = allVisible;
 
   const gq        = encodeURIComponent('best ' + niche + ' in ' + city);
   const bn        = esc(bizName), ni = esc(niche), ct = esc(city);
@@ -353,16 +347,24 @@ function buildPlatformPresenceHtml(bizName, niche, city, scores, proposalMode) {
   const comp2url  = 'premier' + nicheSlug + citySlug + '.com';
   const comp3url  = 'elite' + nicheSlug + 'services.com';
 
-  // Print-safe prefix (proposal pages need this for PDF color fidelity)
   const pPfx = proposalMode
     ? '-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-inside:avoid;'
     : '';
 
+  // Card border — thick red top stripe on all cards
+  const cardBorder = 'border:2px solid #dc2626;border-top:4px solid #dc2626;';
+
   function missingBadge(label) {
-    return `<span style="background:#dc2626;color:#fff;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;white-space:nowrap;text-transform:uppercase;letter-spacing:.5px">✗ ${label}</span>`;
+    return `<span style="background:#dc2626;color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;white-space:nowrap;text-transform:uppercase;letter-spacing:.5px">✗ ${label}</span>`;
+  }
+  function weakBadge(label) {
+    return `<span style="background:#d97706;color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;white-space:nowrap;text-transform:uppercase;letter-spacing:.5px">⚠ ${label}</span>`;
   }
   function presentBadge(label) {
-    return `<span style="background:#dcfce7;color:#166534;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;white-space:nowrap;text-transform:uppercase;letter-spacing:.5px">✓ ${label}</span>`;
+    return `<span style="background:#166534;color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;white-space:nowrap;text-transform:uppercase;letter-spacing:.5px">✓ ${label}</span>`;
+  }
+  function notVisibleBox(msg) {
+    return `<div style="background:#fef2f2;border:2px solid #dc2626;border-radius:8px;padding:12px 16px;margin-top:10px;font-size:16px;font-weight:700;color:#dc2626;text-align:center;line-height:1.3">❌ ${msg}</div>`;
   }
   function pLink(lbl, href) {
     return `<a href="${esc(href)}" target="_blank" rel="noopener" style="font-size:11px;color:#2563eb;font-weight:600;text-decoration:none;white-space:nowrap">${lbl} ↗</a>`;
@@ -371,8 +373,8 @@ function buildPlatformPresenceHtml(bizName, niche, city, scores, proposalMode) {
     if (!proposalMode) return '';
     return `<div style="background:#fee2e2;border-top:1px solid #fca5a5;padding:8px 12px;font-size:11.5px;color:#991b1b;line-height:1.5">💸 ${text}${dollars ? `<strong style="display:block;font-size:13px;margin-top:3px">${dollars}/month in lost revenue</strong>` : ''}</div>`;
   }
-  function urgencyLine(text) {
-    return `<div style="padding:6px 12px;background:#fff4f4;border-top:1px solid #fecaca;font-size:11px;color:#991b1b;font-weight:600;line-height:1.4">${text}</div>`;
+  function urgencyLine(competitor) {
+    return `<div style="padding:8px 12px;background:#fff4f4;border-top:2px solid #fecaca;font-size:12px;color:#991b1b;font-weight:700;font-style:italic;line-height:1.4">⚠ This platform is sending your potential customers to ${competitor} instead</div>`;
   }
 
   // ── URGENT WARNING BANNER
@@ -385,44 +387,48 @@ function buildPlatformPresenceHtml(bizName, niche, city, scores, proposalMode) {
   </div>`;
 
   // ── CARD 1: GOOGLE SEARCH
-  const c1 = `<div style="${pPfx}background:#fff;border:2px solid #dc2626;border-radius:12px;overflow:hidden">
+  const googleBadge = googleRank === 'top3' ? presentBadge('TOP 3')
+                    : googleRank === 'weak'  ? weakBadge('WEAK RANKING')
+                    :                          missingBadge('NOT RANKING');
+  const c1 = `<div style="${pPfx}background:#fff;${cardBorder}border-radius:12px;overflow:hidden">
     <div style="padding:10px 12px;border-bottom:1px solid #fee2e2;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
       <span style="font-size:20px;font-weight:700;letter-spacing:-1px;line-height:1"><span style="color:#4285f4">G</span><span style="color:#ea4335">o</span><span style="color:#fbbc05">o</span><span style="color:#4285f4">g</span><span style="color:#34a853">l</span><span style="color:#ea4335">e</span></span>
-      ${googleRank === 'top3' ? presentBadge('TOP 3') : missingBadge('NOT RANKING')}
+      ${googleBadge}
     </div>
     <div style="padding:6px 12px;background:#f8f9fa;border-bottom:1px solid #e5e7eb;font-size:12px;color:#202124;display:flex;align-items:center;gap:6px"><span>🔍</span> best ${ni} in ${ct}</div>
     <div style="padding:10px 12px">
       <div style="padding:5px 0;border-bottom:1px solid #f3f4f6"><div style="font-size:13px;color:#1a0dab;font-weight:500">${comp1} — Best ${ni} in ${ct}</div><div style="font-size:11px;color:#006621">${comp1url}</div><div style="font-size:11px;color:#545454">Top-rated ${ni} in ${ct}. Book today.</div></div>
       <div style="padding:5px 0;border-bottom:1px solid #f3f4f6"><div style="font-size:13px;color:#1a0dab">${comp2} — ${ct} ${ni} Experts</div><div style="font-size:11px;color:#006621">${comp2url}</div></div>
       <div style="padding:5px 0"><div style="font-size:13px;color:#1a0dab">${comp3} — Book Today</div><div style="font-size:11px;color:#006621">${comp3url}</div></div>
-      <div style="background:#fff4f4;border:1px solid #fca5a5;border-radius:6px;padding:7px 10px;margin-top:8px;font-size:11.5px;color:#991b1b;font-weight:600">❌ ${bn} not visible on page 1 of Google</div>
+      ${notVisibleBox(bn + ' is not visible in these results')}
     </div>
     <div style="padding:6px 12px;border-top:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center">${pLink('Check Why Competitors Rank Above You', 'https://www.google.com/search?q=' + gq)}<span style="font-size:10px;color:#9ca3af">31% of clicks = position 1</span></div>
-    ${urgencyLine('Your competitors above are receiving calls RIGHT NOW from customers looking for you')}
+    ${urgencyLine(comp1)}
     ${ub('Losing estimated ' + (Math.round((100 - overall) / 10) * 3 + 5) + '+ customers/month who click position 1 and never scroll further', '$' + ((Math.round((100 - overall) / 10) * 3 + 5) * 120) + '+')}
   </div>`;
 
   // ── CARD 2: GOOGLE AI OVERVIEW
-  const c2 = `<div style="${pPfx}background:#fff;border:2px solid #dc2626;border-radius:12px;overflow:hidden">
+  const c2 = `<div style="${pPfx}background:#fff;${cardBorder}border-radius:12px;overflow:hidden">
     <div style="padding:10px 12px;border-bottom:1px solid #fee2e2;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
       <div style="display:flex;align-items:center;gap:6px"><span style="font-size:15px;color:#4285f4">✦</span><span style="font-size:13px;font-weight:700;color:#1f1f1f">AI Overview</span><span style="font-size:10px;color:#5f6368;background:#f3f4f6;padding:2px 6px;border-radius:6px">Google Gemini</span></div>
       ${aioVis ? presentBadge('IN AI OVERVIEW') : missingBadge('NOT IN AI OVERVIEW')}
     </div>
     <div style="margin:10px 12px;padding:10px;background:#e8f0fe;border-radius:8px;font-size:12px;color:#1f1f1f;line-height:1.7">
-      When looking for ${ni} in ${ct}, Google recommends: <strong>${comp1}</strong>, <strong>${comp2}</strong>, and <strong>${comp3}</strong> — all with structured schema and optimized content. <em style="color:#9ca3af;display:block;margin-top:4px">${bn} does not appear — insufficient schema markup and on-page signals.</em>
+      When looking for ${ni} in ${ct}, Google recommends: <strong>${comp1}</strong>, <strong>${comp2}</strong>, and <strong>${comp3}</strong> — all with structured schema and optimized content.
     </div>
     <div style="padding:0 12px 8px;display:flex;gap:5px;flex-wrap:wrap">
       <span style="font-size:10.5px;background:#f3f4f6;border:1px solid #e5e7eb;padding:2px 9px;border-radius:20px;color:#374151">${comp1url}</span>
       <span style="font-size:10.5px;background:#f3f4f6;border:1px solid #e5e7eb;padding:2px 9px;border-radius:20px;color:#374151">${comp2url}</span>
     </div>
+    ${notVisibleBox(bn + ' is not included in this AI Overview')}
     <div style="padding:6px 12px;font-size:11.5px;color:#dc2626;line-height:1.4;border-top:1px solid #fee2e2">⚠ <strong>35% of Google searches</strong> now show AI Overview — bypassing all organic results</div>
     <div style="padding:6px 12px;border-top:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center">${pLink('Check Google AI', 'https://www.google.com/search?q=' + gq)}<span style="font-size:10px;color:#9ca3af">AIO Score: ${aioScore}/100</span></div>
-    ${urgencyLine('35% of Google searchers read this box and never scroll to your website')}
+    ${urgencyLine(comp1)}
     ${ub('35% of searchers read AI Overview and never click organic results — this business is bypassed entirely', '$2,400+')}
   </div>`;
 
   // ── CARD 3: CHATGPT
-  const c3 = `<div style="${pPfx}background:#212121;border:2px solid #dc2626;border-radius:12px;overflow:hidden">
+  const c3 = `<div style="${pPfx}background:#212121;${cardBorder}border-radius:12px;overflow:hidden">
     <div style="background:#171717;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
       <div style="display:flex;align-items:center;gap:8px"><div style="width:20px;height:20px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#171717">◎</div><span style="color:#fff;font-size:13px;font-weight:600">ChatGPT</span><span style="background:#374151;color:#9ca3af;font-size:10px;padding:2px 7px;border-radius:8px">GPT-4o</span></div>
       ${chatVis ? presentBadge('APPEARING') : missingBadge('NOT FOUND')}
@@ -433,23 +439,23 @@ function buildPlatformPresenceHtml(bizName, niche, city, scores, proposalMode) {
         <div style="width:22px;height:22px;border-radius:50%;background:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#171717">◎</div>
         <div style="color:#e5e7eb;font-size:12px;line-height:1.7;flex:1">
           Here are some highly recommended ${ni} options in ${ct}:
-          <ol style="margin:6px 0 6px 16px;color:#d1d5db;font-size:11.5px"><li style="margin-bottom:3px">${comp1} — well-reviewed service</li><li style="margin-bottom:3px">${comp2} — top-rated in ${ct}</li><li>${comp3} — recommended locally</li></ol>
-          <div style="background:rgba(220,38,38,.2);border:1px solid rgba(220,38,38,.4);border-radius:6px;padding:5px 9px;font-size:11px;color:#fca5a5;margin-top:4px">⚠ ${bn} was not mentioned in this response</div>
+          <ol style="margin:6px 0 0 16px;color:#d1d5db;font-size:11.5px"><li style="margin-bottom:3px">${comp1} — excellent reputation and reviews</li><li style="margin-bottom:3px">${comp2} — well-known locally for quality service</li><li>${comp3} — highly rated by customers in ${ct}</li></ol>
         </div>
       </div>
       <div style="display:flex;justify-content:flex-end;margin-bottom:8px"><div style="background:#374151;color:#e5e7eb;font-size:12px;padding:8px 12px;border-radius:12px 12px 4px 12px;max-width:85%">What about ${bn}?</div></div>
-      <div style="display:flex;gap:8px;align-items:flex-start">
+      <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px">
         <div style="width:22px;height:22px;border-radius:50%;background:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#171717">◎</div>
         <div style="background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.3);border-radius:6px;padding:8px 10px;font-size:11.5px;color:#fca5a5;line-height:1.6;flex:1">I do not have sufficient information about <strong>${bn}</strong> to make a confident recommendation.</div>
       </div>
+      ${notVisibleBox(bn + ' was not mentioned by ChatGPT')}
     </div>
     <div style="background:#171717;padding:6px 12px;display:flex;justify-content:space-between;align-items:center">${pLink('<span style="color:#60a5fa">Ask ChatGPT</span>', 'https://chat.openai.com')}<span style="font-size:10px;color:#6b7280">GEO Score: ${geoScore}/100</span></div>
-    ${urgencyLine('100 million people ask ChatGPT for recommendations monthly — they are all finding your competitors')}
+    ${urgencyLine(comp1)}
     ${ub('Missing ~40% of customers using AI to find local ' + ni + ' recommendations in ' + ct, '$3,200+')}
   </div>`;
 
   // ── CARD 4: GEMINI
-  const c4 = `<div style="${pPfx}background:#fff;border:2px solid #dc2626;border-radius:12px;overflow:hidden">
+  const c4 = `<div style="${pPfx}background:#fff;${cardBorder}border-radius:12px;overflow:hidden">
     <div style="padding:10px 12px;border-bottom:1px solid #fee2e2;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
       <div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">✦</span><span style="font-size:13px;font-weight:700;color:#1f1f1f">Google Gemini</span><span style="font-size:10px;color:#6b7280;background:#f3f4f6;padding:2px 7px;border-radius:6px">1.5 Pro</span></div>
       ${gemVis ? presentBadge('MENTIONED') : missingBadge('NOT IN GEMINI')}
@@ -457,21 +463,22 @@ function buildPlatformPresenceHtml(bizName, niche, city, scores, proposalMode) {
     <div style="padding:10px 12px">
       <div style="background:#f8f9fa;border-radius:6px;padding:7px 10px;font-size:12px;color:#5f6368;margin-bottom:8px">What is the best ${ni} in ${ct}?</div>
       <div style="font-size:12px;color:#202124;line-height:1.7;border-left:3px solid #dc2626;padding-left:10px">
-        Top-rated ${ni} in ${ct}: <strong>${comp1}</strong>, <strong>${comp2}</strong>, and <strong>${comp3}</strong>. All feature structured data, local citations, and strong review profiles. <em style="color:#9ca3af;display:block;margin-top:3px">${bn} is not referenced — limited content structure and missing schema.</em>
+        Based on local ratings and reviews, here are recommended ${ni} providers in ${ct}: <strong>${comp1}</strong>, <strong>${comp2}</strong>, and <strong>${comp3}</strong> are among the well-regarded options with established online presences.
       </div>
       <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px">
         <span style="font-size:10.5px;background:#e8f0fe;color:#1967d2;padding:2px 9px;border-radius:12px">${comp1url}</span>
         <span style="font-size:10.5px;background:#e8f0fe;color:#1967d2;padding:2px 9px;border-radius:12px">${comp2url}</span>
       </div>
+      ${notVisibleBox(bn + ' is not included in Gemini recommendations')}
       <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:7px 10px;margin-top:8px;font-size:11.5px;color:#c2410c">Gemini powers Google Assistant + Android — invisible here = invisible in voice search</div>
     </div>
     <div style="padding:6px 12px;border-top:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center">${pLink('Ask Gemini', 'https://gemini.google.com')}<span style="font-size:10px;color:#9ca3af">GEO Score: ${geoScore}/100</span></div>
-    ${urgencyLine('Every Android user asking their phone for ' + niche + ' in ' + city + ' is being sent to competitors')}
+    ${urgencyLine(comp1)}
     ${ub('Invisible to Google Assistant users and Android voice search — a growing segment of mobile searchers in ' + ct, '$1,800+')}
   </div>`;
 
   // ── CARD 5: CLAUDE
-  const c5 = `<div style="${pPfx}background:#faf9f6;border:2px solid #dc2626;border-radius:12px;overflow:hidden">
+  const c5 = `<div style="${pPfx}background:#faf9f6;${cardBorder}border-radius:12px;overflow:hidden">
     <div style="padding:10px 12px;border-bottom:1px solid #fee2e2;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
       <div style="display:flex;align-items:center;gap:7px"><div style="width:20px;height:20px;border-radius:50%;background:#d97706;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff">A</div><span style="font-size:13px;font-weight:700;color:#1a1a1a">Claude</span><span style="font-size:10px;color:#6b7280;background:#f3f4f6;padding:2px 7px;border-radius:6px">Anthropic</span></div>
       ${clVis ? presentBadge('MENTIONED IN CLAUDE') : missingBadge('NOT MENTIONED IN CLAUDE')}
@@ -479,17 +486,17 @@ function buildPlatformPresenceHtml(bizName, niche, city, scores, proposalMode) {
     <div style="padding:10px 12px">
       <div style="background:#f3f4f6;border-radius:6px;padding:7px 10px;font-size:12px;color:#374151;text-align:right;margin-bottom:8px">What is the best ${ni} in ${ct}?</div>
       <div style="border-left:3px solid #dc2626;padding-left:10px;font-size:12px;color:#374151;line-height:1.7">
-        Based on available sources, top ${ni} providers in ${ct} include <strong>${comp1}</strong>, <strong>${comp2}</strong>, and <strong>${comp3}</strong>. These businesses have clear web presence, FAQ content, and structured information. <em style="color:#9ca3af;display:block;margin-top:3px">${bn} does not appear — businesses with structured, conversational content are cited first.</em>
+        Based on available information, some well-regarded ${ni} options in ${ct} include <strong>${comp1}</strong> and <strong>${comp2}</strong>. These businesses have established online presences with structured content and local citations.
       </div>
-      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:6px 9px;margin-top:8px;font-size:11.5px;color:#991b1b">${bn} was not mentioned in this Claude AI response</div>
+      ${notVisibleBox(bn + ' does not appear in Claude AI recommendations')}
     </div>
     <div style="padding:6px 12px;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">${pLink('Ask Claude', 'https://claude.ai/new')}<span style="font-size:10px;color:#9ca3af">AEO Score: ${aeoScore}/100</span></div>
-    ${urgencyLine('AI-savvy customers researching ' + niche + ' services cannot find your business')}
+    ${urgencyLine(comp1)}
     ${ub('Missing the AI-assisted research segment — growing 15% month-over-month as adoption accelerates', '$1,200+')}
   </div>`;
 
   // ── CARD 6: BING / COPILOT
-  const c6 = `<div style="${pPfx}background:#fff;border:2px solid #dc2626;border-radius:12px;overflow:hidden">
+  const c6 = `<div style="${pPfx}background:#fff;${cardBorder}border-radius:12px;overflow:hidden">
     <div style="padding:10px 12px;border-bottom:1px solid #fee2e2;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
       <div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px;font-weight:900;color:#0078d4">Bing</span><span style="width:1px;height:14px;background:#e5e7eb;display:inline-block"></span><span style="font-size:12px;font-weight:700;color:#7c3aed">✦ Copilot</span></div>
       ${bingVis ? presentBadge('VISIBLE ON BING') : missingBadge('NOT ON BING')}
@@ -498,27 +505,29 @@ function buildPlatformPresenceHtml(bizName, niche, city, scores, proposalMode) {
       <div>
         <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Bing Results</div>
         <div style="font-size:12.5px;color:#0078d4;margin-bottom:2px">${comp1}</div>
-        <div style="font-size:11px;color:#767676;margin-bottom:5px">Top ${ni} in ${ct}</div>
+        <div style="font-size:11px;color:#767676;margin-bottom:5px">Best ${ni} in ${ct}</div>
         <div style="font-size:12.5px;color:#0078d4;margin-bottom:2px">${comp2}</div>
-        <div style="font-size:11px;color:#dc2626;margin-top:4px;font-style:italic">${bn}: not on page 1</div>
+        <div style="font-size:11px;color:#767676;margin-bottom:5px">Top-rated ${ni}</div>
+        <div style="font-size:12.5px;color:#0078d4;margin-bottom:2px">${comp3}</div>
       </div>
       <div style="background:#f5f0ff;border-radius:8px;padding:8px">
         <div style="font-size:10px;font-weight:700;color:#7c3aed;margin-bottom:5px">🤖 Copilot AI</div>
-        <div style="font-size:11.5px;color:#374151;line-height:1.5">For ${ni} in ${ct}, I recommend <strong>${comp1}</strong> and <strong>${comp2}</strong>. <span style="color:#dc2626;font-size:11px;display:block;margin-top:4px">${bn} not found in Copilot answers</span></div>
+        <div style="font-size:11.5px;color:#374151;line-height:1.5">For ${ni} in ${ct}, I recommend <strong>${comp1}</strong> and <strong>${comp2}</strong>. Both are highly rated locally.</div>
       </div>
     </div>
+    ${notVisibleBox(bn + ' is not on page 1 of Bing or Copilot answers')}
     <div style="padding:6px 12px;border-top:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center">${pLink('Search Bing', 'https://www.bing.com/search?q=' + gq)}<span style="font-size:10px;color:#9ca3af">Bing + Copilot</span></div>
-    ${urgencyLine('Microsoft Copilot users including corporate clients are finding competitors instead')}
+    ${urgencyLine(comp1)}
     ${ub('Missing Microsoft ecosystem users — corporate and professional searchers who default to Bing and Copilot', '$900+')}
   </div>`;
 
-  // ── SUMMARY BAR — always alarming red (0 of 6)
-  const allDots = '<span style="width:12px;height:12px;border-radius:50%;background:#dc2626;display:inline-block;flex-shrink:0"></span>'.repeat(6);
+  // ── SUMMARY BAR — always alarming red
+  const allDots = '<span style="width:14px;height:14px;border-radius:50%;background:#dc2626;display:inline-block;flex-shrink:0;border:2px solid rgba(255,255,255,.4)"></span>'.repeat(6);
   const summaryBar = `<div style="${pPfx}background:#dc2626;color:#fff;border-radius:10px;padding:16px 18px;margin-top:0">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px">
       <div style="flex:1">
-        <div style="font-size:14px;font-weight:900;margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px">${bn} IS INVISIBLE ON ALL 6 PLATFORMS</div>
-        <div style="font-size:11.5px;opacity:.9;margin-bottom:6px">Your competitors are being recommended while you are completely absent from AI-driven search.</div>
+        <div style="font-size:15px;font-weight:900;margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px">${bn} IS INVISIBLE ON 6 OF 6 AI PLATFORMS</div>
+        <div style="font-size:12px;opacity:.95;margin-bottom:5px">Your competitors are being recommended while you are not found anywhere.</div>
         <div style="font-size:11px;opacity:.8;font-style:italic">Every month you remain invisible, your competitors grow stronger.</div>
       </div>
       <div style="display:flex;gap:5px;align-items:center;flex-shrink:0">${allDots}</div>
@@ -546,6 +555,8 @@ function buildPlatformPresenceHtml(bizName, niche, city, scores, proposalMode) {
 
   return `${warningBanner}<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px">${c1}${c2}${c3}${c4}${c5}${c6}</div>${summaryBar}${totalBox}${aiRevBox}`;
 }
+
+
 
 
 
