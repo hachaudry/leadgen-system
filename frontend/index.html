@@ -1355,9 +1355,17 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
     <span class="logo">LeadGen AI</span>
     <span class="logo-sub">AI Prospecting Workspace</span>
   </div>
-  <div class="header-right">
-    <span id="api-status-badge" onclick="toggleSettings()">⚠ APIs Not Set</span>
-    <button id="settings-btn" class="icon-btn" onclick="toggleSettings()">⚙ Settings</button>
+  <div class="header-right" style="position:relative;z-index:1000;overflow:visible">
+    <span id="api-status-badge"
+      onclick="loadAPIKeysIntoPanel();var p=document.getElementById('settings-panel');p.style.display=p.style.display==='block'?'none':'block'"
+      style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;cursor:pointer;user-select:none;background:#FCEBEB;color:#791F1F;border:1px solid #791F1F">
+      ⚠ APIs Not Set
+    </span>
+    <button id="settings-btn"
+      onclick="loadAPIKeysIntoPanel();var p=document.getElementById('settings-panel');p.style.display=p.style.display==='block'?'none':'block'"
+      style="background:none;border:1px solid #ccc;border-radius:8px;padding:6px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;position:relative;z-index:99999;pointer-events:auto;font-family:inherit">
+      ⚙ Settings
+    </button>
   </div>
 </header>
 
@@ -1369,39 +1377,7 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
   <button class="main-tab" id="tab-outreach" onclick="showTab('outreach')">Outreach Manager</button>
 </nav>
 
-<!-- Settings Panel (fixed overlay) -->
-<div id="settings-panel">
-  <div class="settings-title">⚙ API Settings</div>
-  <div class="settings-sub">Your keys are stored locally in your browser only — never sent to our servers.</div>
-
-  <div class="settings-field">
-    <label for="cfg-google">Google Places API Key</label>
-    <div class="settings-input-wrap">
-      <input type="password" id="cfg-google" placeholder="AIza...">
-      <button class="settings-show-btn" type="button" onclick="toggleShow('cfg-google',this)" title="Show/hide">👁</button>
-    </div>
-  </div>
-
-  <div class="settings-field">
-    <label for="cfg-hunter">Hunter.io API Key</label>
-    <div class="settings-input-wrap">
-      <input type="password" id="cfg-hunter" placeholder="your hunter key">
-      <button class="settings-show-btn" type="button" onclick="toggleShow('cfg-hunter',this)" title="Show/hide">👁</button>
-    </div>
-  </div>
-
-  <div class="settings-field">
-    <label for="cfg-anthropic">Anthropic API Key</label>
-    <div class="settings-input-wrap">
-      <input type="password" id="cfg-anthropic" placeholder="sk-ant-...">
-      <button class="settings-show-btn" type="button" onclick="toggleShow('cfg-anthropic',this)" title="Show/hide">👁</button>
-    </div>
-  </div>
-
-  <button class="settings-save-btn" onclick="saveConfig()">💾 Save Keys</button>
-  <button class="settings-close-btn" onclick="toggleSettings()">✕ Close</button>
-  <div class="settings-saved-msg" id="keys-saved-msg">✓ Keys saved successfully</div>
-</div>
+<!-- settings panel injected at end of body -->
 
 <!-- Main -->
 <div class="main">
@@ -9331,6 +9307,124 @@ window.testSeoApi = function(url) {
     try { console.log('[testSeoApi] PARSED:', JSON.parse(t)); } catch(e) { console.error('[testSeoApi] Not valid JSON:', e.message); }
   }).catch(e => console.error('[testSeoApi] fetch error:', e));
 };
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     SETTINGS PANEL — placed last in DOM so nothing can cover it
+     z-index: 999999 — above everything
+     ══════════════════════════════════════════════════════════════════ -->
+<div id="settings-panel" style="display:none;position:fixed;top:60px;right:20px;width:380px;background:#fff;border:1px solid #ddd;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.2);padding:1.5rem;z-index:999999;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+    <strong style="font-size:15px;color:#111">⚙ API Settings</strong>
+    <button onclick="document.getElementById('settings-panel').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:#666;line-height:1;padding:0">×</button>
+  </div>
+  <p style="font-size:12px;color:#888;margin-bottom:1.25rem;line-height:1.5">Keys are stored in your browser only — never sent to any server.</p>
+
+  <div style="margin-bottom:12px">
+    <label style="font-size:12px;color:#555;display:block;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Google Places API Key</label>
+    <div style="position:relative;display:flex">
+      <input id="key-google" type="password" placeholder="AIza..." style="flex:1;padding:8px 36px 8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;box-sizing:border-box;font-family:inherit">
+      <button onclick="var e=document.getElementById('key-google');e.type=e.type==='password'?'text':'password'" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px;color:#9ca3af">👁</button>
+    </div>
+  </div>
+
+  <div style="margin-bottom:12px">
+    <label style="font-size:12px;color:#555;display:block;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Hunter.io API Key</label>
+    <div style="position:relative;display:flex">
+      <input id="key-hunter" type="password" placeholder="your hunter key" style="flex:1;padding:8px 36px 8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;box-sizing:border-box;font-family:inherit">
+      <button onclick="var e=document.getElementById('key-hunter');e.type=e.type==='password'?'text':'password'" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px;color:#9ca3af">👁</button>
+    </div>
+  </div>
+
+  <div style="margin-bottom:16px">
+    <label style="font-size:12px;color:#555;display:block;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Anthropic API Key</label>
+    <div style="position:relative;display:flex">
+      <input id="key-anthropic" type="password" placeholder="sk-ant-..." style="flex:1;padding:8px 36px 8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;box-sizing:border-box;font-family:inherit">
+      <button onclick="var e=document.getElementById('key-anthropic');e.type=e.type==='password'?'text':'password'" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px;color:#9ca3af">👁</button>
+    </div>
+  </div>
+
+  <button onclick="saveAPIKeys()" style="width:100%;padding:10px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px;font-family:inherit">💾 Save Keys</button>
+  <button onclick="document.getElementById('settings-panel').style.display='none'" style="width:100%;padding:10px;background:#f5f5f5;color:#333;border:1px solid #ddd;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">Close</button>
+  <p id="keys-saved-msg" style="display:none;color:#22c55e;font-size:12px;text-align:center;margin-top:8px;font-weight:600">✓ Keys saved successfully</p>
+</div>
+
+<script>
+// ── Settings panel JS (nuclear — self-contained, no dependencies) ──────────
+function saveAPIKeys() {
+  var google    = (document.getElementById('key-google')?.value    || '').trim();
+  var hunter    = (document.getElementById('key-hunter')?.value    || '').trim();
+  var anthropic = (document.getElementById('key-anthropic')?.value || '').trim();
+  if (google)    localStorage.setItem('lg_google',    google);
+  if (hunter)    localStorage.setItem('lg_hunter',    hunter);
+  if (anthropic) localStorage.setItem('lg_anthropic', anthropic);
+  // Also sync legacy cfg-* inputs used by other functions
+  var cg = document.getElementById('cfg-google');    if (cg && google)    cg.value = google;
+  var ch = document.getElementById('cfg-hunter');    if (ch && hunter)    ch.value = hunter;
+  var ca = document.getElementById('cfg-anthropic'); if (ca && anthropic) ca.value = anthropic;
+  var msg = document.getElementById('keys-saved-msg');
+  if (msg) { msg.style.display = 'block'; }
+  updateAPIStatus();
+  setTimeout(function() {
+    if (msg) msg.style.display = 'none';
+    document.getElementById('settings-panel').style.display = 'none';
+  }, 1500);
+}
+
+function loadAPIKeysIntoPanel() {
+  var g = localStorage.getItem('lg_google')    || '';
+  var h = localStorage.getItem('lg_hunter')    || '';
+  var a = localStorage.getItem('lg_anthropic') || '';
+  var kg = document.getElementById('key-google');    if (kg) kg.value = g;
+  var kh = document.getElementById('key-hunter');    if (kh) kh.value = h;
+  var ka = document.getElementById('key-anthropic'); if (ka) ka.value = a;
+}
+
+function updateAPIStatus() {
+  var g = localStorage.getItem('lg_google');
+  var h = localStorage.getItem('lg_hunter');
+  var a = localStorage.getItem('lg_anthropic');
+  var badge = document.getElementById('api-status-badge');
+  if (!badge) return;
+  if (g && h && a) {
+    badge.innerHTML        = '✓ APIs Ready';
+    badge.style.background = '#EAF3DE';
+    badge.style.color      = '#27500A';
+    badge.style.borderColor = '#27500A';
+  } else {
+    badge.innerHTML        = '⚠ APIs Not Set';
+    badge.style.background = '#FCEBEB';
+    badge.style.color      = '#791F1F';
+    badge.style.borderColor = '#791F1F';
+  }
+}
+
+// Run on load
+document.addEventListener('DOMContentLoaded', function() {
+  updateAPIStatus();
+  loadAPIKeysIntoPanel();
+});
+
+// Escape closes panel
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var p = document.getElementById('settings-panel');
+    if (p) p.style.display = 'none';
+  }
+});
+
+// Click outside closes panel
+document.addEventListener('click', function(e) {
+  var panel = document.getElementById('settings-panel');
+  var btn   = document.getElementById('settings-btn');
+  var badge = document.getElementById('api-status-badge');
+  if (panel && panel.style.display === 'block'
+      && !panel.contains(e.target)
+      && !(btn   && btn.contains(e.target))
+      && !(badge && badge.contains(e.target))) {
+    panel.style.display = 'none';
+  }
+});
 </script>
 </body>
 </html>
