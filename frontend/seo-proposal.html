@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEO Proposal — Stimulus Growth LLC</title>
+  <style>
+    /* ── NUCLEAR PRINT COLOR FIX — must be first ── */
+    html, body, * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: #fff; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fff; color: #1a1a1a; }
+
+    /* ── SKELETON ── */
+    .skeleton { background: linear-gradient(90deg,#f5e0e0 25%,#fde8e8 50%,#f5e0e0 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:4px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── LOADING ── */
+    #loading-state { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+    .load-header { background: linear-gradient(135deg, #7f1d1d, #991b1b); color: white; border-radius: 14px; padding: 2.5rem 2rem; text-align: center; margin-bottom: 1.5rem; }
+    .load-spinner { width: 48px; height: 48px; border: 4px solid rgba(255,255,255,.2); border-top-color: #fca5a5; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+    .load-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .load-sub { font-size: 0.95rem; opacity: 0.8; }
+    .load-msg { text-align: center; color: #991b1b; font-weight: 600; font-size: 0.9rem; margin-top: 1rem; }
+    .skel-block { height: 80px; margin-bottom: 1rem; border-radius: 10px; }
+    .skel-block-lg { height: 140px; margin-bottom: 1rem; border-radius: 10px; }
+    .skel-block-sm { height: 48px; margin-bottom: 0.75rem; border-radius: 8px; }
+
+    /* ── ACTION BAR ── */
+    #action-bar { position: sticky; top: 0; z-index: 100; background: #7f1d1d; padding: 10px 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+    .action-btn { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; transition: opacity .2s; }
+    .action-btn-primary { background: white; color: #7f1d1d; }
+    .action-btn-primary:hover { opacity: 0.9; }
+    .action-btn-outline { background: transparent; color: white; border: 2px solid rgba(255,255,255,.6); }
+    .action-btn-outline:hover { background: rgba(255,255,255,.1); }
+    .action-bar-biz { color: rgba(255,255,255,.75); font-size: 12px; margin-left: auto; }
+    .no-print-tip { font-size: 11px; color: rgba(255,255,255,.55); width: 100%; text-align: center; margin-top: 2px; }
+
+    /* ── PROPOSAL DISPLAY ── */
+    #proposal-display { display: none; }
+
+    /* ── COVER HEADER ── */
+    .cover-header { background: linear-gradient(135deg, #7f1d1d, #991b1b); color: white; padding: 3.5rem 2rem 3rem; text-align: center; }
+    .cover-alarm-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .cover-headline { font-size: 1.9rem; font-weight: 900; line-height: 1.2; margin-bottom: 1rem; max-width: 800px; margin-left: auto; margin-right: auto; }
+    .cover-biz { font-size: 1.1rem; opacity: 0.85; margin-bottom: 0.5rem; }
+    .cover-meta { font-size: 0.85rem; opacity: 0.65; }
+    .cover-logo { margin-top: 1.5rem; font-size: 0.8rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 2px; }
+
+    /* ── REVENUE LOSS BANNER ── */
+    .revenue-banner { background: #dc2626; color: white; padding: 2rem; text-align: center; }
+    .revenue-label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; opacity: 0.85; margin-bottom: 0.5rem; }
+    .revenue-math { font-size: 0.9rem; opacity: 0.9; max-width: 700px; margin: 0 auto; line-height: 1.5; }
+
+    /* ── COMPETITOR WARNING ── */
+    .comp-warning { background: #92400e; color: white; padding: 1.75rem 2rem; }
+    .comp-warning-inner { max-width: 860px; margin: 0 auto; display: flex; gap: 1.25rem; align-items: flex-start; }
+    .comp-warning-icon { font-size: 2rem; flex-shrink: 0; }
+    .comp-warning-body { flex: 1; }
+    .comp-warning-title { font-size: 1rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .comp-warning-text { font-size: 0.9rem; line-height: 1.6; opacity: 0.9; }
+    .comp-warning-sub { margin-top: 0.5rem; font-size: 0.8rem; font-style: italic; opacity: 0.75; }
+
+    /* ── SECTION WRAPPER ── */
+    .section { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+    .section-title { font-size: 1.4rem; font-weight: 900; color: #7f1d1d; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+    .section-full { padding: 2.5rem 2rem; }
+    .section-full-inner { max-width: 900px; margin: 0 auto; }
+
+    /* ── CRITICAL FINDINGS ── */
+    .finding-card { background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); margin-bottom: 1.25rem; overflow: hidden; border: 1px solid #fee2e2; }
+    .finding-header { background: #7f1d1d; padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 1rem; }
+    .finding-header.high { background: #c2410c; }
+    .finding-title { color: white; font-size: 1rem; font-weight: 800; flex: 1; }
+    .sev-badge { font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.5px; white-space: nowrap; }
+    .sev-critical { background: #fca5a5; color: #7f1d1d; }
+    .sev-high { background: #fed7aa; color: #c2410c; }
+    .finding-body { padding: 1.25rem; }
+    .finding-what { font-size: 0.9rem; color: #374151; line-height: 1.6; margin-bottom: 1rem; }
+    .finding-impact { font-size: 0.88rem; color: #b45309; font-style: italic; line-height: 1.5; margin-bottom: 1rem; padding: 0.75rem; background: #fffbeb; border-radius: 8px; border-left: 3px solid #f59e0b; }
+    .finding-loss { font-size: 1.6rem; font-weight: 900; color: #dc2626; margin-bottom: 1rem; }
+    .finding-loss-label { font-size: 0.75rem; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 2px; }
+    .finding-proof { font-size: 0.82rem; color: #6b7280; font-family: 'SF Mono', 'Fira Code', monospace; background: #f9fafb; padding: 0.6rem 0.8rem; border-radius: 6px; margin-bottom: 1rem; line-height: 1.5; }
+    .finding-competitor { font-size: 0.85rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 0.75rem; color: #1e40af; line-height: 1.5; }
+    .finding-competitor strong { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; color: #3b82f6; }
+    .finding-urgency { font-size: 0.85rem; color: #dc2626; font-style: italic; font-weight: 600; }
+
+    /* ── COMPETITOR GAP ── */
+    .gap-section { background: #0d1b2a; color: white; }
+    .gap-headline { font-size: 1.4rem; font-weight: 900; color: #fca5a5; margin-bottom: 1.5rem; }
+    .journey-flow { display: flex; align-items: stretch; gap: 0; margin-bottom: 2rem; flex-wrap: wrap; }
+    .journey-step { flex: 1; min-width: 120px; background: rgba(255,255,255,.06); padding: 1rem 0.75rem; text-align: center; position: relative; }
+    .journey-step:not(:last-child)::after { content: '→'; position: absolute; right: -8px; top: 50%; transform: translateY(-50%); color: #dc2626; font-size: 1.2rem; font-weight: 900; z-index: 1; }
+    .journey-step.bad { background: rgba(220,38,38,.15); border-top: 3px solid #dc2626; }
+    .journey-icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
+    .journey-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; color: rgba(255,255,255,.7); margin-bottom: 0.25rem; }
+    .journey-desc { font-size: 0.8rem; color: rgba(255,255,255,.85); line-height: 1.4; }
+    .gap-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .gap-metric { background: rgba(220,38,38,.15); border: 1px solid rgba(220,38,38,.3); border-radius: 10px; padding: 1rem; text-align: center; }
+    .gap-metric-num { font-size: 2rem; font-weight: 900; color: #fca5a5; }
+    .gap-metric-label { font-size: 0.78rem; color: rgba(255,255,255,.7); margin-top: 4px; }
+    .gap-unrecoverable { font-size: 0.9rem; color: #fca5a5; font-style: italic; }
+
+    /* ── COST OF INACTION TIMELINE ── */
+    .timeline-section { background: #fff; }
+    .timeline-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #e5e7eb; border-radius: 12px; overflow: hidden; }
+    .timeline-col { padding: 1.5rem 1rem; text-align: center; }
+    .timeline-col-1 { background: #fef2f2; }
+    .timeline-col-2 { background: #fee2e2; }
+    .timeline-col-3 { background: #fecaca; }
+    .timeline-col-4 { background: #ef4444; color: white; }
+    .timeline-period { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; margin-bottom: 0.5rem; }
+    .timeline-col-4 .timeline-period { color: rgba(255,255,255,.7); }
+    .timeline-loss { font-size: 1.6rem; font-weight: 900; color: #dc2626; margin-bottom: 0.75rem; }
+    .timeline-col-4 .timeline-loss { color: white; font-size: 2rem; }
+    .timeline-consequence { font-size: 0.82rem; color: #4b5563; line-height: 1.4; }
+    .timeline-col-4 .timeline-consequence { color: rgba(255,255,255,.9); }
+    .timeline-total { background: #7f1d1d; color: white; text-align: center; padding: 1.25rem; margin-top: 1rem; border-radius: 10px; }
+    .timeline-total-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+    .timeline-total-num { font-size: 2.4rem; font-weight: 900; }
+
+    /* ── SEARCH VISIBILITY ── */
+    .visibility-section { background: #f8fafc; }
+    .vis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .vis-col-label { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; padding: 0.5rem 1rem; border-radius: 6px; text-align: center; }
+    .vis-col-label.now { background: #f3f4f6; color: #9ca3af; }
+    .vis-col-label.potential { background: #d1fae5; color: #065f46; }
+    .vis-metric { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #e5e7eb; }
+    .vis-metric:last-child { border-bottom: none; }
+    .vis-metric-label { font-size: 0.85rem; color: #6b7280; }
+    .vis-metric-val { font-size: 1.2rem; font-weight: 900; }
+    .vis-metric-val.dim { color: #d1d5db; }
+    .vis-metric-val.bright { color: #059669; }
+
+    /* ── AI SEARCH WARNING ── */
+    .ai-section { background: #1e1b4b; }
+    .ai-headline { font-size: 1.4rem; font-weight: 900; color: #fde68a; margin-bottom: 1rem; }
+    .ai-explanation { font-size: 0.95rem; color: rgba(255,255,255,.85); line-height: 1.7; margin-bottom: 1.5rem; }
+    .ai-visibility { background: rgba(253,230,138,.1); border: 1px solid rgba(253,230,138,.3); border-radius: 10px; padding: 1.25rem; margin-bottom: 1.25rem; }
+    .ai-vis-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #fde68a; margin-bottom: 0.5rem; }
+    .ai-vis-text { font-size: 0.9rem; color: rgba(255,255,255,.85); line-height: 1.5; }
+    .ai-urgency { font-size: 0.9rem; color: #fde68a; font-style: italic; line-height: 1.5; }
+
+    /* ── PROPOSED SOLUTION ── */
+    .solution-section { background: white; }
+    .solution-intro { font-size: 0.95rem; color: #374151; line-height: 1.7; margin-bottom: 2rem; padding: 1.25rem; background: #f0fdf4; border-radius: 10px; border-left: 4px solid #059669; }
+    .month-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .month-card { border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.07); }
+    .month-card-header { padding: 1rem 1.25rem; color: white; font-weight: 800; font-size: 0.95rem; }
+    .month-card-header.m1 { background: #1d4ed8; }
+    .month-card-header.m2 { background: #7c3aed; }
+    .month-card-header.m3 { background: #059669; }
+    .month-card-body { padding: 1.25rem; background: white; }
+    .month-action { font-size: 0.85rem; color: #374151; padding: 0.4rem 0; border-bottom: 1px solid #f3f4f6; display: flex; gap: 8px; align-items: flex-start; }
+    .month-action:last-child { border-bottom: none; }
+    .month-action::before { content: '→'; color: #6b7280; flex-shrink: 0; }
+
+    /* ── INVESTMENT ── */
+    .investment-section { background: #f8fafc; }
+    .inv-math { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .inv-item { background: white; border-radius: 10px; padding: 1.25rem; box-shadow: 0 1px 6px rgba(0,0,0,.06); }
+    .inv-item-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; margin-bottom: 0.4rem; }
+    .inv-item-val { font-size: 1.5rem; font-weight: 900; color: #1a1a1a; }
+    .inv-item-val.red { color: #dc2626; }
+    .inv-item-val.green { color: #059669; }
+    .inv-risk { background: #7f1d1d; color: white; border-radius: 10px; padding: 1.25rem 1.5rem; font-size: 0.95rem; font-weight: 700; line-height: 1.5; text-align: center; }
+    .inv-risk-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; margin-bottom: 0.5rem; }
+
+    /* ── CALL TO ACTION ── */
+    .cta-section { background: linear-gradient(135deg, #7f1d1d, #991b1b); color: white; padding: 3rem 2rem; text-align: center; }
+    .cta-headline { font-size: 1.6rem; font-weight: 900; margin-bottom: 0.75rem; }
+    .cta-primary { font-size: 1.1rem; font-weight: 700; background: white; color: #7f1d1d; display: inline-block; padding: 1rem 2.5rem; border-radius: 50px; margin: 1rem 0; cursor: pointer; border: none; transition: transform .2s; }
+    .cta-primary:hover { transform: translateY(-2px); }
+    .cta-urgency { font-size: 0.9rem; opacity: 0.85; margin-bottom: 1.5rem; }
+    .cta-steps { list-style: none; text-align: left; max-width: 500px; margin: 1.5rem auto; }
+    .cta-steps li { padding: 0.6rem 0; font-size: 0.9rem; display: flex; gap: 0.75rem; align-items: flex-start; border-bottom: 1px solid rgba(255,255,255,.15); }
+    .cta-steps li:last-child { border-bottom: none; }
+    .cta-step-num { background: rgba(255,255,255,.2); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; flex-shrink: 0; }
+    .cta-contact { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,.2); font-size: 0.85rem; opacity: 0.8; }
+    .cta-closing { font-size: 1rem; font-style: italic; margin-top: 1rem; opacity: 0.9; }
+
+    /* ── PRINT HELP MODAL ── */
+    #print-help-modal {
+      display: none; position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,.7); align-items: center; justify-content: center;
+    }
+    .phm-box {
+      background: white; border-radius: 16px; padding: 2rem; max-width: 480px; width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    }
+    .phm-title { font-size: 1.2rem; font-weight: 900; color: #7f1d1d; margin-bottom: 0.5rem; }
+    .phm-sub { font-size: 0.85rem; color: #6b7280; margin-bottom: 1.5rem; }
+    .phm-steps { list-style: none; }
+    .phm-steps li { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.75rem 0; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; }
+    .phm-steps li:last-child { border-bottom: none; }
+    .phm-num { background: #7f1d1d; color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; flex-shrink: 0; }
+    .phm-btns { display: flex; gap: 1rem; margin-top: 1.5rem; }
+    .phm-btn-go { flex: 1; background: #7f1d1d; color: white; border: none; padding: 0.75rem; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    .phm-btn-cancel { flex: 1; background: #f3f4f6; color: #374151; border: none; padding: 0.75rem; border-radius: 8px; font-weight: 600; cursor: pointer; }
+
+    /* ── ERROR STATE ── */
+    .error-box { background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 1.5rem; text-align: center; max-width: 600px; margin: 2rem auto; }
+    .error-title { font-size: 1.1rem; font-weight: 800; color: #991b1b; margin-bottom: 0.5rem; }
+    .error-msg { font-size: 0.9rem; color: #7f1d1d; line-height: 1.5; margin-bottom: 1rem; }
+    .error-retry { background: #dc2626; color: white; border: none; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 700; cursor: pointer; }
+
+    /* ── PRINT CSS ── */
+    @media print {
+      @page { margin: 0.75in; }
+      html, body, * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+      #action-bar, #print-help-modal { display: none !important; }
+      html, body { background: #ffffff !important; }
+      .cover-header { background-color: #7f1d1d !important; background-image: none !important; }
+      .cta-section { background-color: #7f1d1d !important; background-image: none !important; }
+      .gap-section { background-color: #0d1b2a !important; }
+      .ai-section { background-color: #1e1b4b !important; }
+      .revenue-banner { background-color: #dc2626 !important; }
+      .comp-warning { background-color: #92400e !important; }
+      .timeline-col-4 { background-color: #ef4444 !important; }
+      .timeline-total { background-color: #7f1d1d !important; }
+      .inv-risk { background-color: #7f1d1d !important; }
+      .month-card-header.m1 { background-color: #1d4ed8 !important; }
+      .month-card-header.m2 { background-color: #7c3aed !important; }
+      .month-card-header.m3 { background-color: #059669 !important; }
+      .finding-header { background-color: #7f1d1d !important; }
+      .finding-header.high { background-color: #c2410c !important; }
+      .section { page-break-inside: avoid; }
+      .finding-card { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- PRINT HELP MODAL -->
+<div id="print-help-modal">
+  <div class="phm-box">
+    <div class="phm-title">🖨️ Print to PDF</div>
+    <div class="phm-sub">Follow these steps to keep the red backgrounds and colors in your PDF:</div>
+    <ol class="phm-steps">
+      <li><span class="phm-num">1</span><span>Click <strong>More settings</strong> in the print dialog</span></li>
+      <li><span class="phm-num">2</span><span>Turn on <strong>Background graphics</strong></span></li>
+      <li><span class="phm-num">3</span><span>Set <strong>Headers and footers</strong> to <strong>None</strong></span></li>
+      <li><span class="phm-num">4</span><span>Click <strong>Save as PDF</strong> — colors will print correctly</span></li>
+    </ol>
+    <div class="phm-btns">
+      <button class="phm-btn-go" onclick="closePrintModal()">Got it — Print Now</button>
+      <button class="phm-btn-cancel" onclick="document.getElementById('print-help-modal').style.display='none'">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ACTION BAR (sticky) -->
+<div id="action-bar" style="display:none">
+  <button class="action-btn action-btn-primary" onclick="printWithHelp()">🖨️ Print / Save PDF</button>
+  <button class="action-btn action-btn-outline" onclick="regenerate()">↺ Regenerate</button>
+  <span class="action-bar-biz" id="action-biz-name"></span>
+</div>
+
+<!-- LOADING STATE -->
+<div id="loading-state">
+  <div class="load-header">
+    <div class="load-spinner"></div>
+    <div class="load-title">Analysing SEO Audit Data…</div>
+    <div class="load-sub">Building your urgency-driven proposal</div>
+  </div>
+  <div id="load-msg-el" class="load-msg">Running revenue loss calculations…</div>
+  <div class="skel-block skeleton" style="margin-top:1rem"></div>
+  <div class="skel-block-lg skeleton"></div>
+  <div class="skel-block skeleton"></div>
+  <div class="skel-block-sm skeleton"></div>
+  <div class="skel-block-sm skeleton"></div>
+  <div class="skel-block skeleton"></div>
+  <div class="skel-block-lg skeleton"></div>
+</div>
+
+<!-- PROPOSAL DISPLAY -->
+<div id="proposal-display"></div>
+
+<script>
+// ════════════════════════════════════════════════
+//  URL PARAMS
+// ════════════════════════════════════════════════
+const QP = new URLSearchParams(window.location.search);
+const BUSINESS_NAME = QP.get('businessName') || 'Unknown Business';
+const NICHE         = QP.get('niche')         || 'Local Business';
+const CITY          = QP.get('city')          || 'your city';
+const WEBSITE       = QP.get('website')       || '';
+const RATING        = QP.get('rating')        || '';
+const REVIEWS       = QP.get('reviews')       || '';
+const PROSPECT_ID   = QP.get('prospectId')    || String(Date.now());
+let   SCORES        = {};
+try { SCORES = JSON.parse(QP.get('scores') || '{}'); } catch {}
+
+document.title = `SEO Proposal — ${BUSINESS_NAME}`;
+
+const CACHE_KEY = `seo_proposal_${PROSPECT_ID}`;
+const CACHE_TTL = 24 * 60 * 60 * 1000;
+
+// ════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function setLoadMsg(msg) {
+  const el = document.getElementById('load-msg-el');
+  if (el) el.textContent = msg;
+}
+
+function printWithHelp() {
+  document.getElementById('print-help-modal').style.display = 'flex';
+}
+function closePrintModal() {
+  document.getElementById('print-help-modal').style.display = 'none';
+  setTimeout(() => window.print(), 200);
+}
+
+// ════════════════════════════════════════════════
+//  CLAUDE API CALL
+// ════════════════════════════════════════════════
+async function callClaude(prompt, maxTokens, apiKey) {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5',
+      max_tokens: maxTokens,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  const data = await response.json();
+  if (data.error) throw new Error('API error: ' + (data.error.message || JSON.stringify(data.error)));
+  if (!data.content || !data.content[0]) throw new Error('Empty response from API');
+  return (data.content || []).map(b => b.text || '').join('');
+}
+
+// ════════════════════════════════════════════════
+//  BUILD PROMPT
+// ════════════════════════════════════════════════
+function buildPrompt() {
+  const scoresJSON = JSON.stringify(SCORES);
+  return `You are a senior SEO strategist with 15 years of experience. You have just completed a full technical SEO audit on a prospect and you are writing an urgent proposal. Your job is to make them feel the pain of inaction — using real data, real competitor scenarios, and real revenue math. You are not selling — you are delivering a wake-up call.
+
+Business: ${BUSINESS_NAME}
+Type: ${NICHE}
+City: ${CITY}
+Website: ${WEBSITE || 'not provided'}
+Google Rating: ${RATING || 'unknown'} stars — ${REVIEWS || 0} reviews
+SEO Scores from real audit: ${scoresJSON}
+
+TONE RULES — follow strictly:
+- ALARMING but credible — like a doctor telling a patient their test results
+- Every pain point must have a dollar cost attached
+- Reference real competitor behavior in ${CITY}
+- Use phrases like: right now as you read this, every day you wait, your competitors already know this, the gap is growing
+- Never say guaranteed — use language like: businesses that fix this typically see, our clients experience, this directly impacts
+- Open with the single most damaging finding — not a summary
+- Lead every section with the cost of inaction — not the solution
+- No apostrophes in any string values
+- Keep all string values under 30 words
+- Return ONLY valid JSON starting with { ending with }
+
+{
+  "alarmHeadline": "one devastating opening headline about what is happening RIGHT NOW — reference city and niche — max 20 words",
+  "revenueLossStatement": "monthly revenue loss estimate with math — show calculation — max 30 words",
+  "competitorWarning": "2 sentences max — what competitors in ${CITY} are doing right now while this business waits",
+  "criticalFindings": [
+    {
+      "title": "alarming finding title",
+      "severity": "CRITICAL",
+      "whatIsHappening": "plain language description — max 20 words",
+      "realWorldImpact": "customer impact right now — max 20 words",
+      "monthlyRevenueLost": "$X,XXX/mo",
+      "proofStatement": "evidence from audit scores — max 20 words",
+      "competitorContext": "what top competitor does differently — max 20 words",
+      "urgencyStatement": "why this gets worse every week — max 15 words"
+    },
+    {
+      "title": "second finding title",
+      "severity": "HIGH",
+      "whatIsHappening": "description — max 20 words",
+      "realWorldImpact": "customer impact — max 20 words",
+      "monthlyRevenueLost": "$X,XXX/mo",
+      "proofStatement": "evidence — max 20 words",
+      "competitorContext": "competitor comparison — max 20 words",
+      "urgencyStatement": "urgency — max 15 words"
+    },
+    {
+      "title": "third finding title",
+      "severity": "HIGH",
+      "whatIsHappening": "description — max 20 words",
+      "realWorldImpact": "impact — max 20 words",
+      "monthlyRevenueLost": "$X,XXX/mo",
+      "proofStatement": "evidence — max 20 words",
+      "competitorContext": "competitor context — max 20 words",
+      "urgencyStatement": "urgency — max 15 words"
+    }
+  ],
+  "competitorGapAnalysis": {
+    "headline": "alarming gap headline — max 12 words",
+    "scenario": "customer search journey — what happens when someone searches for ${NICHE} in ${CITY} — max 40 words",
+    "gapMetrics": ["gap metric 1 with number", "gap metric 2", "gap metric 3"],
+    "monthsToOvercome": "X months"
+  },
+  "costOfInactionTimeline": {
+    "headline": "The Cost of Waiting",
+    "month1": { "loss": "$X,XXX", "whatHappens": "consequence — max 15 words" },
+    "month3": { "loss": "$X,XXX", "whatHappens": "consequence — max 15 words" },
+    "month6": { "loss": "$XX,XXX", "whatHappens": "alarming consequence — max 15 words" },
+    "year1":  { "loss": "$XX,XXX", "whatHappens": "devastating consequence — max 15 words" }
+  },
+  "searchVisibilitySnapshot": {
+    "currentState": "brutal honest description — max 20 words",
+    "monthlySearchVolume": "X,XXX searches/mo",
+    "currentTrafficEstimate": "~XX visitors/mo",
+    "potentialTrafficIfFixed": "~XXX visitors/mo",
+    "clickShareLost": "XX% of clicks going to competitors"
+  },
+  "aiSearchWarning": {
+    "headline": "The AI Search Revolution Is Happening Without You",
+    "explanation": "2 sentences about ChatGPT Gemini Google AI Overview and local business visibility — max 40 words",
+    "currentAIVisibility": "honest assessment — max 20 words",
+    "urgency": "why window to act is closing — max 20 words"
+  },
+  "proposedSolution": {
+    "headline": "What We Do In The First 30 Days",
+    "approach": "2 sentences positioning Stimulus Growth LLC — max 35 words",
+    "month1Actions": ["action 1", "action 2", "action 3", "action 4"],
+    "month2Actions": ["action 1", "action 2", "action 3"],
+    "month3Actions": ["action 1", "action 2", "action 3"],
+    "expectedOutcome": "conservative realistic outcome after 90 days — max 25 words"
+  },
+  "investmentJustification": {
+    "headline": "The Math Is Simple",
+    "monthlyRevenueAtRisk": "$X,XXX/mo",
+    "investmentRequired": "$X,XXX–$X,XXX/mo",
+    "breakEvenPoint": "X new clients/month",
+    "roiStatement": "conservative ROI statement — max 20 words",
+    "riskOfNotActing": "one devastating sentence — max 20 words"
+  },
+  "urgentCallToAction": {
+    "headline": "Every Day You Wait Your Competitors Get Stronger",
+    "primaryCTA": "specific urgent action — max 15 words",
+    "urgencyReason": "legitimate reason to act this week — max 20 words",
+    "whatHappensNext": ["step 1 — 24 hours", "step 2 — first week", "step 3 — when results begin"]
+  }
+}`;
+}
+
+// ════════════════════════════════════════════════
+//  RENDER
+// ════════════════════════════════════════════════
+function renderProposal(p) {
+  const biz  = esc(BUSINESS_NAME);
+  const date = new Date().toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+  const gap  = p.competitorGapAnalysis || {};
+  const tl   = p.costOfInactionTimeline || {};
+  const vis  = p.searchVisibilitySnapshot || {};
+  const ai   = p.aiSearchWarning || {};
+  const sol  = p.proposedSolution || {};
+  const inv  = p.investmentJustification || {};
+  const cta  = p.urgentCallToAction || {};
+
+  // ── CRITICAL FINDINGS CARDS
+  const findingsHtml = (p.criticalFindings || []).map(f => {
+    const isHigh = (f.severity||'').toUpperCase() === 'HIGH';
+    return `
+    <div class="finding-card">
+      <div class="finding-header${isHigh ? ' high' : ''}">
+        <div class="finding-title">${esc(f.title)}</div>
+        <span class="sev-badge ${isHigh ? 'sev-high' : 'sev-critical'}">${esc(f.severity || 'CRITICAL')}</span>
+      </div>
+      <div class="finding-body">
+        <div class="finding-what">${esc(f.whatIsHappening)}</div>
+        <div class="finding-impact">⚠️ ${esc(f.realWorldImpact)}</div>
+        <div>
+          <span class="finding-loss-label">Estimated Monthly Revenue Lost</span>
+          <div class="finding-loss">${esc(f.monthlyRevenueLost || '$0/mo')}</div>
+        </div>
+        <div class="finding-proof">📋 Evidence: ${esc(f.proofStatement)}</div>
+        <div class="finding-competitor"><strong>🏆 What Your Top Competitor Does</strong>${esc(f.competitorContext)}</div>
+        <div class="finding-urgency">⏱ ${esc(f.urgencyStatement)}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // ── JOURNEY FLOW
+  const journeySteps = [
+    { icon:'🔍', label:'Customer Searches', desc:`"${NICHE} in ${CITY}"`, bad: false },
+    { icon:'😤', label:'Sees Competitors First', desc:'Top 3 positions taken', bad: true },
+    { icon:'👻', label:'Never Finds You', desc:'Page 2+ invisible', bad: true },
+    { icon:'📞', label:'Calls Competitor', desc:'Booking made', bad: true },
+    { icon:'💸', label:'Revenue Gone Forever', desc:'That customer is lost', bad: true }
+  ];
+  const journeyHtml = journeySteps.map(s => `
+    <div class="journey-step${s.bad ? ' bad' : ''}">
+      <div class="journey-icon">${s.icon}</div>
+      <div class="journey-label">${s.label}</div>
+      <div class="journey-desc">${s.desc}</div>
+    </div>`).join('');
+
+  const gapMetricsHtml = (gap.gapMetrics || []).map(m =>
+    `<div class="gap-metric"><div class="gap-metric-num">⚠</div><div class="gap-metric-label">${esc(m)}</div></div>`
+  ).join('');
+
+  // ── MONTH ACTIONS
+  const m1Html = (sol.month1Actions || []).map(a => `<div class="month-action">${esc(a)}</div>`).join('');
+  const m2Html = (sol.month2Actions || []).map(a => `<div class="month-action">${esc(a)}</div>`).join('');
+  const m3Html = (sol.month3Actions || []).map(a => `<div class="month-action">${esc(a)}</div>`).join('');
+
+  // ── CTA STEPS
+  const ctaStepsHtml = (cta.whatHappensNext || []).map((s, i) => `
+    <li><span class="cta-step-num">${i+1}</span><span>${esc(s)}</span></li>`).join('');
+
+  const html = `
+  <!-- COVER HEADER -->
+  <div class="cover-header">
+    <div class="cover-alarm-icon">🚨</div>
+    <div class="cover-headline">${esc(p.alarmHeadline || `Your ${NICHE} Business Is Losing Revenue Every Day`)}</div>
+    <div class="cover-biz">${biz} — ${esc(CITY)}</div>
+    <div class="cover-meta">SEO Proposal prepared by Stimulus Growth LLC · ${date}</div>
+    <div class="cover-logo">Stimulus Growth LLC · stimulusgrowth.com</div>
+  </div>
+
+  <!-- REVENUE LOSS BANNER -->
+  <div class="revenue-banner">
+    <div class="revenue-label">Estimated Monthly Revenue Loss</div>
+    <div style="font-size:3.5rem;font-weight:900;line-height:1;margin:0.5rem 0">${esc(inv.monthlyRevenueAtRisk || '$0/mo')}</div>
+    <div class="revenue-math">${esc(p.revenueLossStatement)}</div>
+  </div>
+
+  <!-- COMPETITOR WARNING -->
+  <div class="comp-warning">
+    <div class="comp-warning-inner">
+      <div class="comp-warning-icon">⚡</div>
+      <div class="comp-warning-body">
+        <div class="comp-warning-title">Right Now While You Are Reading This…</div>
+        <div class="comp-warning-text">${esc(p.competitorWarning)}</div>
+        <div class="comp-warning-sub">While you are reading this your competitors are pulling further ahead.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRITICAL FINDINGS -->
+  <div class="section">
+    <div class="section-title">🔴 What Our Audit Revealed</div>
+    ${findingsHtml || '<p style="color:#6b7280">No findings available.</p>'}
+  </div>
+
+  <!-- COMPETITOR GAP ANALYSIS -->
+  <div class="gap-section section-full">
+    <div class="section-full-inner">
+      <div class="gap-headline">${esc(gap.headline || 'The Competitor Gap Is Growing')}</div>
+      <div style="font-size:0.9rem;color:rgba(255,255,255,.75);line-height:1.7;margin-bottom:1.5rem">${esc(gap.scenario || '')}</div>
+      <div class="journey-flow">${journeyHtml}</div>
+      <div class="gap-metrics">${gapMetricsHtml}</div>
+      <div class="gap-unrecoverable">⚠️ If you wait ${esc(gap.monthsToOvercome || '6 months')}, this gap may become unrecoverable without significant investment.</div>
+    </div>
+  </div>
+
+  <!-- COST OF INACTION TIMELINE -->
+  <div class="section">
+    <div class="section-title">💸 The Price of Waiting</div>
+    <div class="timeline-grid">
+      <div class="timeline-col timeline-col-1">
+        <div class="timeline-period">1 Month</div>
+        <div class="timeline-loss">${esc((tl.month1||{}).loss || '$0')}</div>
+        <div class="timeline-consequence">${esc((tl.month1||{}).whatHappens || '')}</div>
+      </div>
+      <div class="timeline-col timeline-col-2">
+        <div class="timeline-period">3 Months</div>
+        <div class="timeline-loss">${esc((tl.month3||{}).loss || '$0')}</div>
+        <div class="timeline-consequence">${esc((tl.month3||{}).whatHappens || '')}</div>
+      </div>
+      <div class="timeline-col timeline-col-3">
+        <div class="timeline-period">6 Months</div>
+        <div class="timeline-loss">${esc((tl.month6||{}).loss || '$0')}</div>
+        <div class="timeline-consequence">${esc((tl.month6||{}).whatHappens || '')}</div>
+      </div>
+      <div class="timeline-col timeline-col-4">
+        <div class="timeline-period">1 Year</div>
+        <div class="timeline-loss">${esc((tl.year1||{}).loss || '$0')}</div>
+        <div class="timeline-consequence">${esc((tl.year1||{}).whatHappens || '')}</div>
+      </div>
+    </div>
+    <div class="timeline-total">
+      <div class="timeline-total-label">Total Potential Loss if Nothing Changes</div>
+      <div class="timeline-total-num">${esc((tl.year1||{}).loss || 'Significant')}</div>
+    </div>
+  </div>
+
+  <!-- SEARCH VISIBILITY SNAPSHOT -->
+  <div class="section" style="background:#f8fafc;padding:2.5rem 1.5rem">
+    <div class="section-title" style="color:#0d1b2a">📊 Where You Stand Right Now</div>
+    <div style="font-size:0.9rem;color:#374151;margin-bottom:1.5rem">${esc(vis.currentState || '')}</div>
+    <div class="vis-grid">
+      <div>
+        <div class="vis-col-label now">Current State</div>
+        <div class="vis-metric"><span class="vis-metric-label">Monthly Search Volume</span><span class="vis-metric-val dim">${esc(vis.monthlySearchVolume || 'Unknown')}</span></div>
+        <div class="vis-metric"><span class="vis-metric-label">Your Organic Traffic</span><span class="vis-metric-val dim">${esc(vis.currentTrafficEstimate || 'Very Low')}</span></div>
+        <div class="vis-metric"><span class="vis-metric-label">Click Share</span><span class="vis-metric-val dim" style="color:#dc2626">${esc(vis.clickShareLost || 'Majority going to competitors')}</span></div>
+      </div>
+      <div>
+        <div class="vis-col-label potential">With Our Help</div>
+        <div class="vis-metric"><span class="vis-metric-label">Monthly Search Volume</span><span class="vis-metric-val bright">${esc(vis.monthlySearchVolume || 'Same')}</span></div>
+        <div class="vis-metric"><span class="vis-metric-label">Potential Organic Traffic</span><span class="vis-metric-val bright">${esc(vis.potentialTrafficIfFixed || 'Significantly More')}</span></div>
+        <div class="vis-metric"><span class="vis-metric-label">Expected Click Share</span><span class="vis-metric-val bright">Top 3 positions</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI SEARCH WARNING -->
+  <div class="ai-section section-full">
+    <div class="section-full-inner">
+      <div class="ai-headline">${esc(ai.headline || 'The AI Search Revolution Is Happening Without You')}</div>
+      <div class="ai-explanation">${esc(ai.explanation || '')}</div>
+      <div class="ai-visibility">
+        <div class="ai-vis-label">Your Current AI Search Visibility</div>
+        <div class="ai-vis-text">${esc(ai.currentAIVisibility || 'Not optimized for AI search results')}</div>
+      </div>
+      <div class="ai-urgency">⚡ ${esc(ai.urgency || 'The window to get ahead of competitors on AI search is closing fast.')}</div>
+    </div>
+  </div>
+
+  <!-- PROPOSED SOLUTION -->
+  <div class="section solution-section">
+    <div class="section-title" style="color:#065f46">✅ ${esc(sol.headline || 'What We Do In The First 30 Days')}</div>
+    <div class="solution-intro">${esc(sol.approach || '')}</div>
+    <div class="month-cards">
+      <div class="month-card">
+        <div class="month-card-header m1">📅 Month 1 — Foundation</div>
+        <div class="month-card-body">${m1Html}</div>
+      </div>
+      <div class="month-card">
+        <div class="month-card-header m2">📈 Month 2 — Momentum</div>
+        <div class="month-card-body">${m2Html}</div>
+      </div>
+      <div class="month-card">
+        <div class="month-card-header m3">🚀 Month 3 — Results</div>
+        <div class="month-card-body">${m3Html}</div>
+      </div>
+    </div>
+    <div style="margin-top:1.5rem;padding:1rem 1.25rem;background:#f0fdf4;border-radius:10px;border-left:4px solid #059669;font-size:0.9rem;color:#065f46;line-height:1.6">
+      <strong>Expected Outcome After 90 Days:</strong> ${esc(sol.expectedOutcome || '')}
+    </div>
+  </div>
+
+  <!-- INVESTMENT JUSTIFICATION -->
+  <div class="section investment-section" style="background:#f8fafc">
+    <div class="section-title" style="color:#1a1a1a">💰 ${esc(inv.headline || 'The Math Is Simple')}</div>
+    <div class="inv-math">
+      <div class="inv-item">
+        <div class="inv-item-label">Monthly Revenue at Risk</div>
+        <div class="inv-item-val red">${esc(inv.monthlyRevenueAtRisk || 'Significant')}</div>
+      </div>
+      <div class="inv-item">
+        <div class="inv-item-label">Our Monthly Investment</div>
+        <div class="inv-item-val">${esc(inv.investmentRequired || 'Contact us')}</div>
+      </div>
+      <div class="inv-item">
+        <div class="inv-item-label">Break-Even Point</div>
+        <div class="inv-item-val green">${esc(inv.breakEvenPoint || 'Minimal')}</div>
+      </div>
+      <div class="inv-item">
+        <div class="inv-item-label">Conservative ROI</div>
+        <div class="inv-item-val green">${esc(inv.roiStatement || 'Positive')}</div>
+      </div>
+    </div>
+    <div class="inv-risk">
+      <div class="inv-risk-label">The Risk of Doing Nothing</div>
+      ${esc(inv.riskOfNotActing || 'Every month of inaction compounds the competitor advantage.')}
+    </div>
+  </div>
+
+  <!-- CALL TO ACTION -->
+  <div class="cta-section">
+    <div class="cta-headline">${esc(cta.headline || 'Every Day You Wait Your Competitors Get Stronger')}</div>
+    <div class="cta-urgency">${esc(cta.urgencyReason || '')}</div>
+    <div>
+      <button class="cta-primary" onclick="window.location='mailto:stimulusgrowthllc@gmail.com?subject=SEO Strategy Call — ${encodeURIComponent(BUSINESS_NAME)}'">
+        📞 ${esc(cta.primaryCTA || 'Book Your Free SEO Strategy Call')}
+      </button>
+    </div>
+    <ol class="cta-steps">${ctaStepsHtml}</ol>
+    <div class="cta-contact">
+      <strong>Stimulus Growth LLC</strong><br>
+      stimulusgrowthllc@gmail.com · stimulusgrowth.com
+    </div>
+    <div class="cta-closing">The question is not whether you can afford to fix your SEO — it is whether you can afford not to.</div>
+  </div>`;
+
+  document.getElementById('proposal-display').innerHTML = html;
+  document.getElementById('proposal-display').style.display = 'block';
+  document.getElementById('loading-state').style.display = 'none';
+  document.getElementById('action-bar').style.display = 'flex';
+  document.getElementById('action-biz-name').textContent = BUSINESS_NAME;
+}
+
+// ════════════════════════════════════════════════
+//  SHOW ERROR
+// ════════════════════════════════════════════════
+function showError(msg) {
+  document.getElementById('loading-state').innerHTML = `
+    <div class="error-box">
+      <div class="error-title">⚠️ Could not generate proposal</div>
+      <div class="error-msg">${esc(msg)}</div>
+      <button class="error-retry" onclick="location.reload()">↺ Try Again</button>
+    </div>`;
+}
+
+// ════════════════════════════════════════════════
+//  MAIN — LOAD OR GENERATE
+// ════════════════════════════════════════════════
+async function loadProposal() {
+  // Check cache first
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      const { data, ts } = JSON.parse(cached);
+      if (Date.now() - ts < CACHE_TTL) {
+        renderProposal(data);
+        return;
+      }
+    }
+  } catch {}
+
+  const apiKey = localStorage.getItem('lg_anthropic') || '';
+  if (!apiKey) {
+    showError('Anthropic API key not found. Please add your API key in the main app Settings first.');
+    return;
+  }
+
+  const msgs = [
+    'Running revenue loss calculations…',
+    'Analysing competitor landscape in ' + CITY + '…',
+    'Building cost of inaction timeline…',
+    'Crafting your urgency proposal…',
+    'Almost done…'
+  ];
+  let msgIdx = 0;
+  const msgTimer = setInterval(() => {
+    msgIdx = (msgIdx + 1) % msgs.length;
+    setLoadMsg(msgs[msgIdx]);
+  }, 2500);
+
+  try {
+    const rawText = await callClaude(buildPrompt(), 2000, apiKey);
+    clearInterval(msgTimer);
+
+    const si = rawText.indexOf('{');
+    const ei = rawText.lastIndexOf('}');
+    if (si === -1) throw new Error('No JSON found in response');
+
+    let proposal;
+    try {
+      proposal = JSON.parse(rawText.slice(si, ei + 1));
+    } catch {
+      throw new Error('Failed to parse proposal JSON. Please try regenerating.');
+    }
+
+    // Cache it
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ data: proposal, ts: Date.now() }));
+    } catch {}
+
+    renderProposal(proposal);
+  } catch (err) {
+    clearInterval(msgTimer);
+    showError(err.message || 'Unexpected error. Please try again.');
+  }
+}
+
+function regenerate() {
+  try { localStorage.removeItem(CACHE_KEY); } catch {}
+  document.getElementById('proposal-display').style.display = 'none';
+  document.getElementById('proposal-display').innerHTML = '';
+  document.getElementById('action-bar').style.display = 'none';
+  document.getElementById('loading-state').style.display = 'block';
+  document.getElementById('loading-state').innerHTML = `
+    <div class="load-header">
+      <div class="load-spinner"></div>
+      <div class="load-title">Regenerating Proposal…</div>
+      <div class="load-sub">Building a fresh urgency-driven proposal</div>
+    </div>
+    <div id="load-msg-el" class="load-msg">Running revenue loss calculations…</div>
+    <div class="skel-block skeleton" style="margin-top:1rem"></div>
+    <div class="skel-block-lg skeleton"></div>
+    <div class="skel-block skeleton"></div>
+  `;
+  loadProposal();
+}
+
+// ════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════
+loadProposal();
+</script>
+</body>
+</html>

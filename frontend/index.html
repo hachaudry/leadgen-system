@@ -2857,6 +2857,27 @@ function openOutsourceProposal(idx) {
   window.open('/outsource-proposal.html?' + params.toString(), '_blank');
 }
 
+// ── SEO Proposal — opens urgent alarm-driven proposal page in new tab ────────
+function openSEOProposal(idx) {
+  const lead = filteredLeads[idx];
+  if (!lead) return;
+  const seoData = reportCache[`${idx}-seo`];
+  const scores  = seoData?.scores || {};
+  const niche   = currentNiche || lead.niche || '';
+  const city    = currentCity  || lead.city  || '';
+  const params  = new URLSearchParams({
+    businessName: lead.name     || '',
+    niche,
+    city,
+    website:    lead.website  || '',
+    rating:     lead.rating   || '',
+    reviews:    lead.reviews  || '',
+    prospectId: lead.id || lead.place_id || String(idx),
+    scores:     JSON.stringify(scores)
+  });
+  window.open('/seo-proposal.html?' + params.toString(), '_blank');
+}
+
 // ── Run Reports ────────────────────────────────────────────────────────────
 async function runReport(idx, type, btn) {
   const lead = filteredLeads[idx];
@@ -3109,7 +3130,10 @@ function renderReport(idx, type, data, el) {
     <button class="rpt-banner-close" onclick="closeReport(${idx})" title="Close report">✕</button>
   </div>`;
 
-  el.innerHTML = `<div class="report-with-banner" style="border:1px solid ${rm.color}44;border-left:4px solid ${rm.color};border-radius:var(--radius-lg);overflow:hidden">${banner}<div class="report-output" style="border:none;border-radius:0;border-top:1px solid ${rm.color}22">${html}</div><div class="pv2-trigger-bar"><div class="pv2-trigger-text">✨ Turn these findings into a personalized proposal</div><button class="pv2-trigger-btn" onclick="generateProposalFor(${idx})">Generate Full Proposal →</button></div></div>`;
+  const triggerBar = type === 'seo'
+    ? `<div class="pv2-trigger-bar" style="background:linear-gradient(135deg,#7f1d1d,#991b1b)"><div class="pv2-trigger-text">🚨 Your business is losing revenue every day — see the full revenue impact</div><button class="pv2-trigger-btn" style="background:#fca5a5;color:#7f1d1d" onclick="openSEOProposal(${idx})">Generate Urgent SEO Proposal →</button></div>`
+    : `<div class="pv2-trigger-bar"><div class="pv2-trigger-text">✨ Turn these findings into a personalized proposal</div><button class="pv2-trigger-btn" onclick="generateProposalFor(${idx})">Generate Full Proposal →</button></div>`;
+  el.innerHTML = `<div class="report-with-banner" style="border:1px solid ${rm.color}44;border-left:4px solid ${rm.color};border-radius:var(--radius-lg);overflow:hidden">${banner}<div class="report-output" style="border:none;border-radius:0;border-top:1px solid ${rm.color}22">${html}</div>${triggerBar}</div>`;
   animateScores(el);
 }
 
