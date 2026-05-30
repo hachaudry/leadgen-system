@@ -247,6 +247,9 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 .rpt-360 { background:#111; color:#fff; border-color:#444; }
 .rpt-360:hover { opacity:0.85; }
 .rpt-competitors { background:var(--red-bg); color:var(--red-text); border-color:rgba(198,40,40,0.25); }
+.rpt-outsource   { background:#0f766e; color:#ffffff; border-color:#0d6b63; }
+.rpt-outsource:hover { background:#0a5c56; }
+.rpt-outsource.rpt-active { background:#064e44; color:#fff; border-color:#053e37; box-shadow:0 0 0 3px rgba(15,118,110,0.30); }
 
 /* Active report button states */
 .rpt-btn.rpt-active { transform:none !important; box-shadow:0 0 0 3px rgba(0,0,0,0.12); }
@@ -2690,6 +2693,7 @@ function buildSnapPanel(idx, lead) {
     <button class="rpt-btn rpt-ads" onclick="runReport(${idx},'ads',this)">📣 Ads Opportunity</button>
     <button class="rpt-btn rpt-360" onclick="runReport(${idx},'360',this)">🎯 360° Full Audit</button>
     <button class="rpt-btn rpt-competitors" onclick="runReport(${idx},'competitors',this)">⚔️ Competitors</button>
+    ${['digital marketing agency','seo agency','web design agency','social media agency','content marketing agency','pr agency','advertising agency','branding agency'].includes((currentNiche||'').toLowerCase()) ? `<button class="rpt-btn rpt-outsource" onclick="openOutsourceProposal(${idx})">🤝 Outsource Proposal</button>` : ''}
   </div>
 
   <!-- Top row: 4 flex columns -->
@@ -2833,6 +2837,24 @@ function openSocialPlan(idx) {
     prospectId:   lead.id               || lead.place_id || idx
   });
   window.open('/social-plan.html?' + params.toString(), '_blank');
+}
+
+// ── Outsource Proposal — opens standalone page in new tab ─────────────────
+function openOutsourceProposal(idx) {
+  const lead = filteredLeads[idx];
+  if (!lead) return;
+  const niche = currentNiche || lead.niche || '';
+  const params = new URLSearchParams({
+    agencyName:    lead.name         || '',
+    agencyNiche:   niche,
+    agencyCity:    lead.city         || '',
+    agencyWebsite: lead.website      || '',
+    rating:        lead.rating       || '',
+    reviews:       lead.reviews      || '',
+    email:         lead.email        || '',
+    prospectId:    lead.id || lead.place_id || String(idx)
+  });
+  window.open('/outsource-proposal.html?' + params.toString(), '_blank');
 }
 
 // ── Run Reports ────────────────────────────────────────────────────────────
