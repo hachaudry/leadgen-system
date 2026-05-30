@@ -49,13 +49,27 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 .logo { font-size:16px; font-weight:800; letter-spacing:-0.5px; color:var(--text); }
 .logo-sub { font-size:11px; font-weight:500; color:var(--text3); letter-spacing:0.3px; text-transform:uppercase; }
 .header-right { display:flex; align-items:center; gap:8px; }
-#api-badge { font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; background:var(--red-bg); color:var(--red-text); }
-#api-badge.ready { background:var(--green-bg); color:var(--green-text); }
-.icon-btn { background:none; border:1px solid var(--border2); border-radius:var(--radius); padding:6px 10px; cursor:pointer; font-size:13px; color:var(--text2); display:flex; align-items:center; gap:5px; }
+#api-status-badge { font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; background:var(--red-bg); color:var(--red-text); cursor:pointer; user-select:none; }
+#api-status-badge.ready { background:var(--green-bg); color:var(--green-text); }
+.icon-btn { background:none; border:1px solid var(--border2); border-radius:var(--radius); padding:6px 10px; cursor:pointer; font-size:13px; color:var(--text2); display:flex; align-items:center; gap:5px; position:relative; z-index:9999; pointer-events:auto; }
 .icon-btn:hover { background:var(--bg3); }
 
-/* ── Config Panel ── */
-#config-panel { background:var(--bg); border-bottom:1px solid var(--border); padding:1.25rem 1.5rem; display:none; }
+/* ── Settings Panel (fixed overlay) ── */
+#settings-panel { display:none; position:fixed; top:60px; right:20px; z-index:99999; background:#fff; border:1px solid #e0e0e0; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,.2); padding:1.5rem; width:400px; }
+.settings-title { font-size:15px; font-weight:700; color:#111; margin-bottom:2px; }
+.settings-sub { font-size:12px; color:#6b7280; margin-bottom:1.25rem; }
+.settings-field { margin-bottom:1rem; }
+.settings-field label { display:block; font-size:11px; font-weight:600; color:#374151; text-transform:uppercase; letter-spacing:.4px; margin-bottom:5px; }
+.settings-input-wrap { position:relative; display:flex; }
+.settings-input-wrap input { flex:1; border:1px solid #d1d5db; border-radius:8px; padding:8px 38px 8px 10px; font-size:13px; font-family:inherit; background:#fff; color:#111; }
+.settings-input-wrap input:focus { outline:none; border-color:#1565c0; box-shadow:0 0 0 3px rgba(21,101,192,.12); }
+.settings-show-btn { position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:14px; color:#9ca3af; padding:0; }
+.settings-show-btn:hover { color:#374151; }
+.settings-save-btn { width:100%; padding:10px; background:#16a34a; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; margin-top:.25rem; }
+.settings-save-btn:hover { background:#15803d; }
+.settings-close-btn { width:100%; padding:9px; background:#f3f4f6; color:#374151; border:1px solid #d1d5db; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; margin-top:.5rem; }
+.settings-close-btn:hover { background:#e5e7eb; }
+.settings-saved-msg { display:none; text-align:center; margin-top:.5rem; font-size:13px; font-weight:600; color:#16a34a; }
 .config-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; max-width:800px; }
 .field-label { font-size:11px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:5px; }
 .field-input { width:100%; border:1px solid var(--border2); border-radius:var(--radius); padding:7px 10px; font-size:13px; font-family:inherit; background:var(--bg); color:var(--text); }
@@ -1342,8 +1356,8 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
     <span class="logo-sub">AI Prospecting Workspace</span>
   </div>
   <div class="header-right">
-    <span id="api-badge">⚠ APIs Not Set</span>
-    <button class="icon-btn" onclick="toggleConfig()">⚙ Settings</button>
+    <span id="api-status-badge" onclick="toggleSettings()">⚠ APIs Not Set</span>
+    <button id="settings-btn" class="icon-btn" onclick="toggleSettings()">⚙ Settings</button>
   </div>
 </header>
 
@@ -1355,24 +1369,38 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
   <button class="main-tab" id="tab-outreach" onclick="showTab('outreach')">Outreach Manager</button>
 </nav>
 
-<!-- Config Panel -->
-<div id="config-panel">
-  <div class="config-grid">
-    <div>
-      <div class="field-label">Google Places API Key</div>
-      <input class="field-input" type="password" id="cfg-google" placeholder="AIza...">
-    </div>
-    <div>
-      <div class="field-label">Hunter.io API Key</div>
-      <input class="field-input" type="password" id="cfg-hunter" placeholder="hunter key...">
-    </div>
-    <div>
-      <div class="field-label">Anthropic API Key</div>
-      <input class="field-input" type="password" id="cfg-anthropic" placeholder="sk-ant-...">
+<!-- Settings Panel (fixed overlay) -->
+<div id="settings-panel">
+  <div class="settings-title">⚙ API Settings</div>
+  <div class="settings-sub">Your keys are stored locally in your browser only — never sent to our servers.</div>
+
+  <div class="settings-field">
+    <label for="cfg-google">Google Places API Key</label>
+    <div class="settings-input-wrap">
+      <input type="password" id="cfg-google" placeholder="AIza...">
+      <button class="settings-show-btn" type="button" onclick="toggleShow('cfg-google',this)" title="Show/hide">👁</button>
     </div>
   </div>
-  <button class="save-btn" onclick="saveConfig()">Save Keys</button>
-  <span id="keys-saved-msg" style="display:none;margin-left:10px;color:#2e7d32;font-size:13px;font-weight:600">✓ Keys saved</span>
+
+  <div class="settings-field">
+    <label for="cfg-hunter">Hunter.io API Key</label>
+    <div class="settings-input-wrap">
+      <input type="password" id="cfg-hunter" placeholder="your hunter key">
+      <button class="settings-show-btn" type="button" onclick="toggleShow('cfg-hunter',this)" title="Show/hide">👁</button>
+    </div>
+  </div>
+
+  <div class="settings-field">
+    <label for="cfg-anthropic">Anthropic API Key</label>
+    <div class="settings-input-wrap">
+      <input type="password" id="cfg-anthropic" placeholder="sk-ant-...">
+      <button class="settings-show-btn" type="button" onclick="toggleShow('cfg-anthropic',this)" title="Show/hide">👁</button>
+    </div>
+  </div>
+
+  <button class="settings-save-btn" onclick="saveConfig()">💾 Save Keys</button>
+  <button class="settings-close-btn" onclick="toggleSettings()">✕ Close</button>
+  <div class="settings-saved-msg" id="keys-saved-msg">✓ Keys saved successfully</div>
 </div>
 
 <!-- Main -->
@@ -1983,40 +2011,95 @@ function updatePipeline(pitches) {
 }
 
 // ── Config ─────────────────────────────────────────────────────────────────
+function updateAPIStatus() {
+  const google    = localStorage.getItem('lg_google');
+  const hunter    = localStorage.getItem('lg_hunter');
+  const anthropic = localStorage.getItem('lg_anthropic');
+  const badge     = document.getElementById('api-status-badge');
+  if (!badge) return;
+  if (google && hunter && anthropic) {
+    badge.textContent = '✓ APIs Ready';
+    badge.className   = 'ready';
+  } else {
+    badge.textContent = '⚠ APIs Not Set';
+    badge.className   = '';
+  }
+}
 function loadConfig() {
-  const g = localStorage.getItem('lg_google') || '';
-  const h = localStorage.getItem('lg_hunter') || '';
+  const g = localStorage.getItem('lg_google')    || '';
+  const h = localStorage.getItem('lg_hunter')    || '';
   const a = localStorage.getItem('lg_anthropic') || '';
-  if (g) document.getElementById('cfg-google').value = g;
-  if (h) document.getElementById('cfg-hunter').value = h;
-  if (a) document.getElementById('cfg-anthropic').value = a;
-  const badge = document.getElementById('api-badge');
-  if (g && h && a) { badge.textContent = '✓ APIs Ready'; badge.className = 'ready'; }
-  else { badge.textContent = '⚠ APIs Not Set'; badge.className = ''; }
+  const gEl = document.getElementById('cfg-google');
+  const hEl = document.getElementById('cfg-hunter');
+  const aEl = document.getElementById('cfg-anthropic');
+  if (gEl && g) gEl.value = g;
+  if (hEl && h) hEl.value = h;
+  if (aEl && a) aEl.value = a;
+  updateAPIStatus();
 }
 function saveConfig() {
-  const g = document.getElementById('cfg-google').value.trim();
-  const h = document.getElementById('cfg-hunter').value.trim();
-  const a = document.getElementById('cfg-anthropic').value.trim();
+  const g = (document.getElementById('cfg-google')?.value    || '').trim();
+  const h = (document.getElementById('cfg-hunter')?.value    || '').trim();
+  const a = (document.getElementById('cfg-anthropic')?.value || '').trim();
   if (g) localStorage.setItem('lg_google', g);
   if (h) localStorage.setItem('lg_hunter', h);
   if (a) localStorage.setItem('lg_anthropic', a);
-  loadConfig();
-  document.getElementById('config-panel').style.display = 'none';
+  updateAPIStatus();
   const savedMsg = document.getElementById('keys-saved-msg');
-  if (savedMsg) { savedMsg.style.display='inline'; setTimeout(() => { savedMsg.style.display='none'; }, 2500); }
+  if (savedMsg) {
+    savedMsg.style.display = 'block';
+    setTimeout(() => {
+      savedMsg.style.display = 'none';
+      document.getElementById('settings-panel').style.display = 'none';
+    }, 1000);
+  } else {
+    document.getElementById('settings-panel').style.display = 'none';
+  }
 }
-function toggleConfig() {
-  const p = document.getElementById('config-panel');
-  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+function toggleSettings() {
+  const panel = document.getElementById('settings-panel');
+  if (!panel) return;
+  if (panel.style.display === 'block') {
+    panel.style.display = 'none';
+  } else {
+    loadConfig();          // pre-fill inputs when opening
+    panel.style.display = 'block';
+  }
+}
+// Keep old alias so any remaining toggleConfig() calls don't break
+function toggleConfig() { toggleSettings(); }
+function toggleShow(inputId, btn) {
+  const el = document.getElementById(inputId);
+  if (!el) return;
+  if (el.type === 'password') { el.type = 'text';     btn.textContent = '🙈'; }
+  else                        { el.type = 'password'; btn.textContent = '👁';  }
 }
 function getKeys() {
   return {
-    google: localStorage.getItem('lg_google') || '',
-    hunter: localStorage.getItem('lg_hunter') || '',
+    google:    localStorage.getItem('lg_google')    || '',
+    hunter:    localStorage.getItem('lg_hunter')    || '',
     anthropic: localStorage.getItem('lg_anthropic') || ''
   };
 }
+// Escape key closes settings panel
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const panel = document.getElementById('settings-panel');
+    if (panel) panel.style.display = 'none';
+  }
+});
+// Click outside closes settings panel
+document.addEventListener('click', function(e) {
+  const panel      = document.getElementById('settings-panel');
+  const settingsBtn = document.getElementById('settings-btn');
+  const badge      = document.getElementById('api-status-badge');
+  if (panel && panel.style.display === 'block' &&
+      !panel.contains(e.target) &&
+      !(settingsBtn && settingsBtn.contains(e.target)) &&
+      !(badge      && badge.contains(e.target))) {
+    panel.style.display = 'none';
+  }
+});
 
 // ── Hyperlocal Location State ──────────────────────────────────────────────
 let hlState = { county: null, countyName: '', city: null, cityName: '', nbhd: '', zip: '', nbhdSource: '', zipSource: '' };
