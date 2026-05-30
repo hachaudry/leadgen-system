@@ -1072,10 +1072,31 @@ function renderProgressively(plan, planData) {
 // ═══════════════════════════════════════════════
 function agencyUrl(niche) {
   const n = (niche || '').toLowerCase();
-  if (n.includes('restaurant') || n.includes('cafe') || n.includes('food') || n.includes('bar') || n.includes('dining')) return 'restaurantmarketingca.com';
-  if (n.includes('spa') || n.includes('med spa') || n.includes('aesthetic') || n.includes('medspa') || n.includes('laser') || n.includes('botox')) return 'aestheticsmarketingca.com';
-  if (n.includes('limo') || n.includes('limousine') || n.includes('car service') || n.includes('transportation')) return 'calimomarketing.com';
-  if (n.includes('auto body') || n.includes('auto repair') || n.includes('body shop') || n.includes('collision')) return 'autobodymarketingca.com';
+  if (n.includes('restaurant') || n.includes('cafe') || n.includes('food') || n.includes('bar') ||
+      n.includes('lounge') || n.includes('dining') || n.includes('bakery') || n.includes('catering') ||
+      n.includes('hotel') || n.includes('event venue') || n.includes('private chef')) return 'restaurantmarketingca.com';
+  if (n.includes('med spa') || n.includes('medspa') || n.includes('aesthetic') || n.includes('dental') ||
+      n.includes('laser') || n.includes('botox') || n.includes('chiropractor') ||
+      n.includes('physical therapy') || n.includes('optometry') || n.includes('veterinary') ||
+      n.includes('mental health') || n.includes('pharmacy')) return 'aestheticsmarketingca.com';
+  if (n.includes('limo') || n.includes('limousine') || n.includes('car service') ||
+      n.includes('yacht') || n.includes('transportation')) return 'calimomarketing.com';
+  if (n.includes('auto body') || n.includes('auto repair') || n.includes('body shop') ||
+      n.includes('collision') || n.includes('auto dealer') || n.includes('car wash') ||
+      n.includes('detailing') || n.includes('tire')) return 'autobodymarketingca.com';
+  if (n.includes('roofing') || n.includes('plumbing') || n.includes('hvac') ||
+      n.includes('electrician') || n.includes('landscaping') || n.includes('cleaning') ||
+      n.includes('pest control') || n.includes('pool service') || n.includes('moving')) return 'contractormarketingca.com';
+  if (n.includes('salon') || n.includes('hair') || n.includes('nail') || n.includes('barber') ||
+      n.includes('tattoo') || n.includes('spa') || n.includes('massage') || n.includes('tanning')) return 'salonmarketingca.com';
+  if (n.includes('law') || n.includes('attorney')) return 'legalmarketingca.com';
+  if (n.includes('real estate') || n.includes('realtor') || n.includes('mortgage') ||
+      n.includes('financial')) return 'realtormarketingca.com';
+  if (n.includes('gym') || n.includes('fitness') || n.includes('martial arts') ||
+      n.includes('dance studio') || n.includes('tutoring') || n.includes('daycare')) return 'fitnessmarketingca.com';
+  if (n.includes('marketing') || n.includes('seo') || n.includes('web design') ||
+      n.includes('advertising') || n.includes('branding') || n.includes('pr agency') ||
+      n.includes('content marketing') || n.includes('social media agency')) return 'digitalmarketingca.com';
   return 'digitalmarketingca.com';
 }
 

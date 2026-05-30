@@ -1385,16 +1385,107 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
         <div class="field-label">Niche</div>
         <select class="mf-select" id="sel-niche" onchange="onNicheChange()">
           <option value="">— Select Niche —</option>
-          <option>Restaurant</option>
-          <option>Med Spa</option>
-          <option>Dental Clinic</option>
-          <option>Gym</option>
-          <option>Law Firm</option>
-          <option>Real Estate Agency</option>
-          <option>Roofing Company</option>
-          <option>Plumbing Company</option>
-          <option>Hair Salon</option>
-          <option>Chiropractor</option>
+
+          <optgroup label="Health and Wellness">
+            <option value="Med Spa">Med Spa</option>
+            <option value="Dental Clinic">Dental Clinic</option>
+            <option value="Chiropractor">Chiropractor</option>
+            <option value="Gym">Gym / Fitness Studio</option>
+            <option value="Physical Therapy">Physical Therapy</option>
+            <option value="Mental Health Practice">Mental Health Practice</option>
+            <option value="Optometry">Optometry</option>
+            <option value="Veterinary Clinic">Veterinary Clinic</option>
+            <option value="Pharmacy">Pharmacy</option>
+          </optgroup>
+
+          <optgroup label="Food and Hospitality">
+            <option value="Restaurant">Restaurant</option>
+            <option value="Cafe">Cafe</option>
+            <option value="Bar and Lounge">Bar and Lounge</option>
+            <option value="Bakery">Bakery</option>
+            <option value="Food Truck">Food Truck</option>
+            <option value="Catering Company">Catering Company</option>
+            <option value="Hotel">Hotel</option>
+            <option value="Event Venue">Event Venue</option>
+          </optgroup>
+
+          <optgroup label="Home Services">
+            <option value="Roofing Company">Roofing Company</option>
+            <option value="Plumbing Company">Plumbing Company</option>
+            <option value="Auto Body">Auto Body</option>
+            <option value="HVAC Company">HVAC Company</option>
+            <option value="Electrician">Electrician</option>
+            <option value="Landscaping Company">Landscaping Company</option>
+            <option value="Cleaning Service">Cleaning Service</option>
+            <option value="Pest Control">Pest Control</option>
+            <option value="Pool Service">Pool Service</option>
+            <option value="Moving Company">Moving Company</option>
+          </optgroup>
+
+          <optgroup label="Professional Services">
+            <option value="Law Firm">Law Firm</option>
+            <option value="Real Estate Agency">Real Estate Agency</option>
+            <option value="Accounting Firm">Accounting Firm</option>
+            <option value="Insurance Agency">Insurance Agency</option>
+            <option value="Mortgage Broker">Mortgage Broker</option>
+            <option value="Financial Advisor">Financial Advisor</option>
+            <option value="Consulting Firm">Consulting Firm</option>
+          </optgroup>
+
+          <optgroup label="Beauty and Personal Care">
+            <option value="Hair Salon">Hair Salon</option>
+            <option value="Nail Salon">Nail Salon</option>
+            <option value="Barber Shop">Barber Shop</option>
+            <option value="Tattoo Studio">Tattoo Studio</option>
+            <option value="Spa and Massage">Spa and Massage</option>
+            <option value="Tanning Salon">Tanning Salon</option>
+          </optgroup>
+
+          <optgroup label="Automotive">
+            <option value="Auto Dealership">Auto Dealership</option>
+            <option value="Auto Repair Shop">Auto Repair Shop</option>
+            <option value="Car Wash">Car Wash</option>
+            <option value="Auto Detailing">Auto Detailing</option>
+            <option value="Tire Shop">Tire Shop</option>
+          </optgroup>
+
+          <optgroup label="Retail and E-commerce">
+            <option value="Boutique Clothing Store">Boutique Clothing Store</option>
+            <option value="Jewelry Store">Jewelry Store</option>
+            <option value="Furniture Store">Furniture Store</option>
+            <option value="Electronics Store">Electronics Store</option>
+            <option value="Pet Store">Pet Store</option>
+            <option value="Florist">Florist</option>
+          </optgroup>
+
+          <optgroup label="Education and Childcare">
+            <option value="Tutoring Center">Tutoring Center</option>
+            <option value="Daycare Center">Daycare Center</option>
+            <option value="Dance Studio">Dance Studio</option>
+            <option value="Martial Arts Studio">Martial Arts Studio</option>
+            <option value="Music School">Music School</option>
+            <option value="Driving School">Driving School</option>
+          </optgroup>
+
+          <optgroup label="Luxury and Lifestyle">
+            <option value="Limo Company">Limo Company</option>
+            <option value="Yacht Charter">Yacht Charter</option>
+            <option value="Private Chef">Private Chef</option>
+            <option value="Wedding Planner">Wedding Planner</option>
+            <option value="Photography Studio">Photography Studio</option>
+            <option value="Interior Design">Interior Design</option>
+          </optgroup>
+
+          <optgroup label="Marketing and Creative Agencies">
+            <option value="digital marketing agency">Digital Marketing Agency</option>
+            <option value="seo agency">SEO Agency</option>
+            <option value="web design agency">Web Design Agency</option>
+            <option value="social media agency">Social Media Agency</option>
+            <option value="content marketing agency">Content Marketing Agency</option>
+            <option value="pr agency">PR Agency</option>
+            <option value="advertising agency">Advertising Agency</option>
+            <option value="branding agency">Branding Agency</option>
+          </optgroup>
         </select>
       </div>
       <div class="market-field grow">
@@ -2158,6 +2249,51 @@ function onNicheChange() {
   currentNiche = document.getElementById('sel-niche').value;
 }
 
+// ── Niche Search Radius (metres) ────────────────────────────────────────────
+// Conversion: 1 mile ≈ 1609 m
+function getNicheRadius(niche) {
+  const n = (niche || '').toLowerCase();
+  // Food and Hospitality — 2 miles
+  if (n.includes('restaurant') || n.includes('cafe') || n.includes('bar') || n.includes('lounge') ||
+      n.includes('bakery') || n.includes('food truck') || n.includes('catering') ||
+      n.includes('hotel') || n.includes('event venue')) return 3200;
+  // Beauty and Personal Care — 3 miles
+  if (n.includes('salon') || n.includes('nail') || n.includes('barber') || n.includes('tattoo') ||
+      n.includes('spa') || n.includes('massage') || n.includes('tanning')) return 4800;
+  // Retail — 3 miles
+  if (n.includes('boutique') || n.includes('jewelry') || n.includes('furniture') ||
+      n.includes('electronics store') || n.includes('pet store') || n.includes('florist') ||
+      n.includes('clothing')) return 4800;
+  // Health and Wellness — 5 miles
+  if (n.includes('med spa') || n.includes('medspa') || n.includes('dental') || n.includes('chiropractor') ||
+      n.includes('gym') || n.includes('fitness') || n.includes('physical therapy') ||
+      n.includes('mental health') || n.includes('optometry') || n.includes('veterinary') ||
+      n.includes('pharmacy')) return 8000;
+  // Automotive — 5 miles
+  if (n.includes('auto dealer') || n.includes('auto repair') || n.includes('auto body') ||
+      n.includes('car wash') || n.includes('detailing') || n.includes('tire')) return 8000;
+  // Education and Childcare — 5 miles
+  if (n.includes('tutoring') || n.includes('daycare') || n.includes('dance studio') ||
+      n.includes('martial arts') || n.includes('music school') || n.includes('driving school')) return 8000;
+  // Professional Services — 10 miles
+  if (n.includes('law') || n.includes('real estate') || n.includes('accounting') ||
+      n.includes('insurance') || n.includes('mortgage') || n.includes('financial') ||
+      n.includes('consulting')) return 16000;
+  // Home Services — 25 miles
+  if (n.includes('roofing') || n.includes('plumbing') || n.includes('hvac') ||
+      n.includes('electrician') || n.includes('landscaping') || n.includes('cleaning') ||
+      n.includes('pest control') || n.includes('pool service') || n.includes('moving')) return 40000;
+  // Luxury and Lifestyle — 25 miles
+  if (n.includes('limo') || n.includes('yacht') || n.includes('wedding') ||
+      n.includes('interior design') || n.includes('private chef')) return 40000;
+  // Marketing Agencies — 25 miles
+  if (n.includes('marketing') || n.includes('seo') || n.includes('web design') ||
+      n.includes('advertising') || n.includes('branding') || n.includes('pr agency') ||
+      n.includes('content marketing')) return 40000;
+  // Default — 5 miles
+  return 8000;
+}
+
 // Legacy stubs (kept so nothing breaks if called anywhere)
 function onStateChange() {}
 
@@ -2192,18 +2328,47 @@ function calcRevenueLoss(lead, niche) {
   if (!lead.website) loss += 0; // already counted
   else if (reviews < 30 && rating < 4.0) loss += 600;
   const multipliers = {
+    // Professional / High-value
     'Law Firm':1.8,'Dental Clinic':1.6,'Real Estate Agency':1.5,
-    'Med Spa':1.3,'Roofing Company':1.2,'Plumbing Company':1.2,
-    'Gym':1.0,'Chiropractor':1.0,'Restaurant':0.9,'Hair Salon':0.8
+    'Accounting Firm':1.4,'Financial Advisor':1.4,'Mortgage Broker':1.4,
+    'Med Spa':1.3,'Insurance Agency':1.3,'Roofing Company':1.3,'Auto Dealership':1.3,
+    'Wedding Planner':1.3,'Plumbing Company':1.2,'HVAC Company':1.2,'Hotel':1.2,
+    'Electrician':1.1,'Physical Therapy':1.1,'Optometry':1.1,'Auto Body':1.1,'Limo Company':1.1,
+    'Gym':1.0,'Chiropractor':1.0,'Veterinary Clinic':1.0,'Auto Repair Shop':1.0,'Daycare Center':1.0,
+    'Consulting Firm':1.3,'Tutoring Center':0.9,'Martial Arts Studio':0.9,
+    // Marketing agencies
+    'digital marketing agency':1.5,'seo agency':1.5,'advertising agency':1.4,'web design agency':1.4,
+    'social media agency':1.3,'content marketing agency':1.3,'branding agency':1.3,'pr agency':1.2,
+    // Lower volume / lower ticket
+    'Restaurant':0.9,'Photography Studio':0.9,'Cafe':0.8,'Bakery':0.8,'Florist':0.8,
+    'Hair Salon':0.8,'Nail Salon':0.7,'Barber Shop':0.7,'Tanning Salon':0.7,
+    'Car Wash':0.7,'Tattoo Studio':0.8,'Spa and Massage':0.9
   };
   loss = Math.round(loss * (multipliers[niche] || 1.0) / 100) * 100;
   return Math.max(loss, 500);
 }
 
 function oppScore(loss, niche) {
-  const maxLoss = { 'Law Firm':12000,'Dental Clinic':9000,'Real Estate Agency':8000,
-    'Med Spa':7000,'Roofing Company':6000,'Plumbing Company':6000,
-    'Gym':5000,'Chiropractor':5000,'Restaurant':5000,'Hair Salon':4000 };
+  const maxLoss = {
+    // High ticket
+    'Law Firm':12000,'Real Estate Agency':10000,'dental marketing agency':10000,
+    'Dental Clinic':9000,'seo agency':9000,'digital marketing agency':9000,
+    'Accounting Firm':8000,'Mortgage Broker':8000,'Financial Advisor':8000,
+    'web design agency':8000,'advertising agency':8000,'Real Estate Agency':8000,
+    'Med Spa':7000,'Insurance Agency':7000,'Auto Dealership':7000,'Hotel':7000,
+    'Wedding Planner':6000,'Roofing Company':6000,'Plumbing Company':6000,'HVAC Company':6000,
+    'Consulting Firm':6000,'social media agency':7000,'branding agency':7000,
+    'Gym':5000,'Chiropractor':5000,'Restaurant':5000,'Auto Body':5000,
+    'Auto Repair Shop':5000,'Electrician':5000,'Physical Therapy':5000,
+    'Veterinary Clinic':5000,'Optometry':5000,'Limo Company':5000,
+    'content marketing agency':6000,'pr agency':6000,
+    // Medium
+    'Hair Salon':4000,'Photography Studio':4000,'Tutoring Center':4000,
+    'Daycare Center':4000,'Martial Arts Studio':4000,'Tattoo Studio':4000,
+    'Spa and Massage':4500,'Landscaping Company':4500,'Moving Company':4500,
+    'Cafe':3500,'Bakery':3000,'Nail Salon':3000,'Barber Shop':3000,'Florist':3000,
+    'Car Wash':3000,'Tanning Salon':3000
+  };
   const max = maxLoss[niche] || 6000;
   return Math.min(10, Math.round((loss / max) * 10));
 }
@@ -2723,7 +2888,7 @@ async function runReport(idx, type, btn) {
       const resp = await fetch(`${BASE_URL}/api/competitors`, {
         method:'POST',
         headers:{'Content-Type':'application/json','x-google-key':keys.google,'x-anthropic-key':keys.anthropic},
-        body: JSON.stringify({ lat:lead.lat, lng:lead.lng, niche, radius:5000,
+        body: JSON.stringify({ lat:lead.lat, lng:lead.lng, niche, radius:getNicheRadius(niche),
           prospectName:lead.name, prospectRating:lead.rating, prospectReviews:lead.reviews,
           city: reportCity, state: reportState })
       });
@@ -2817,8 +2982,28 @@ async function runReport(idx, type, btn) {
 function showNicheWarning(idx) {
   const warnEl = document.getElementById(`niche-warn-${idx}`);
   if (!warnEl) return;
-  const NICHES = ['Restaurant','Med Spa','Dental Clinic','Gym','Law Firm','Real Estate Agency',
-    'Roofing Company','Plumbing Company','Hair Salon','Chiropractor'];
+  const NICHES = [
+    // Health and Wellness
+    'Med Spa','Dental Clinic','Chiropractor','Gym','Physical Therapy','Mental Health Practice','Optometry','Veterinary Clinic','Pharmacy',
+    // Food and Hospitality
+    'Restaurant','Cafe','Bar and Lounge','Bakery','Food Truck','Catering Company','Hotel','Event Venue',
+    // Home Services
+    'Roofing Company','Plumbing Company','Auto Body','HVAC Company','Electrician','Landscaping Company','Cleaning Service','Pest Control','Pool Service','Moving Company',
+    // Professional Services
+    'Law Firm','Real Estate Agency','Accounting Firm','Insurance Agency','Mortgage Broker','Financial Advisor','Consulting Firm',
+    // Beauty and Personal Care
+    'Hair Salon','Nail Salon','Barber Shop','Tattoo Studio','Spa and Massage','Tanning Salon',
+    // Automotive
+    'Auto Dealership','Auto Repair Shop','Car Wash','Auto Detailing','Tire Shop',
+    // Retail
+    'Boutique Clothing Store','Jewelry Store','Furniture Store','Electronics Store','Pet Store','Florist',
+    // Education
+    'Tutoring Center','Daycare Center','Dance Studio','Martial Arts Studio','Music School','Driving School',
+    // Luxury and Lifestyle
+    'Limo Company','Yacht Charter','Private Chef','Wedding Planner','Photography Studio','Interior Design',
+    // Marketing Agencies
+    'digital marketing agency','seo agency','web design agency','social media agency','content marketing agency','pr agency','advertising agency','branding agency'
+  ];
   warnEl.innerHTML = `
     <div class="niche-warn-box">
       <span style="font-size:18px;flex-shrink:0">⚠️</span>
@@ -6073,7 +6258,7 @@ async function runDaStep(type, lead, keys, niche, city, state) {
       const resp = await fetch(`${BASE_URL}/api/competitors`, {
         method:  'POST',
         headers: { 'Content-Type':'application/json', 'x-google-key': keys.google, 'x-anthropic-key': keys.anthropic },
-        body:    JSON.stringify({ lat: lead.lat, lng: lead.lng, niche, radius: 5000,
+        body:    JSON.stringify({ lat: lead.lat, lng: lead.lng, niche, radius: getNicheRadius(niche),
           prospectName: lead.name, prospectRating: lead.rating, prospectReviews: lead.reviews,
           city, state })
       });
@@ -7535,32 +7720,117 @@ function saToggleSection(headerEl) {
 
 function getNicheAgency(niche) {
   const n = (niche || '').toLowerCase();
-  if (n.includes('med spa') || n.includes('medspa') || n.includes('dental') || n.includes('chiropractor') || n.includes('aesthetics') || n.includes('botox') || n.includes('cosmetic')) return 'aestheticsmarketingca.com';
-  if (n.includes('limo') || n.includes('limousine') || n.includes('car service') || n.includes('transportation')) return 'calimomarketing.com';
-  if (n.includes('auto body') || n.includes('autobody') || n.includes('collision') || n.includes('auto repair')) return 'autobodymarketingca.com';
-  if (n.includes('restaurant') || n.includes('cafe') || n.includes('bar') || n.includes('bistro') || n.includes('pizza') || n.includes('sushi') || n.includes('food')) return 'restaurantmarketingca.com';
+  if (n.includes('med spa') || n.includes('medspa') || n.includes('dental') || n.includes('chiropractor') ||
+      n.includes('aesthetics') || n.includes('botox') || n.includes('cosmetic') ||
+      n.includes('physical therapy') || n.includes('optometry') || n.includes('veterinary') ||
+      n.includes('mental health') || n.includes('pharmacy')) return 'aestheticsmarketingca.com';
+  if (n.includes('limo') || n.includes('limousine') || n.includes('car service') ||
+      n.includes('yacht') || n.includes('transportation')) return 'calimomarketing.com';
+  if (n.includes('auto body') || n.includes('autobody') || n.includes('collision') ||
+      n.includes('auto repair') || n.includes('auto dealer') || n.includes('car wash') ||
+      n.includes('detailing') || n.includes('tire shop')) return 'autobodymarketingca.com';
+  if (n.includes('restaurant') || n.includes('cafe') || n.includes('bar') || n.includes('lounge') ||
+      n.includes('bistro') || n.includes('pizza') || n.includes('sushi') || n.includes('food') ||
+      n.includes('bakery') || n.includes('catering') || n.includes('hotel') ||
+      n.includes('event venue') || n.includes('private chef')) return 'restaurantmarketingca.com';
   if (n.includes('law') || n.includes('attorney') || n.includes('legal')) return 'legalmarketingca.com';
-  if (n.includes('real estate') || n.includes('realtor') || n.includes('realty')) return 'realtormarketingca.com';
-  if (n.includes('gym') || n.includes('fitness') || n.includes('crossfit') || n.includes('yoga') || n.includes('pilates')) return 'fitnessmarketingca.com';
-  if (n.includes('roofing') || n.includes('plumbing') || n.includes('hvac') || n.includes('contractor') || n.includes('electrician')) return 'contractormarketingca.com';
-  if (n.includes('salon') || n.includes('hair') || n.includes('nail') || n.includes('barber')) return 'salonmarketingca.com';
+  if (n.includes('real estate') || n.includes('realtor') || n.includes('realty') ||
+      n.includes('mortgage') || n.includes('financial advisor')) return 'realtormarketingca.com';
+  if (n.includes('gym') || n.includes('fitness') || n.includes('crossfit') || n.includes('yoga') ||
+      n.includes('pilates') || n.includes('martial arts') || n.includes('dance studio') ||
+      n.includes('music school') || n.includes('tutoring') || n.includes('driving school')) return 'fitnessmarketingca.com';
+  if (n.includes('roofing') || n.includes('plumbing') || n.includes('hvac') ||
+      n.includes('contractor') || n.includes('electrician') || n.includes('landscaping') ||
+      n.includes('cleaning') || n.includes('pest control') || n.includes('pool service') ||
+      n.includes('moving company')) return 'contractormarketingca.com';
+  if (n.includes('salon') || n.includes('hair') || n.includes('nail') || n.includes('barber') ||
+      n.includes('tattoo') || n.includes('spa') || n.includes('massage') || n.includes('tanning')) return 'salonmarketingca.com';
+  if (n.includes('marketing') || n.includes('seo') || n.includes('web design') ||
+      n.includes('advertising') || n.includes('branding') || n.includes('pr agency') ||
+      n.includes('content marketing') || n.includes('social media agency')) return 'digitalmarketingca.com';
+  if (n.includes('accounting') || n.includes('insurance') || n.includes('consulting') ||
+      n.includes('wedding') || n.includes('photography') || n.includes('interior design') ||
+      n.includes('daycare') || n.includes('boutique') || n.includes('jewelry') ||
+      n.includes('florist') || n.includes('pet store')) return 'growthmarketingca.com';
   return 'growthmarketingca.com';
 }
 
 function getNicheValues(niche) {
   const n = (niche || '').toLowerCase();
+  // Health and Wellness
   if (n.includes('med spa') || n.includes('medspa') || n.includes('botox') || n.includes('aesthetics')) return { avgValue:350, monthlyVolume:60, convRate:15 };
   if (n.includes('dental')) return { avgValue:800, monthlyVolume:80, convRate:12 };
   if (n.includes('chiropractor') || n.includes('chiro')) return { avgValue:180, monthlyVolume:100, convRate:18 };
+  if (n.includes('physical therapy')) return { avgValue:220, monthlyVolume:80, convRate:16 };
+  if (n.includes('optometry')) return { avgValue:280, monthlyVolume:60, convRate:14 };
+  if (n.includes('veterinary')) return { avgValue:320, monthlyVolume:70, convRate:15 };
+  if (n.includes('mental health')) return { avgValue:200, monthlyVolume:60, convRate:12 };
+  if (n.includes('pharmacy')) return { avgValue:120, monthlyVolume:200, convRate:30 };
+  // Professional Services
   if (n.includes('law') || n.includes('attorney')) return { avgValue:3500, monthlyVolume:15, convRate:8 };
   if (n.includes('real estate') || n.includes('realtor')) return { avgValue:12000, monthlyVolume:8, convRate:5 };
+  if (n.includes('accounting')) return { avgValue:1800, monthlyVolume:20, convRate:10 };
+  if (n.includes('insurance')) return { avgValue:1200, monthlyVolume:30, convRate:10 };
+  if (n.includes('mortgage')) return { avgValue:4000, monthlyVolume:12, convRate:7 };
+  if (n.includes('financial advisor')) return { avgValue:3500, monthlyVolume:12, convRate:8 };
+  if (n.includes('consulting')) return { avgValue:2500, monthlyVolume:15, convRate:10 };
+  // Home Services
   if (n.includes('roofing')) return { avgValue:9500, monthlyVolume:10, convRate:10 };
   if (n.includes('plumbing')) return { avgValue:650, monthlyVolume:40, convRate:20 };
+  if (n.includes('hvac')) return { avgValue:2200, monthlyVolume:25, convRate:18 };
+  if (n.includes('electrician')) return { avgValue:900, monthlyVolume:35, convRate:20 };
+  if (n.includes('landscaping')) return { avgValue:1200, monthlyVolume:30, convRate:18 };
+  if (n.includes('cleaning')) return { avgValue:350, monthlyVolume:80, convRate:25 };
+  if (n.includes('pest control')) return { avgValue:280, monthlyVolume:60, convRate:22 };
+  if (n.includes('pool service')) return { avgValue:400, monthlyVolume:50, convRate:20 };
+  if (n.includes('moving')) return { avgValue:1500, monthlyVolume:20, convRate:15 };
+  // Food and Hospitality
   if (n.includes('restaurant') || n.includes('cafe') || n.includes('bistro')) return { avgValue:55, monthlyVolume:400, convRate:25 };
-  if (n.includes('gym') || n.includes('fitness')) return { avgValue:90, monthlyVolume:80, convRate:12 };
+  if (n.includes('bar') || n.includes('lounge')) return { avgValue:75, monthlyVolume:300, convRate:25 };
+  if (n.includes('bakery')) return { avgValue:35, monthlyVolume:500, convRate:30 };
+  if (n.includes('catering')) return { avgValue:2500, monthlyVolume:15, convRate:12 };
+  if (n.includes('food truck')) return { avgValue:30, monthlyVolume:600, convRate:35 };
+  if (n.includes('hotel')) return { avgValue:220, monthlyVolume:120, convRate:18 };
+  if (n.includes('event venue')) return { avgValue:5000, monthlyVolume:12, convRate:10 };
+  if (n.includes('private chef')) return { avgValue:800, monthlyVolume:20, convRate:12 };
+  // Beauty and Personal Care
   if (n.includes('salon') || n.includes('hair') || n.includes('nail')) return { avgValue:95, monthlyVolume:150, convRate:20 };
-  if (n.includes('limo') || n.includes('car service')) return { avgValue:400, monthlyVolume:50, convRate:10 };
+  if (n.includes('barber')) return { avgValue:45, monthlyVolume:200, convRate:25 };
+  if (n.includes('tattoo')) return { avgValue:250, monthlyVolume:40, convRate:15 };
+  if (n.includes('spa') || n.includes('massage')) return { avgValue:120, monthlyVolume:100, convRate:18 };
+  if (n.includes('tanning')) return { avgValue:60, monthlyVolume:120, convRate:22 };
+  // Automotive
+  if (n.includes('auto dealer')) return { avgValue:28000, monthlyVolume:20, convRate:5 };
   if (n.includes('auto body') || n.includes('collision')) return { avgValue:2800, monthlyVolume:25, convRate:12 };
+  if (n.includes('auto repair')) return { avgValue:550, monthlyVolume:50, convRate:20 };
+  if (n.includes('car wash')) return { avgValue:35, monthlyVolume:400, convRate:35 };
+  if (n.includes('detailing')) return { avgValue:250, monthlyVolume:60, convRate:20 };
+  if (n.includes('tire')) return { avgValue:450, monthlyVolume:60, convRate:22 };
+  // Gym and Fitness
+  if (n.includes('gym') || n.includes('fitness')) return { avgValue:90, monthlyVolume:80, convRate:12 };
+  if (n.includes('martial arts')) return { avgValue:150, monthlyVolume:50, convRate:15 };
+  if (n.includes('dance studio')) return { avgValue:130, monthlyVolume:60, convRate:15 };
+  // Luxury and Lifestyle
+  if (n.includes('limo') || n.includes('car service')) return { avgValue:400, monthlyVolume:50, convRate:10 };
+  if (n.includes('yacht')) return { avgValue:2500, monthlyVolume:15, convRate:8 };
+  if (n.includes('wedding')) return { avgValue:4500, monthlyVolume:10, convRate:10 };
+  if (n.includes('photography')) return { avgValue:2000, monthlyVolume:15, convRate:12 };
+  if (n.includes('interior design')) return { avgValue:8000, monthlyVolume:8, convRate:8 };
+  // Education
+  if (n.includes('tutoring')) return { avgValue:350, monthlyVolume:40, convRate:15 };
+  if (n.includes('daycare')) return { avgValue:1200, monthlyVolume:20, convRate:12 };
+  if (n.includes('music school')) return { avgValue:200, monthlyVolume:60, convRate:18 };
+  if (n.includes('driving school')) return { avgValue:400, monthlyVolume:30, convRate:20 };
+  // Marketing Agencies
+  if (n.includes('seo') || n.includes('digital marketing') || n.includes('advertising')) return { avgValue:3000, monthlyVolume:15, convRate:10 };
+  if (n.includes('web design')) return { avgValue:5000, monthlyVolume:10, convRate:10 };
+  if (n.includes('social media') || n.includes('content marketing') || n.includes('branding') || n.includes('pr agency')) return { avgValue:2000, monthlyVolume:15, convRate:12 };
+  // Retail
+  if (n.includes('jewelry')) return { avgValue:800, monthlyVolume:50, convRate:12 };
+  if (n.includes('furniture')) return { avgValue:1500, monthlyVolume:30, convRate:10 };
+  if (n.includes('boutique') || n.includes('clothing')) return { avgValue:180, monthlyVolume:80, convRate:15 };
+  if (n.includes('pet store')) return { avgValue:120, monthlyVolume:100, convRate:18 };
+  if (n.includes('florist')) return { avgValue:95, monthlyVolume:120, convRate:20 };
   return { avgValue:500, monthlyVolume:50, convRate:12 };
 }
 
