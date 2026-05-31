@@ -2637,8 +2637,13 @@ async function findLeads() {
   if (!inputs) return;
 
   var keys = getKeys();
-  if (!keys.google || !keys.hunter || !keys.anthropic) {
-    showSearchError('One or more API keys are missing. Open ⚙ Settings and save all three keys.');
+  // api/generate.js only needs google + hunter — anthropic is used for reports, not lead search
+  if (!keys.google) {
+    showSearchError('Google Places API key is missing. Open ⚙ Settings and add your Google key.');
+    return;
+  }
+  if (!keys.hunter) {
+    showSearchError('Hunter.io API key is missing. Open ⚙ Settings and add your Hunter key.');
     return;
   }
 
