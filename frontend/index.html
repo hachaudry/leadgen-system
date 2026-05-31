@@ -1605,7 +1605,7 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
       <div class="market-field">
         <div class="field-label">&nbsp;</div>
         <div style="display:flex;gap:8px;align-items:center">
-          <button class="find-btn" id="find-btn" onclick="findProspects()">Find Prospects</button>
+          <button class="find-btn" id="find-btn" onclick="findLeads()">Find Prospects</button>
           <button class="add-prospect-btn" onclick="toggleManualEntry()">+ Add Manually</button>
         </div>
       </div>
@@ -2565,6 +2565,165 @@ async function findProspects() {
     showSearchError('Network error: ' + e.message);
   } finally {
     btn.disabled = false; btn.textContent = 'Find Prospects';
+  }
+}
+
+// ── Find Leads helpers — read directly from DOM (not hlState) ──────────────
+function getLocationData() {
+  var countyEl       = document.getElementById('sel-county')  || document.querySelector('select[id*="county"]');
+  var cityEl         = document.getElementById('sel-city')    || document.querySelector('select[id*="city"]:not([id*="me-"]):not([id*="qa-"]):not([id*="da-"])');
+  var neighborhoodEl = document.getElementById('sel-nbhd')    || document.querySelector('select[id*="nbhd"]');
+  var zipEl          = document.getElementById('sel-zip')     || document.querySelector('select[id*="zip"]');
+
+  var countyOpt = countyEl ? countyEl.options[countyEl.selectedIndex] : null;
+  var cityOpt   = cityEl   ? cityEl.options[cityEl.selectedIndex]     : null;
+  var nbhdOpt   = neighborhoodEl ? neighborhoodEl.options[neighborhoodEl.selectedIndex] : null;
+
+  var county   = countyOpt ? (countyOpt.text || '') : '';
+  var countyId = countyEl  ? (countyEl.value  || '') : '';
+  var city     = cityOpt   ? (cityOpt.getAttribute('data-name') || cityOpt.text || '') : '';
+  var cityId   = cityEl    ? (cityEl.value    || '') : '';
+  var neighborhood = (nbhdOpt && neighborhoodEl && neighborhoodEl.value) ? (nbhdOpt.text || '') : '';
+  var zip          = zipEl ? (zipEl.value || '') : '';
+
+  // Strip placeholder text
+  if (/Choose|Select|Loading|first/i.test(county))       county       = '';
+  if (/Choose|Select|Loading|first/i.test(city))         city         = '';
+  if (/All|Select|Loading|first/i.test(neighborhood))    neighborhood = '';
+
+  // Build locationLabel — most specific first
+  var locationLabel = '';
+  if      (zip)          locationLabel = zip          + ' ' + city + ', California';
+  else if (neighborhood) locationLabel = neighborhood + ', ' + city + ', California';
+  else if (city)         locationLabel = city          + ', California';
+  else if (county)       locationLabel = county        + ', California';
+  else                   locationLabel = 'California';
+
+  return { county, countyId, city, cityId, neighborhood, zip,
+           state: 'California', stateCode: 'CA', locationLabel };
+}
+
+function getNicheValue() {
+  var nicheEl = document.getElementById('sel-niche') || document.querySelector('select[id*="niche"]');
+  if (!nicheEl) { console.error('Niche dropdown not found'); return ''; }
+  var val = nicheEl.value || '';
+  if (!val || /Select|Choose/i.test(val)) return '';
+  return val;
+}
+
+function validateSearchInputs() {
+  var niche    = getNicheValue();
+  var location = getLocationData();
+  if (!niche) {
+    showSearchError('Please select a Niche before searching.');
+    return false;
+  }
+  if (!location.county && !location.city) {
+    var hlErrEl = document.getElementById('hl-error');
+    if (hlErrEl) hlErrEl.classList.add('visible');
+    var ce = document.getElementById('sel-county'); if (ce) ce.classList.add('field-error');
+    return false;
+  }
+  var hlErrEl = document.getElementById('hl-error');
+  if (hlErrEl) hlErrEl.classList.remove('visible');
+  var ce = document.getElementById('sel-county'); if (ce) ce.classList.remove('field-error');
+  var cy = document.getElementById('sel-city');   if (cy) cy.classList.remove('field-error');
+  return { niche, location };
+}
+
+async function findLeads() {
+  hideSearchError();
+  var inputs = validateSearchInputs();
+  if (!inputs) return;
+
+  var keys = getKeys();
+  if (!keys.google || !keys.hunter || !keys.anthropic) {
+    showSearchError('One or more API keys are missing. Open ⚙ Settings and save all three keys.');
+    return;
+  }
+
+  // Sync hlState so the rest of the app (reports etc.) has correct values
+  if (typeof hlState !== 'undefined') {
+    hlState.county     = inputs.location.countyId;
+    hlState.countyName = inputs.location.county;
+    hlState.city       = inputs.location.cityId;
+    hlState.cityName   = inputs.location.city;
+    hlState.nbhd       = inputs.location.neighborhood;
+    hlState.zip        = inputs.location.zip;
+  }
+
+  currentNiche = inputs.niche;
+  currentCity  = inputs.location.city || inputs.location.county;
+  currentState = 'California';
+  reportCache = {}; pitchCache = {}; videoPitchCache = {};
+
+  var btn = document.getElementById('find-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Searching...'; }
+
+  var searchLocation = inputs.location.city || inputs.location.county;
+  var locationLabel  = inputs.location.locationLabel;
+  var limit = document.getElementById('sel-limit');
+  var limitVal = limit ? parseInt(limit.value) || 10 : 10;
+
+  console.log('[findLeads] Searching:', inputs.niche, 'in', locationLabel);
+
+  try {
+    var resp = await fetch((typeof BASE_URL !== 'undefined' ? BASE_URL : '') + '/api/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-google-key':    keys.google,
+        'x-hunter-key':    keys.hunter,
+        'x-anthropic-key': keys.anthropic
+      },
+      body: JSON.stringify({
+        niche:         inputs.niche,
+        city:          searchLocation,
+        neighborhood:  inputs.location.neighborhood || null,
+        zip:           inputs.location.zip          || null,
+        county:        inputs.location.county       || null,
+        countyId:      inputs.location.countyId     || null,
+        state:         'California',
+        locationLabel: locationLabel,
+        limit:         limitVal
+      })
+    });
+
+    var text = await resp.text();
+    var data;
+    try { data = JSON.parse(text); }
+    catch (parseErr) {
+      console.error('[findLeads] Non-JSON response:', text.slice(0, 500));
+      showSearchError('Server returned an unexpected response. Please try again in a moment.');
+      return;
+    }
+
+    if (!resp.ok || data.error) {
+      showSearchError(data.error || ('Search failed (HTTP ' + resp.status + '). Please try again.'));
+      return;
+    }
+
+    leads = (data.leads || []).map(function(l) {
+      return Object.assign({}, l, { revenueLoss: calcRevenueLoss(l, inputs.niche), oppScore: 0 });
+    });
+    leads.forEach(function(l) { l.oppScore = oppScore(l.revenueLoss, inputs.niche); });
+
+    saveStats('prospects', leads.length);
+    activeFilters.clear();
+    document.querySelectorAll('.chip.active').forEach(function(c) { c.classList.remove('active'); });
+    var sortSel = document.getElementById('sort-select'); if (sortSel) sortSel.value = 'reviews';
+
+    renderTable();
+    saveLeadsToStorage();
+    updateSummary();
+    document.getElementById('prospects-section').style.display = 'block';
+    document.getElementById('summary-bar').style.display       = 'flex';
+    document.getElementById('filter-bar').style.display        = 'flex';
+  } catch (e) {
+    console.error('[findLeads] Error:', e);
+    showSearchError('Network error: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Find Prospects'; }
   }
 }
 
