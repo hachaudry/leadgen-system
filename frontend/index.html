@@ -9410,6 +9410,186 @@ document.addEventListener('DOMContentLoaded', function() {
   updateAPIStatus();
   loadAPIKeysIntoPanel();
   initCounties();   // fallback: ensure counties load even if the inline call failed
+
+  // ── Cascade dropdowns: County → City → Neighborhood → ZIP ────────────────
+  (function() {
+    var countyEl = document.getElementById('sel-county') || document.querySelector('select[id*="county"]');
+    var cityEl   = document.getElementById('sel-city')   || document.querySelector('select[id*="city"]');
+    var nbhdEl   = document.getElementById('sel-nbhd')   || document.querySelector('select[id*="nbhd"]') || document.querySelector('select[id*="neighborhood"]');
+    var zipEl    = document.getElementById('sel-zip')    || document.querySelector('select[id*="zip"]');
+
+    console.log('[cascade] Dropdowns found:', { county: !!countyEl, city: !!cityEl, neighborhood: !!nbhdEl, zip: !!zipEl });
+    if (!countyEl) { console.error('[cascade] County dropdown not found'); return; }
+
+    // Nullify old inline onchange attributes so we don't double-fire
+    if (countyEl) countyEl.onchange = null;
+    if (cityEl)   cityEl.onchange   = null;
+    if (nbhdEl)   nbhdEl.onchange   = null;
+    if (zipEl)    zipEl.onchange    = null;
+
+    // COUNTY CHANGE — load cities
+    countyEl.addEventListener('change', async function() {
+      var countyId   = this.value;
+      var countyName = this.options[this.selectedIndex] ? this.options[this.selectedIndex].text : '';
+      console.log('[cascade] County selected:', countyId);
+
+      // Update hlState
+      if (typeof hlState !== 'undefined') {
+        hlState.county = countyId; hlState.countyName = countyName;
+        hlState.city = null; hlState.cityName = '';
+        hlState.nbhd = ''; hlState.zip = '';
+      }
+
+      // Reset downstream selects
+      if (cityEl) { cityEl.innerHTML = '<option value="">Loading cities...</option>'; cityEl.disabled = true; }
+      if (nbhdEl) { nbhdEl.innerHTML = '<option value="">Select city first</option>'; nbhdEl.disabled = true; }
+      if (zipEl)  { zipEl.innerHTML  = '<option value="">Select neighborhood first</option>'; zipEl.disabled = true; }
+      if (typeof hlUpdateSummary === 'function') hlUpdateSummary();
+      if (!countyId) { if (cityEl) cityEl.innerHTML = '<option value="">Select county first</option>'; return; }
+
+      try {
+        var resp = await fetch('/api/locations?type=cities&countyId=' + countyId);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        var data = await resp.json();
+        console.log('[cascade] Cities loaded:', data.data && data.data.length);
+        if (cityEl) {
+          if (data.data && data.data.length > 0) {
+            cityEl.innerHTML = '<option value="">Choose a city</option>';
+            data.data.forEach(function(c) {
+              var o = document.createElement('option');
+              o.value = c.id; o.textContent = c.name; o.dataset.name = c.name;
+              cityEl.appendChild(o);
+            });
+            cityEl.disabled = false;
+          } else {
+            cityEl.innerHTML = '<option value="">No cities found for this county</option>';
+          }
+        }
+      } catch (err) {
+        console.error('[cascade] City load error:', err);
+        if (cityEl) cityEl.innerHTML = '<option value="">Could not load cities</option>';
+      }
+    });
+
+    // CITY CHANGE — load neighborhoods
+    if (cityEl) {
+      cityEl.addEventListener('change', async function() {
+        var cityId   = this.value;
+        var cityOpt  = this.options[this.selectedIndex];
+        var cityName = (cityOpt && cityOpt.dataset && cityOpt.dataset.name) ? cityOpt.dataset.name : (cityOpt ? cityOpt.text : '');
+        console.log('[cascade] City selected:', cityId, cityName);
+
+        // Update hlState
+        if (typeof hlState !== 'undefined') {
+          hlState.city = cityId; hlState.cityName = cityName;
+          hlState.nbhd = ''; hlState.zip = '';
+        }
+
+        // Reset downstream selects
+        if (nbhdEl) { nbhdEl.innerHTML = '<option value="">Loading neighborhoods...</option>'; nbhdEl.disabled = true; }
+        if (zipEl)  { zipEl.innerHTML  = '<option value="">Select neighborhood first</option>'; zipEl.disabled = true; }
+        if (typeof hlUpdateSummary === 'function') hlUpdateSummary();
+        if (!cityId) { if (nbhdEl) nbhdEl.innerHTML = '<option value="">Select city first</option>'; return; }
+
+        try {
+          var resp = await fetch('/api/locations?type=neighborhoods&cityId=' + cityId + '&cityName=' + encodeURIComponent(cityName));
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+          var data = await resp.json();
+          console.log('[cascade] Neighborhoods loaded:', data.data && data.data.length);
+          if (nbhdEl) {
+            nbhdEl.innerHTML = '<option value="">All neighborhoods (city-wide)</option>';
+            if (data.data && data.data.length > 0) {
+              data.data.forEach(function(n) {
+                var o = document.createElement('option');
+                o.value = n.id; o.textContent = n.name; o.dataset.name = n.name;
+                nbhdEl.appendChild(o);
+              });
+              nbhdEl.disabled = false;
+            } else {
+              // No neighborhoods — load city-level ZIPs directly
+              nbhdEl.innerHTML = '<option value="">No neighborhoods — city-wide search</option>';
+              nbhdEl.disabled = false;
+              if (zipEl) {
+                fetch('/api/locations?type=zipcodes&cityId=' + cityId + '&cityName=' + encodeURIComponent(cityName))
+                  .then(function(r) { return r.json(); })
+                  .then(function(zd) {
+                    if (zd.data && zd.data.length > 0) {
+                      zipEl.innerHTML = '<option value="">All ZIPs in ' + cityName + '</option>';
+                      zd.data.forEach(function(z) {
+                        var o = document.createElement('option');
+                        o.value = z.zip; o.textContent = z.zip;
+                        zipEl.appendChild(o);
+                      });
+                      zipEl.disabled = false;
+                    }
+                  }).catch(function() {});
+              }
+            }
+          }
+        } catch (err) {
+          console.error('[cascade] Neighborhood load error:', err);
+          if (nbhdEl) { nbhdEl.innerHTML = '<option value="">Neighborhoods unavailable — city-wide search</option>'; nbhdEl.disabled = false; }
+        }
+      });
+    }
+
+    // NEIGHBORHOOD CHANGE — load ZIP codes
+    if (nbhdEl) {
+      nbhdEl.addEventListener('change', async function() {
+        var nbhdId   = this.value;
+        var nbhdOpt  = this.options[this.selectedIndex];
+        var nbhdName = (nbhdOpt && nbhdOpt.dataset && nbhdOpt.dataset.name) ? nbhdOpt.dataset.name : (nbhdOpt ? nbhdOpt.text : '');
+        var cityId   = cityEl ? cityEl.value : (typeof hlState !== 'undefined' ? hlState.city : '');
+        var cityName = typeof hlState !== 'undefined' ? hlState.cityName : '';
+        console.log('[cascade] Neighborhood selected:', nbhdId, '| city:', cityId);
+
+        // Update hlState
+        if (typeof hlState !== 'undefined') {
+          hlState.nbhd = nbhdName || nbhdId; hlState.zip = '';
+        }
+        if (typeof hlUpdateSummary === 'function') hlUpdateSummary();
+
+        if (zipEl) { zipEl.innerHTML = '<option value="">Loading ZIP codes...</option>'; zipEl.disabled = true; }
+        if (!cityId) { if (zipEl) { zipEl.innerHTML = '<option value="">Select city first</option>'; } return; }
+
+        try {
+          var url = '/api/locations?type=zipcodes&cityId=' + cityId + '&cityName=' + encodeURIComponent(cityName);
+          if (nbhdId) url += '&neighborhoodId=' + encodeURIComponent(nbhdId);
+          var resp = await fetch(url);
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+          var data = await resp.json();
+          console.log('[cascade] ZIPs loaded:', data.data && data.data.length);
+          if (zipEl) {
+            zipEl.innerHTML = '<option value="">All ZIP codes</option>';
+            if (data.data && data.data.length > 0) {
+              data.data.forEach(function(z) {
+                var o = document.createElement('option');
+                o.value = z.zip; o.textContent = z.zip;
+                zipEl.appendChild(o);
+              });
+              zipEl.disabled = false;
+            } else {
+              zipEl.innerHTML = '<option value="">No ZIP codes available</option>';
+              zipEl.disabled = false;
+            }
+          }
+        } catch (err) {
+          console.error('[cascade] ZIP load error:', err);
+          if (zipEl) { zipEl.innerHTML = '<option value="">ZIP codes unavailable</option>'; zipEl.disabled = false; }
+        }
+      });
+    }
+
+    // ZIP CHANGE — update state
+    if (zipEl) {
+      zipEl.addEventListener('change', function() {
+        if (typeof hlState !== 'undefined') hlState.zip = this.value;
+        if (typeof hlUpdateSummary === 'function') hlUpdateSummary();
+      });
+    }
+
+    console.log('[cascade] Event listeners attached');
+  })();
 });
 
 // Escape closes panel
