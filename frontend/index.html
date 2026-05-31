@@ -1605,7 +1605,7 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
       <div class="market-field">
         <div class="field-label">&nbsp;</div>
         <div style="display:flex;gap:8px;align-items:center">
-          <button class="find-btn" id="find-btn" onclick="findLeads()">Find Prospects</button>
+          <button class="find-btn" id="find-btn">Find Prospects</button>
           <button class="add-prospect-btn" onclick="toggleManualEntry()">+ Add Manually</button>
         </div>
       </div>
@@ -9813,6 +9813,38 @@ function initCascadeDropdowns() {
 
 // Call with delay to ensure DOM is ready
 setTimeout(initCascadeDropdowns, 800);
+</script>
+
+<!-- ── Find Prospects button wiring ───────────────────────────────────────────
+     Isolated in its own tiny script block so a JS error in the large main
+     block cannot prevent the button from working.
+  ──────────────────────────────────────────────────────────────────────────── -->
+<script>
+(function() {
+  var btn = document.getElementById('find-btn');
+  if (!btn) { console.error('[wiring] find-btn not found'); return; }
+
+  btn.addEventListener('click', function() {
+    console.log('[wiring] find-btn clicked');
+
+    // Show immediate feedback so user knows click registered
+    var msgEl = document.getElementById('search-error-msg');
+    var errEl = document.getElementById('search-error');
+
+    // If findLeads isn't defined, the main script block had a syntax/runtime error
+    if (typeof window.findLeads !== 'function') {
+      console.error('[wiring] findLeads is NOT defined — main script block likely has a JS error');
+      if (errEl) errEl.style.display = 'block';
+      if (msgEl) msgEl.textContent = 'Page error: scripts failed to load. Press Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac) to hard-refresh, then try again.';
+      return;
+    }
+
+    console.log('[wiring] calling window.findLeads()');
+    window.findLeads();
+  });
+
+  console.log('[wiring] find-btn wired via addEventListener');
+})();
 </script>
 </body>
 </html>
