@@ -1815,6 +1815,14 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
 </div><!-- /main -->
 
 <script>
+// ── Global error guard — logs any JS error to the console clearly ───────────
+window.onerror = function(msg, src, line, col, err) {
+  console.error('[LeadGen JS Error]', msg, '| file:', src, '| line:', line, '| col:', col, err ? ('| ' + err.stack) : '');
+};
+window.addEventListener('unhandledrejection', function(e) {
+  console.error('[LeadGen Unhandled Promise]', e.reason);
+});
+
 // ── Constants ──────────────────────────────────────────────────────────────
 // Report type metadata — icon, display name, accent color, light bg, text color
 const REPORT_META = {
@@ -2614,16 +2622,25 @@ function getNicheValue() {
 function validateSearchInputs() {
   var niche    = getNicheValue();
   var location = getLocationData();
+  console.log('[validate] niche:', niche, '| county:', location.county, '| city:', location.city);
+
   if (!niche) {
-    showSearchError('Please select a Niche before searching.');
+    showSearchError('Step 1 — Select a Niche from the dropdown above, then click Find Prospects again.');
+    var nicheEl = document.getElementById('sel-niche');
+    if (nicheEl) { nicheEl.style.outline = '2px solid #c62828'; setTimeout(function(){ nicheEl.style.outline=''; }, 3000); }
     return false;
   }
+
   if (!location.county && !location.city) {
+    // Show error both in hl-error (near dropdowns) AND in search-error (near button, auto-scrolls)
     var hlErrEl = document.getElementById('hl-error');
     if (hlErrEl) hlErrEl.classList.add('visible');
     var ce = document.getElementById('sel-county'); if (ce) ce.classList.add('field-error');
+    showSearchError('Step 2 — Select a County from the dropdown above, then click Find Prospects again.');
     return false;
   }
+
+  // Clear any previous errors
   var hlErrEl = document.getElementById('hl-error');
   if (hlErrEl) hlErrEl.classList.remove('visible');
   var ce = document.getElementById('sel-county'); if (ce) ce.classList.remove('field-error');
@@ -2640,14 +2657,14 @@ async function findLeads() {
   if (!inputs) return;
 
   var keys = getKeys();
-  console.log('[findLeads] keys present — google:', !!keys.google, '| hunter:', !!keys.hunter, '| anthropic:', !!keys.anthropic);
+  console.log('[findLeads] keys present — google:', !!keys.google, '| hunter:', !!keys.hunter);
   // api/generate.js only needs google + hunter — anthropic is used for reports, not lead search
   if (!keys.google) {
-    showSearchError('Google Places API key is missing. Open ⚙ Settings and add your Google key.');
+    showSearchError('Step 3 — Google Places API key is missing. Click the ⚙ Settings button (top-right of the page) and paste your Google key, then Save.');
     return;
   }
   if (!keys.hunter) {
-    showSearchError('Hunter.io API key is missing. Open ⚙ Settings and add your Hunter key.');
+    showSearchError('Step 3 — Hunter.io API key is missing. Click the ⚙ Settings button (top-right of the page) and paste your Hunter key, then Save.');
     return;
   }
 
@@ -2735,6 +2752,9 @@ async function findLeads() {
     if (btn) { btn.disabled = false; btn.textContent = 'Find Prospects'; }
   }
 }
+
+// Ensure findLeads is accessible from onclick even if any scoping quirk exists
+window.findLeads = findLeads;
 
 // ── Filter & Sort ──────────────────────────────────────────────────────────
 function toggleFilter(el) {
