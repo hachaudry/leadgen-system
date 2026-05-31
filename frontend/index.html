@@ -4006,7 +4006,12 @@ function renderSeoReport(data, lead) {
     const findingsHtml = `<div class="section-title" style="margin-top:1rem">Key Findings</div>
     <div class="findings-grid">${data.keyFindings.map(f => `<div class="finding-box">${esc(f)}</div>`).join('')}</div>`;
     const nbsPos = html.lastIndexOf('<div class="nbs-box">');
-    html = nbsPos > -1 ? h// ── Platform Presence HTML Builder — used in SEO report and seo-proposal.html
+    html = nbsPos > -1 ? html.slice(0, nbsPos) + findingsHtml + html.slice(nbsPos) : html + findingsHtml;
+  }
+  return html;
+}
+
+// ── Platform Presence HTML Builder — used in SEO report and seo-proposal.html
 function buildPlatformPresenceHtml(bizName, niche, city, scores, proposalMode) {
   const overall  = +(scores?.overall    ?? 0);
   const schemaS  = +(scores?.Schema     ?? 50);
