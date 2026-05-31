@@ -2120,16 +2120,22 @@ function hlUpdateSummary() {
 // Load counties on page init
 async function initCounties() {
   const sel = document.getElementById('sel-county');
-  hlSetLoading('county', true);
+  if (!sel) { console.error('[initCounties] sel-county element not found'); return; }
+  // Guard: already populated — skip re-fetch
+  if (sel.options.length > 1) return;
   try {
+    hlSetLoading('county', true);
+    console.log('[initCounties] fetching counties…');
     const resp = await fetch(`${BASE_URL}/api/locations?type=counties`);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
     const counties = data.data || [];
+    console.log('[initCounties] received', counties.length, 'counties');
     sel.innerHTML = '<option value="">Choose a county</option>' +
       counties.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
   } catch (e) {
-    sel.innerHTML = '<option value="">Could not load counties</option>';
-    console.error('County load error:', e);
+    console.error('[initCounties] County load error:', e);
+    if (sel) sel.innerHTML = '<option value="">Could not load counties — refresh to retry</option>';
   } finally {
     hlSetLoading('county', false);
   }
@@ -9403,6 +9409,7 @@ function updateAPIStatus() {
 document.addEventListener('DOMContentLoaded', function() {
   updateAPIStatus();
   loadAPIKeysIntoPanel();
+  initCounties();   // fallback: ensure counties load even if the inline call failed
 });
 
 // Escape closes panel
