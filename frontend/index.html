@@ -2632,11 +2632,15 @@ function validateSearchInputs() {
 }
 
 async function findLeads() {
+  console.log('[findLeads] ▶ button clicked');
   hideSearchError();
+
   var inputs = validateSearchInputs();
+  console.log('[findLeads] validation result:', inputs);
   if (!inputs) return;
 
   var keys = getKeys();
+  console.log('[findLeads] keys present — google:', !!keys.google, '| hunter:', !!keys.hunter, '| anthropic:', !!keys.anthropic);
   // api/generate.js only needs google + hunter — anthropic is used for reports, not lead search
   if (!keys.google) {
     showSearchError('Google Places API key is missing. Open ⚙ Settings and add your Google key.');
@@ -2673,7 +2677,7 @@ async function findLeads() {
   console.log('[findLeads] Searching:', inputs.niche, 'in', locationLabel);
 
   try {
-    var resp = await fetch((typeof BASE_URL !== 'undefined' ? BASE_URL : '') + '/api/generate', {
+    var resp = await fetch('/api/generate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
