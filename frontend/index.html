@@ -9432,6 +9432,33 @@ document.addEventListener('click', function(e) {
     panel.style.display = 'none';
   }
 });
+
+// ── County dropdown guaranteed fallback ──────────────────────────────────────
+// Runs 500ms after page load — if the county select is still unpopulated, fetch directly.
+setTimeout(function() {
+  if (typeof loadCounties === 'function') {
+    loadCounties();
+  } else {
+    var countyEl = document.querySelector('select[id*="county"]');
+    if (!countyEl) { console.error('[county-fallback] no county select found'); return; }
+    if (countyEl.options.length > 1) return; // already populated
+    console.log('[county-fallback] populating county dropdown via fallback fetch');
+    fetch('/api/locations?type=counties')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data || !data.data) throw new Error('no data');
+        countyEl.innerHTML = '<option value="">Choose a county</option>';
+        data.data.forEach(function(c) {
+          var o = document.createElement('option');
+          o.value = c.id;
+          o.textContent = c.name;
+          countyEl.appendChild(o);
+        });
+        console.log('[county-fallback] loaded', data.data.length, 'counties');
+      })
+      .catch(function(err) { console.error('[county-fallback] County load failed:', err); });
+  }
+}, 500);
 </script>
 </body>
 </html>
