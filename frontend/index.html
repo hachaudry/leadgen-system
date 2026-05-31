@@ -1515,7 +1515,7 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
         <div class="hl-field">
           <div class="field-label">County <span style="color:var(--red-text)">*</span></div>
           <div class="hl-select-wrap" id="wrap-county">
-            <select class="hl-select" id="sel-county" onchange="onCountyChange()">
+            <select class="hl-select" id="sel-county">
               <option value="">Loading counties…</option>
             </select>
             <div class="hl-loading-spinner" id="spin-county"></div>
@@ -1526,7 +1526,7 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
         <div class="hl-field">
           <div class="field-label">City <span style="color:var(--red-text)">*</span></div>
           <div class="hl-select-wrap" id="wrap-city">
-            <select class="hl-select" id="sel-city" onchange="onCityChange()" disabled>
+            <select class="hl-select" id="sel-city" disabled>
               <option value="">Select county first</option>
             </select>
             <div class="hl-loading-spinner" id="spin-city"></div>
@@ -1537,7 +1537,7 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
         <div class="hl-field">
           <div class="field-label">Neighborhood <span class="hl-opt-label">(optional)</span> <span id="nbhd-src-badge"></span></div>
           <div class="hl-select-wrap" id="wrap-nbhd">
-            <select class="hl-select" id="sel-nbhd" onchange="onNbhdChange()" disabled>
+            <select class="hl-select" id="sel-nbhd" disabled>
               <option value="">Select city first</option>
             </select>
             <div class="hl-loading-spinner" id="spin-nbhd"></div>
@@ -1548,7 +1548,7 @@ header { background:var(--bg); border-bottom:1px solid var(--border); padding:0 
         <div class="hl-field narrow">
           <div class="field-label">ZIP Code <span class="hl-opt-label">(optional)</span> <span id="zip-src-badge"></span></div>
           <div class="hl-select-wrap" id="wrap-zip">
-            <select class="hl-select" id="sel-zip" onchange="onZipChange()" disabled>
+            <select class="hl-select" id="sel-zip" disabled>
               <option value="">Select neighborhood first</option>
             </select>
             <div class="hl-loading-spinner" id="spin-zip"></div>
@@ -9410,186 +9410,6 @@ document.addEventListener('DOMContentLoaded', function() {
   updateAPIStatus();
   loadAPIKeysIntoPanel();
   initCounties();   // fallback: ensure counties load even if the inline call failed
-
-  // ── Cascade dropdowns: County → City → Neighborhood → ZIP ────────────────
-  (function() {
-    var countyEl = document.getElementById('sel-county') || document.querySelector('select[id*="county"]');
-    var cityEl   = document.getElementById('sel-city')   || document.querySelector('select[id*="city"]');
-    var nbhdEl   = document.getElementById('sel-nbhd')   || document.querySelector('select[id*="nbhd"]') || document.querySelector('select[id*="neighborhood"]');
-    var zipEl    = document.getElementById('sel-zip')    || document.querySelector('select[id*="zip"]');
-
-    console.log('[cascade] Dropdowns found:', { county: !!countyEl, city: !!cityEl, neighborhood: !!nbhdEl, zip: !!zipEl });
-    if (!countyEl) { console.error('[cascade] County dropdown not found'); return; }
-
-    // Nullify old inline onchange attributes so we don't double-fire
-    if (countyEl) countyEl.onchange = null;
-    if (cityEl)   cityEl.onchange   = null;
-    if (nbhdEl)   nbhdEl.onchange   = null;
-    if (zipEl)    zipEl.onchange    = null;
-
-    // COUNTY CHANGE — load cities
-    countyEl.addEventListener('change', async function() {
-      var countyId   = this.value;
-      var countyName = this.options[this.selectedIndex] ? this.options[this.selectedIndex].text : '';
-      console.log('[cascade] County selected:', countyId);
-
-      // Update hlState
-      if (typeof hlState !== 'undefined') {
-        hlState.county = countyId; hlState.countyName = countyName;
-        hlState.city = null; hlState.cityName = '';
-        hlState.nbhd = ''; hlState.zip = '';
-      }
-
-      // Reset downstream selects
-      if (cityEl) { cityEl.innerHTML = '<option value="">Loading cities...</option>'; cityEl.disabled = true; }
-      if (nbhdEl) { nbhdEl.innerHTML = '<option value="">Select city first</option>'; nbhdEl.disabled = true; }
-      if (zipEl)  { zipEl.innerHTML  = '<option value="">Select neighborhood first</option>'; zipEl.disabled = true; }
-      if (typeof hlUpdateSummary === 'function') hlUpdateSummary();
-      if (!countyId) { if (cityEl) cityEl.innerHTML = '<option value="">Select county first</option>'; return; }
-
-      try {
-        var resp = await fetch('/api/locations?type=cities&countyId=' + countyId);
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
-        var data = await resp.json();
-        console.log('[cascade] Cities loaded:', data.data && data.data.length);
-        if (cityEl) {
-          if (data.data && data.data.length > 0) {
-            cityEl.innerHTML = '<option value="">Choose a city</option>';
-            data.data.forEach(function(c) {
-              var o = document.createElement('option');
-              o.value = c.id; o.textContent = c.name; o.dataset.name = c.name;
-              cityEl.appendChild(o);
-            });
-            cityEl.disabled = false;
-          } else {
-            cityEl.innerHTML = '<option value="">No cities found for this county</option>';
-          }
-        }
-      } catch (err) {
-        console.error('[cascade] City load error:', err);
-        if (cityEl) cityEl.innerHTML = '<option value="">Could not load cities</option>';
-      }
-    });
-
-    // CITY CHANGE — load neighborhoods
-    if (cityEl) {
-      cityEl.addEventListener('change', async function() {
-        var cityId   = this.value;
-        var cityOpt  = this.options[this.selectedIndex];
-        var cityName = (cityOpt && cityOpt.dataset && cityOpt.dataset.name) ? cityOpt.dataset.name : (cityOpt ? cityOpt.text : '');
-        console.log('[cascade] City selected:', cityId, cityName);
-
-        // Update hlState
-        if (typeof hlState !== 'undefined') {
-          hlState.city = cityId; hlState.cityName = cityName;
-          hlState.nbhd = ''; hlState.zip = '';
-        }
-
-        // Reset downstream selects
-        if (nbhdEl) { nbhdEl.innerHTML = '<option value="">Loading neighborhoods...</option>'; nbhdEl.disabled = true; }
-        if (zipEl)  { zipEl.innerHTML  = '<option value="">Select neighborhood first</option>'; zipEl.disabled = true; }
-        if (typeof hlUpdateSummary === 'function') hlUpdateSummary();
-        if (!cityId) { if (nbhdEl) nbhdEl.innerHTML = '<option value="">Select city first</option>'; return; }
-
-        try {
-          var resp = await fetch('/api/locations?type=neighborhoods&cityId=' + cityId + '&cityName=' + encodeURIComponent(cityName));
-          if (!resp.ok) throw new Error('HTTP ' + resp.status);
-          var data = await resp.json();
-          console.log('[cascade] Neighborhoods loaded:', data.data && data.data.length);
-          if (nbhdEl) {
-            nbhdEl.innerHTML = '<option value="">All neighborhoods (city-wide)</option>';
-            if (data.data && data.data.length > 0) {
-              data.data.forEach(function(n) {
-                var o = document.createElement('option');
-                o.value = n.id; o.textContent = n.name; o.dataset.name = n.name;
-                nbhdEl.appendChild(o);
-              });
-              nbhdEl.disabled = false;
-            } else {
-              // No neighborhoods — load city-level ZIPs directly
-              nbhdEl.innerHTML = '<option value="">No neighborhoods — city-wide search</option>';
-              nbhdEl.disabled = false;
-              if (zipEl) {
-                fetch('/api/locations?type=zipcodes&cityId=' + cityId + '&cityName=' + encodeURIComponent(cityName))
-                  .then(function(r) { return r.json(); })
-                  .then(function(zd) {
-                    if (zd.data && zd.data.length > 0) {
-                      zipEl.innerHTML = '<option value="">All ZIPs in ' + cityName + '</option>';
-                      zd.data.forEach(function(z) {
-                        var o = document.createElement('option');
-                        o.value = z.zip; o.textContent = z.zip;
-                        zipEl.appendChild(o);
-                      });
-                      zipEl.disabled = false;
-                    }
-                  }).catch(function() {});
-              }
-            }
-          }
-        } catch (err) {
-          console.error('[cascade] Neighborhood load error:', err);
-          if (nbhdEl) { nbhdEl.innerHTML = '<option value="">Neighborhoods unavailable — city-wide search</option>'; nbhdEl.disabled = false; }
-        }
-      });
-    }
-
-    // NEIGHBORHOOD CHANGE — load ZIP codes
-    if (nbhdEl) {
-      nbhdEl.addEventListener('change', async function() {
-        var nbhdId   = this.value;
-        var nbhdOpt  = this.options[this.selectedIndex];
-        var nbhdName = (nbhdOpt && nbhdOpt.dataset && nbhdOpt.dataset.name) ? nbhdOpt.dataset.name : (nbhdOpt ? nbhdOpt.text : '');
-        var cityId   = cityEl ? cityEl.value : (typeof hlState !== 'undefined' ? hlState.city : '');
-        var cityName = typeof hlState !== 'undefined' ? hlState.cityName : '';
-        console.log('[cascade] Neighborhood selected:', nbhdId, '| city:', cityId);
-
-        // Update hlState
-        if (typeof hlState !== 'undefined') {
-          hlState.nbhd = nbhdName || nbhdId; hlState.zip = '';
-        }
-        if (typeof hlUpdateSummary === 'function') hlUpdateSummary();
-
-        if (zipEl) { zipEl.innerHTML = '<option value="">Loading ZIP codes...</option>'; zipEl.disabled = true; }
-        if (!cityId) { if (zipEl) { zipEl.innerHTML = '<option value="">Select city first</option>'; } return; }
-
-        try {
-          var url = '/api/locations?type=zipcodes&cityId=' + cityId + '&cityName=' + encodeURIComponent(cityName);
-          if (nbhdId) url += '&neighborhoodId=' + encodeURIComponent(nbhdId);
-          var resp = await fetch(url);
-          if (!resp.ok) throw new Error('HTTP ' + resp.status);
-          var data = await resp.json();
-          console.log('[cascade] ZIPs loaded:', data.data && data.data.length);
-          if (zipEl) {
-            zipEl.innerHTML = '<option value="">All ZIP codes</option>';
-            if (data.data && data.data.length > 0) {
-              data.data.forEach(function(z) {
-                var o = document.createElement('option');
-                o.value = z.zip; o.textContent = z.zip;
-                zipEl.appendChild(o);
-              });
-              zipEl.disabled = false;
-            } else {
-              zipEl.innerHTML = '<option value="">No ZIP codes available</option>';
-              zipEl.disabled = false;
-            }
-          }
-        } catch (err) {
-          console.error('[cascade] ZIP load error:', err);
-          if (zipEl) { zipEl.innerHTML = '<option value="">ZIP codes unavailable</option>'; zipEl.disabled = false; }
-        }
-      });
-    }
-
-    // ZIP CHANGE — update state
-    if (zipEl) {
-      zipEl.addEventListener('change', function() {
-        if (typeof hlState !== 'undefined') hlState.zip = this.value;
-        if (typeof hlUpdateSummary === 'function') hlUpdateSummary();
-      });
-    }
-
-    console.log('[cascade] Event listeners attached');
-  })();
 });
 
 // Escape closes panel
@@ -9616,29 +9436,195 @@ document.addEventListener('click', function(e) {
 // ── County dropdown guaranteed fallback ──────────────────────────────────────
 // Runs 500ms after page load — if the county select is still unpopulated, fetch directly.
 setTimeout(function() {
-  if (typeof loadCounties === 'function') {
-    loadCounties();
-  } else {
-    var countyEl = document.querySelector('select[id*="county"]');
-    if (!countyEl) { console.error('[county-fallback] no county select found'); return; }
-    if (countyEl.options.length > 1) return; // already populated
-    console.log('[county-fallback] populating county dropdown via fallback fetch');
-    fetch('/api/locations?type=counties')
+  var countyEl = document.querySelector('select[id*="county"]');
+  if (!countyEl) { console.error('[county-fallback] no county select found'); return; }
+  if (countyEl.options.length > 1) return; // already populated
+  console.log('[county-fallback] populating county dropdown via fallback fetch');
+  fetch('/api/locations?type=counties')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data || !data.data) throw new Error('no data');
+      countyEl.innerHTML = '<option value="">Choose a county</option>';
+      data.data.forEach(function(c) {
+        var o = document.createElement('option');
+        o.value = c.id;
+        o.textContent = c.name;
+        countyEl.appendChild(o);
+      });
+      console.log('[county-fallback] loaded', data.data.length, 'counties');
+    })
+    .catch(function(err) { console.error('[county-fallback] County load failed:', err); });
+}, 500);
+
+// ── CASCADE DROPDOWNS — County → City → Neighborhood → ZIP ──────────────────
+function initCascadeDropdowns() {
+  var county = null;
+  var city = null;
+  var neighborhood = null;
+  var zip = null;
+
+  // Find all dropdowns by scanning every <select> on the page
+  document.querySelectorAll('select').forEach(function(sel) {
+    var id = (sel.id || '').toLowerCase();
+    var name = (sel.name || '').toLowerCase();
+    var combined = id + name;
+    if      (combined.includes('county'))                                               county       = sel;
+    else if (combined === 'sel-city' || (combined.includes('city') && !combined.includes('me-') && !combined.includes('qa-') && !combined.includes('da-')))  city = sel;
+    else if (combined.includes('neighbor') || combined.includes('nbhd') || combined.includes('sub-area') || combined.includes('subarea')) neighborhood = sel;
+    else if (combined.includes('zip'))                                                  zip          = sel;
+  });
+
+  console.log('CASCADE INIT:', {
+    county:       county       ? county.id       : 'NOT FOUND',
+    city:         city         ? city.id         : 'NOT FOUND',
+    neighborhood: neighborhood ? neighborhood.id : 'NOT FOUND',
+    zip:          zip          ? zip.id          : 'NOT FOUND'
+  });
+
+  if (!county) {
+    console.error('County dropdown not found — cannot init cascade');
+    return;
+  }
+
+  // COUNTY CHANGE — load cities
+  county.addEventListener('change', function() {
+    var countyId = county.value;
+    console.log('COUNTY CHANGED TO:', countyId);
+
+    // Update hlState so findProspects() works
+    if (typeof hlState !== 'undefined') {
+      hlState.county = countyId;
+      hlState.countyName = county.options[county.selectedIndex] ? county.options[county.selectedIndex].text : '';
+      hlState.city = null; hlState.cityName = '';
+      hlState.nbhd = ''; hlState.zip = '';
+    }
+
+    // Reset downstream
+    if (city)         { city.innerHTML         = '<option value="">Loading cities...</option>';         city.disabled         = true; }
+    if (neighborhood) { neighborhood.innerHTML = '<option value="">Select city first</option>';        neighborhood.disabled = true; }
+    if (zip)          { zip.innerHTML          = '<option value="">Select neighborhood first</option>'; zip.disabled          = true; }
+
+    if (typeof hlUpdateSummary === 'function') hlUpdateSummary();
+    if (!countyId) return;
+
+    fetch('/api/locations?type=cities&countyId=' + countyId)
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        if (!data || !data.data) throw new Error('no data');
-        countyEl.innerHTML = '<option value="">Choose a county</option>';
-        data.data.forEach(function(c) {
+        console.log('CITIES RECEIVED:', data);
+        if (!city) return;
+        city.innerHTML = '<option value="">Choose a city</option>';
+        var cities = data.data || [];
+        cities.forEach(function(c) {
           var o = document.createElement('option');
           o.value = c.id;
           o.textContent = c.name;
-          countyEl.appendChild(o);
+          o.setAttribute('data-name', c.name);
+          city.appendChild(o);
         });
-        console.log('[county-fallback] loaded', data.data.length, 'counties');
+        city.disabled = false;
+        console.log('CITIES POPULATED:', cities.length);
       })
-      .catch(function(err) { console.error('[county-fallback] County load failed:', err); });
+      .catch(function(err) {
+        console.error('CITY LOAD FAILED:', err);
+        if (city) city.innerHTML = '<option value="">Failed to load cities</option>';
+      });
+  });
+
+  // CITY CHANGE — load neighborhoods
+  if (city) {
+    city.addEventListener('change', function() {
+      var cityId   = city.value;
+      var cityOpt  = city.options[city.selectedIndex];
+      var cityName = cityOpt ? (cityOpt.getAttribute('data-name') || cityOpt.text) : '';
+      console.log('CITY CHANGED TO:', cityId);
+
+      // Update hlState
+      if (typeof hlState !== 'undefined') {
+        hlState.city = cityId; hlState.cityName = cityName;
+        hlState.nbhd = ''; hlState.zip = '';
+      }
+
+      if (neighborhood) { neighborhood.innerHTML = '<option value="">Loading neighborhoods...</option>'; neighborhood.disabled = true; }
+      if (zip)          { zip.innerHTML          = '<option value="">Select neighborhood first</option>'; zip.disabled = true; }
+      if (typeof hlUpdateSummary === 'function') hlUpdateSummary();
+      if (!cityId) return;
+
+      fetch('/api/locations?type=neighborhoods&cityId=' + cityId)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          console.log('NEIGHBORHOODS RECEIVED:', data);
+          if (!neighborhood) return;
+          neighborhood.innerHTML = '<option value="">All neighborhoods</option>';
+          var nbs = data.data || [];
+          nbs.forEach(function(n) {
+            var o = document.createElement('option');
+            o.value = n.id;
+            o.textContent = n.name;
+            neighborhood.appendChild(o);
+          });
+          neighborhood.disabled = false;
+          console.log('NEIGHBORHOODS POPULATED:', nbs.length);
+        })
+        .catch(function(err) {
+          console.error('NEIGHBORHOOD LOAD FAILED:', err);
+          if (neighborhood) { neighborhood.innerHTML = '<option value="">All neighborhoods</option>'; neighborhood.disabled = false; }
+        });
+    });
   }
-}, 500);
+
+  // NEIGHBORHOOD CHANGE — load ZIP codes
+  if (neighborhood) {
+    neighborhood.addEventListener('change', function() {
+      var neighborhoodId = neighborhood.value;
+      var cityId = city ? city.value : '';
+      console.log('NEIGHBORHOOD CHANGED TO:', neighborhoodId);
+
+      // Update hlState
+      if (typeof hlState !== 'undefined') {
+        var nbOpt = neighborhood.options[neighborhood.selectedIndex];
+        hlState.nbhd = nbOpt ? nbOpt.text : neighborhoodId;
+        hlState.zip = '';
+      }
+      if (typeof hlUpdateSummary === 'function') hlUpdateSummary();
+
+      if (zip) { zip.innerHTML = '<option value="">Loading ZIP codes...</option>'; zip.disabled = true; }
+
+      fetch('/api/locations?type=zipcodes&cityId=' + cityId + '&neighborhoodId=' + neighborhoodId)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          console.log('ZIPS RECEIVED:', data);
+          if (!zip) return;
+          zip.innerHTML = '<option value="">All ZIP codes</option>';
+          var zips = data.data || [];
+          zips.forEach(function(z) {
+            var o = document.createElement('option');
+            o.value = z.zip;
+            o.textContent = z.zip;
+            zip.appendChild(o);
+          });
+          zip.disabled = false;
+          console.log('ZIPS POPULATED:', zips.length);
+        })
+        .catch(function(err) {
+          console.error('ZIP LOAD FAILED:', err);
+          if (zip) { zip.innerHTML = '<option value="">All ZIP codes</option>'; zip.disabled = false; }
+        });
+    });
+  }
+
+  // ZIP CHANGE — update hlState
+  if (zip) {
+    zip.addEventListener('change', function() {
+      if (typeof hlState !== 'undefined') hlState.zip = zip.value;
+      if (typeof hlUpdateSummary === 'function') hlUpdateSummary();
+    });
+  }
+
+  console.log('CASCADE READY');
+}
+
+// Call with delay to ensure DOM is ready
+setTimeout(initCascadeDropdowns, 800);
 </script>
 </body>
 </html>
